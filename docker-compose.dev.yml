@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+    ports:
+    - 3000:3000
+    volumes:
+    - ./:/app
+
+  mysqldb:
+    image: mysql
+    ports:
+    - 3300:3306
+    environment:
+    - MYSQL_ROOT_PASSWORD=Password
+    volumes:
+    - mysql:/var/lib/mysql
+    - mysql_config:/etc/mysql
+
+volumes:
+  mysql:
+  mysql_config:
