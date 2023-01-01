@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <title>The Chat</title>
+</head>
+<body>
+    <header>
+        <div class="fixed flex px-3.5 py-4 w-full items-center bg-gray-700">
+            <index class="w-full text-2xl text-white">
+                <a href="/">The Chat</a>
+            </index>
+        </div>
+        <div class="h-16 w-full"></div>
+    </header>
+    <main>
+        <div class="flex flex-wrap justify-center items-center h-screen mx-auto py-20 max-w-screen-lg">
+            <div class="flex justify-center items-center w-3/5 px-5">
+                <div class="text-center">
+                    等之後不想補
+                </div>
+            </div>
+            <div class="flex justify-center w-96">
+                <div class="flex flex-wrap shadow-lg w-96 h-80 py-10 mt-50">
+                    <input class="border p-2 rounded mx-auto focus:outline-none w-3/4 h-13 focus:" placeholder="username" type="text"/>
+                    <input class="border p-2 rounded mx-auto focus:outline-none w-3/4 h-13" placeholder="password" type="password"/>
+                    <button class="bg-gray-300 hover:bg-gray-700 p-2 rounded mx-auto w-3/4 h-13">login</button>
+                    <a class="text-center py-2 mx-auto w-3/4" href="*">forget password?</a>
+                    <hr class="border mx-auto mb-2 w-3/4"/>
+                    <button class="bg-green-300 hover:bg-green-700 p-2 rounded mx-auto w-3/5 h-13">create new account</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div id="root"></div>
+    <script src="/static/index.js"></script>
+</body>
+</html>

@@ -1,8 +1,10 @@
-from flask import *
-from application import *
+from fastapi import *
+from backend import *
+import uvicorn
 
 
 app = create_app()
 
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3000, debug=True)
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
