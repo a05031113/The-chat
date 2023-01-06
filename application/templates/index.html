@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <title>The Chat</title>
+</head>
+<body>
+    <header>
+        <div class="fixed flex px-3.5 py-4 w-full items-center bg-gray-700 z-10">
+            <index class="w-full text-2xl text-white">
+                <a href="/">The Chat</a>
+            </index>
+        </div>
+        <div class="h-16 w-full"></div>
+    </header>
+    <main>
+        <div class="flex justify-center items-center mx-auto py-20 min-h-screen max-w-6xl">
+            <div class="flex justify-center items-center w-3/5 px-5">
+                <div class="text-center">
+                    等之後不想補
+                </div>
+            </div>
+            <div class="flex justify-center w-96">
+                <div class="flex flex-wrap shadow-lg w-96 h-fit py-10">
+                    <div class="p-2 mx-auto text-center text-xl focus:outline-none w-3/4 h-16">Login</div>
+                    <input id="loginEmail" class="border p-2 rounded mx-auto focus:outline-none w-3/4 h-12" placeholder="email" type="text"/>
+                    <input id="loginPassword" class="border p-2 rounded mx-auto focus:outline-none w-3/4 h-12" placeholder="password" type="password"/>
+                    <button id="loginBtn" class="bg-gray-300 hover:bg-gray-700 p-2 rounded mx-auto w-3/4 h-12">login</button>
+                    <a class="text-center py-2 mx-auto w-3/4" href="*">forget password?</a>
+                    <hr class="border mx-auto mb-2 w-3/4"/>
+                    <button id="createBtn" class="bg-green-300 hover:bg-green-700 p-2 rounded mx-auto w-3/5 h-12">create new account</button>
+                    <div id="loginErrorMsg" class="text-red-700 mx-auto text-center text-sm w-3/4 h-12"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div id="popup" class="hidden flex-col fixed h-full w-full justify-center left-0 top-0 bg-gray-200 z-2">
+        <div id="popupContent" class="relative flex flex-col justify-center rounded shadow-lg w-96 h-96 min-h-fit py-10 top-36 bg-white">
+            <div class="p-2 mx-auto text-center text-xl w-3/4 h-12">Register</div>
+            <input id="registerName" class="border p-2 rounded mx-auto focus:outline-none w-3/4 h-12" placeholder="name" type="text"/>
+            <input id="registerEmail" class="border p-2 rounded mx-auto focus:outline-none w-3/4 h-12" placeholder="email" type="email"/>
+            <input id="registerPassword" class="border p-2 rounded mx-auto focus:outline-none w-3/4 h-12" placeholder="password" type="password"/>
+            <input id="registerConfirm" class="border p-2 rounded mx-auto focus:outline-none w-3/4 h-12" placeholder="confirmation" type="password"/>
+            <button id="registerBtn" class="bg-gray-300 hover:bg-gray-700 p-2 rounded mx-auto w-3/4 h-12">register</button>        
+            <div class="absolute top-0 left-0 w-full h-12">
+                <img id="leaveBtn" class="absolute right-5 top-5 cursor-pointer" src="/static/img/icon_close.png" alt="">
+            </div>
+            <hr class="border mx-auto my-2 w-3/4"/>
+            <div class="mx-auto text-center text-sm w-3/4 h-12">Password needs at least 8 items with numbers, upper and lower case</div>
+            <div id="registerErrorMsg" class="text-red-700 mx-auto text-center text-sm w-3/4 h-12"></div>
+        </div>
+    </div>
+    <script type="module" src="/static/controller/indexMain.js"></script>
+</body>
+</html>
