@@ -42,13 +42,16 @@ class process():
         Authorize.set_refresh_cookies(refresh_token)
 
     def refresh(Authorize):
-        Authorize.jwt_refresh_token_required()
         current_user = Authorize.get_jwt_subject()
         access_token = Authorize.create_access_token(subject=current_user)
         Authorize.set_access_cookies(access_token)
 
     def logout(Authorize):
         Authorize.unset_jwt_cookies()
+
+    def user_email(Authorize):
+        current_user = Authorize.get_jwt_subject()
+        return current_user
 
 
 class validation:

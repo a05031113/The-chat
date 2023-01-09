@@ -24,6 +24,7 @@ let model = {
             });
             let result = await response.json();
             if (response.status === 200){
+                loading.style.display = "none"
                 return true;
             }else{
                 window.location.href = "/";

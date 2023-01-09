@@ -14,7 +14,8 @@ let model = {
             if (response.status === 200){
                 window.location.href = "/chat"
             }else{
-                view.loginErrorMessage(result.detail);
+                view.hideLoginLoading();
+                view.loginErrorMessage(result.msg);
             }
         }catch(error){
             console.log({"error": error})
@@ -37,7 +38,8 @@ let model = {
                 }
                 model.login(loginData)
             }else{
-                view.registerErrorMessage(result.detail)
+                view.hideRegisterLoading();
+                view.registerErrorMessage(result.msg)
             }
         }catch(error){
             console.log({"error": error})
@@ -55,6 +57,7 @@ let model = {
             if (response.status === 200){
                 window.location.href = "/chat";
             }else{
+                loading.style.display = "none";
                 return false;
             }
         }catch(error){
@@ -87,8 +90,3 @@ let model = {
 }
 export default model;
 
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}

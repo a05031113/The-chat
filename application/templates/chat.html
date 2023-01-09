@@ -4,22 +4,57 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/chat.css">
     <title>The Chat</title>
 </head>
 <body>
     <header>
-        <div class="fixed flex px-3.5 py-4 w-full items-center bg-gray-700 z-10">
-            <index class="w-full text-2xl text-white">
-                <a href="/">The Chat</a>
+        <div class="header-title">
+            <index class="header-title-content">
+                <a class="header-title-link" href="/">The Chat</a>
             </index>
-            <div id="logout" class="w-full text-right cursor-pointer text-white">
-                logout
+            <div class="header-end">
+                <img id="photoIcon" class="header-end-photo" src="/static/img/default_photo.jpeg" alt=""/>
+                <div id="profileBox" class="header-end-personal-box">
+                    <button class="header-end-personal-button">
+                        <img id="profile-icon" class="header-end-photo" src="/static/img/default_photo.jpeg" alt=""/>
+                        profile
+                    </button>
+                    <button class="header-end-personal-button">
+                        <img class="header-end-photo" src="/static/img/icon_setting.png" alt=""/>
+                        setting
+                    </button>
+                    <hr class="header-end-personal-hr">
+                    <button id="logout" class="header-end-personal-button">
+                        <img class="header-end-photo" src="/static/img/icon_logout.png" alt=""/>    
+                        logout
+                    </button>    
+                </div>
             </div>
         </div>
-        <div class="h-16 w-full"></div>
+        <div class="header-space"></div>
     </header>
-    <script type="module" src="/static/controller/ChatMain.js"></script>
+    <main>
+        
+    </main>
+    <div id="popup" class="popup">
+        <div id="popupContent" class="popup-inside">
+            <div class="popup-content">
+                <input id="uploadPhoto" type="file" hidden/>
+                <div id="changePhoto" class="photo-div">
+                    <img id="photoIcon" class="edit-profile-photo" src="/static/img/default_photo.jpeg" alt=""/>
+                    <div class="change-photo-title">change photo</div>
+                </div>
+                <button>save</button>
+            </div>
+            <img id="leaveBtn" class="popup-leave" src="/static/img/icon_close.png" alt="">
+        </div>
+    </div>
+    <div id="loading" class="loading-div">
+        <img class="loadingImg" src="/static/img/loading.gif" alt=""/>
+    </div>
+    <div id="backBlock" class="block"></div>
+    <script type="module" src="/static/js/main/chatMain.js"></script>
 </body>
 </html>
 
