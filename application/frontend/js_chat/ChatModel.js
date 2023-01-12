@@ -1,3 +1,5 @@
+import view from "./ChatView.js";
+
 let model = {
     logout: async function logout(){
         try{
@@ -6,6 +8,7 @@ let model = {
             });
             let result = await response.json();
             if (response.status===200){
+                localStorage.removeItem("headPhoto")
                 window.location.href = "/";
             }else{
                 return false;
@@ -33,5 +36,22 @@ let model = {
             console.log({"error": error})
         }
     },
+    getHeadPhoto: function getHeadPhoto(){
+        const photoUrl = localStorage.getItem("headPhoto");
+        if (photoUrl.length > 50){
+            view.headPhotoFresh(photoUrl);
+        }
+    },
+    updateProfilePhoto: async function updateProfilePhoto(file){
+        const { url } = await fetch("/api/user/upload-url").then(res => res.json())
+        await fetch(url, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "multipart/form-data"
+            },
+            body: file
+        })
+        window.location.reload();
+    }
 }
 export default model;

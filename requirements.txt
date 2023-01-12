@@ -6,3 +6,4 @@ pymongo
 Werkzeug
 python-dotenv
 fastapi-jwt-auth
+boto3

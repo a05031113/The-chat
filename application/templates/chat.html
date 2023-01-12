@@ -40,12 +40,12 @@
     <div id="popup" class="popup">
         <div id="popupContent" class="popup-inside">
             <div class="popup-content">
-                <input id="uploadPhoto" type="file" hidden/>
+                <input id="uploadPhoto" type="file"  hidden/>
                 <div id="changePhoto" class="photo-div">
-                    <img id="photoIcon" class="edit-profile-photo" src="/static/img/default_photo.jpeg" alt=""/>
+                    <img id="changedImg" class="edit-profile-photo" src="/static/img/default_photo.jpeg" alt=""/>
                     <div class="change-photo-title">change photo</div>
                 </div>
-                <button>save</button>
+                <button id="saveProfile">save</button>
             </div>
             <img id="leaveBtn" class="popup-leave" src="/static/img/icon_close.png" alt="">
         </div>
@@ -54,7 +54,7 @@
         <img class="loadingImg" src="/static/img/loading.gif" alt=""/>
     </div>
     <div id="backBlock" class="block"></div>
-    <script type="module" src="/static/js/main/chatMain.js"></script>
+    <script type="module" src="/static/js_chat/ChatMain.js"></script>
 </body>
 </html>
 

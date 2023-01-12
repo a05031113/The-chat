@@ -1,5 +1,5 @@
-import model from "../model/chatModel.js";
-import view from "../view/chatView.js";
+import model from "./ChatModel.js";
+import view from "./ChatView.js";
 
 const logout = document.getElementById("logout");
 const loading = document.getElementById("loading");
@@ -8,10 +8,14 @@ const backBlock = document.getElementById("backBlock");
 const profileBox = document.getElementById("profileBox");
 const changePhoto = document.getElementById("changePhoto");
 const uploadPhoto = document.getElementById("uploadPhoto");
+const changedImg = document.getElementById("changedImg");
+const saveProfile = document.getElementById("saveProfile");
+
 
 let controller = {
     init: async function(){
         await model.refresh();
+        await model.getHeadPhoto();
     }
 };
 controller.init();
@@ -28,3 +32,14 @@ window.addEventListener("click", (event)=>{
 changePhoto.addEventListener("click", ()=>{
     uploadPhoto.click();
 });
+uploadPhoto.addEventListener("change", (event)=>{
+    const file = event.target.files[0];
+    if (file){
+        let src = URL.createObjectURL(file);
+        changedImg.src = src;
+    }
+});
+saveProfile.addEventListener("click", ()=>{
+    const file = uploadPhoto.files[0]
+    model.updateProfilePhoto(file);
+})

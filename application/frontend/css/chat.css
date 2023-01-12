@@ -168,4 +168,5 @@ body{
     border-radius: 50%;
     margin-left: auto;
     margin-right: auto;
+    object-fit: cover;
 }

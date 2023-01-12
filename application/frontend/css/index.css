@@ -156,9 +156,9 @@ body{
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     width: 360px;
     height: fit-content;
-    padding-top: 40px;
-    padding-bottom: 40px;
-    top: 144px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    top: 90px;
     background-color: white;
 }
 .main-popup-content{

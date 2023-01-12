@@ -6,6 +6,10 @@ let view = {
     leaveProfile: function leaveProfile(){
         profileBox.style.display = "none";
         backBlock.style.display = "none";
+    },
+    headPhotoFresh: function headPhotoFresh(url){
+        photoIcon.src = url;
+        changedImg.src = url;
     }
 }
 export default view

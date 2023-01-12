@@ -1,5 +1,5 @@
-import model from "../model/indexModel.js";
-import view from "../view/indexView.js";
+import model from "./IndexModel.js";
+import view from "./indexView.js";
 
 const loginEmail = document.getElementById("loginEmail");
 const loginPassword = document.getElementById("loginPassword");
@@ -17,6 +17,7 @@ const registerErrorMsg = document.getElementById("registerErrorMsg");
 const loading = document.getElementById("loading");
 const loginLoading = document.getElementById("loginLoading");
 const registerLoading = document.getElementById("registerLoading");
+
 
 
 let controller = {
@@ -70,7 +71,6 @@ registerBtn.addEventListener("click", ()=>{
     }
     model.register(data);
 });
-
 createBtn.addEventListener("click", view.showRegister);
 
 leaveBtn.addEventListener("click", view.closeRegister);

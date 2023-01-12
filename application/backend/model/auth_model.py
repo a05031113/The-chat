@@ -5,29 +5,23 @@ from pydantic import *
 from .database import *
 from datetime import *
 from dotenv import load_dotenv
+import os
 import re
 load_dotenv()
 
 
-class user_data():
-    def __init__(self):
-        self.db = database()
-        self.collection = self.db.users
-
-    def register(self, input):
-        self.collection.insert_one(input)
-
-    def search_user(self, input):
-        check_email = {"email": input}
-        return self.collection.find_one(check_email)
-
-
 class process():
     def register(register_data):
+        id = register_data.email.split("@")[0]
         output = {
-            "name": register_data.name,
-            "email": register_data.email,
-            "password": generate_password_hash(register_data.password)
+            "user_information": {
+                "name": register_data.name,
+                "id": id,
+                "email": register_data.email,
+                "password": generate_password_hash(register_data.password),
+                "head-photo": "none"
+            },
+            "messages": {}
         }
         return output
 
@@ -35,9 +29,9 @@ class process():
         access_expires = timedelta(days=1)
         refresh_expires = timedelta(days=7)
         access_token = Authorize.create_access_token(
-            subject=user["email"], expires_time=access_expires)
+            subject=str(user["_id"]), expires_time=access_expires)
         refresh_token = Authorize.create_refresh_token(
-            subject=user["email"], expires_time=refresh_expires)
+            subject=str(user["_id"]), expires_time=refresh_expires)
         Authorize.set_access_cookies(access_token)
         Authorize.set_refresh_cookies(refresh_token)
 
@@ -49,7 +43,7 @@ class process():
     def logout(Authorize):
         Authorize.unset_jwt_cookies()
 
-    def user_email(Authorize):
+    def user_id(Authorize):
         current_user = Authorize.get_jwt_subject()
         return current_user
 

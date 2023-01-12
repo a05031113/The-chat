@@ -1,4 +1,4 @@
-import view from "../view/indexView.js";
+import view from "./indexView.js";
 
 let model = {
     login: async function login(data){
@@ -12,12 +12,14 @@ let model = {
             });
             const result = await response.json();
             if (response.status === 200){
-                window.location.href = "/chat"
+                localStorage.setItem("headPhoto", result.data.headPhoto);
+                window.location.href = "/chat";
             }else{
                 view.hideLoginLoading();
                 view.loginErrorMessage(result.msg);
             }
         }catch(error){
+            view.hideLoginLoading();
             console.log({"error": error})
         }
     },

@@ -1,0 +1,16 @@
+{
+	"_id" : ObjectId("63bd887b7872d2e6859fa07e"),
+    "user_information":{
+        "name" : "",
+        "id" : "",
+        "email" : "",
+        "password" : ""
+        "head-photo": "none"
+    }
+	"messages": {
+		"abc": [
+			{"msg": "fuck", "time": 1200},
+			{"msg": "suck", "time": 1200}
+		]
+	}
+}
