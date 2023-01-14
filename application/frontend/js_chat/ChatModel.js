@@ -43,7 +43,15 @@ let model = {
         }
     },
     updateProfilePhoto: async function updateProfilePhoto(file){
-        const { url } = await fetch("/api/user/upload-url").then(res => res.json())
+        const response = await fetch("/api/user/upload-url", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
+        const result = await response.json();
+        const url = result.accessUrl.url;
+        const photoUrl = result.photoUrl;
         await fetch(url, {
             method: "PUT",
             headers: {
@@ -51,7 +59,8 @@ let model = {
             },
             body: file
         })
-        window.location.reload();
+        localStorage.setItem("headPhoto", photoUrl);
+        location.reload();
     }
 }
 export default model;

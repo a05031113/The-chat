@@ -1,4 +1,4 @@
-import model from "./ChatModel.js";
+import model from "./chatModel.js";
 import view from "./ChatView.js";
 
 const logout = document.getElementById("logout");
@@ -37,6 +37,7 @@ uploadPhoto.addEventListener("change", (event)=>{
     if (file){
         let src = URL.createObjectURL(file);
         changedImg.src = src;
+        // avc
     }
 });
 saveProfile.addEventListener("click", ()=>{

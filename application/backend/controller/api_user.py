@@ -17,6 +17,6 @@ async def get_R2_url(Authorize: AuthJWT = Depends()):
         file_name = current_user + "_profile_photo"
         photo_url = "https://pub-6cd56288498e4af5b3650c296ca21e82.r2.dev/" + file_name
         database_user().head_photo_url(photo_url, current_user)
-        return r2().get_put_url(file_name)
+        return {"accessUrl": r2().get_put_url(file_name), "photoUrl": photo_url}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": True, "msg": str(e)})
