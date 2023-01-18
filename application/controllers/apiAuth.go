@@ -84,6 +84,9 @@ func Login(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"login": true})
 }
+func Refresh(c *gin.Context) {
+
+}
 
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
