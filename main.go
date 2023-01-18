@@ -1,7 +1,7 @@
 package main
 
 import (
-	"the-chat/route"
+	"the-chat/application/route"
 
 	"github.com/gin-gonic/gin"
 )

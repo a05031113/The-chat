@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"the-chat/database"
-	"the-chat/models"
+	"the-chat/application/database"
+	"the-chat/application/models"
 	"time"
 
 	"github.com/gin-gonic/gin"
