@@ -14,7 +14,7 @@ import (
 func mongoDB() *mongo.Client {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal("Error loading")
+		log.Fatal("Error loading .env")
 	}
 
 	DB := os.Getenv("cosmosDB")
@@ -36,6 +36,6 @@ func mongoDB() *mongo.Client {
 var Client *mongo.Client = mongoDB()
 
 func OpenCollection(client *mongo.Client, collectionName string) *mongo.Collection {
-	var collection *mongo.Collection = client.Database("chat_data").Collection(collectionName)
+	var collection *mongo.Collection = client.Database("chat").Collection(collectionName)
 	return collection
 }

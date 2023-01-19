@@ -221,7 +221,7 @@ body{
     width: calc(75% + 18px);
     height: 48px;
     z-index: 5;
-    top: 315px;
+    top: 295px;
 }
 .api-loading-gif{
     height: 48px;

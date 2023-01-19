@@ -15,6 +15,7 @@ func main() {
 	route.AddHtmlRouter(html)
 
 	api := router.Group("/api")
-	route.AddAuthRouter(api)
+	route.AddApiRouter(api)
+
 	router.Run(":3000")
 }

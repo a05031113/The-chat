@@ -2,6 +2,7 @@ package route
 
 import (
 	"the-chat/application/controllers"
+	"the-chat/application/middleware"
 	"the-chat/application/render"
 
 	"github.com/gin-gonic/gin"
@@ -13,10 +14,13 @@ func AddHtmlRouter(r *gin.RouterGroup) {
 	html.GET("/chat", render.Chat)
 }
 
-func AddAuthRouter(r *gin.RouterGroup) {
-	auth := r.Group("/auth")
-	auth.GET("/user/:email", controllers.GetUserData)
-	auth.POST("/", controllers.Register)
-	auth.PUT("/", controllers.Login)
-	auth.GET("/refresh", controllers.Refresh)
+func AddApiRouter(r *gin.RouterGroup) {
+	api := r.Group("/")
+	api.GET("/auth/user", middleware.Require, controllers.GetUserData)
+	api.POST("/auth", controllers.Register)
+	api.PUT("/auth", controllers.Login)
+	api.GET("/refresh", middleware.RequireRefresh, controllers.Refresh)
+	api.DELETE("/logout", middleware.RequireRefresh, controllers.Logout)
+
+	api.GET("/user/presigned", middleware.Require, controllers.Presigned)
 }
