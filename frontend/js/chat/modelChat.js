@@ -1,27 +1,4 @@
-const logout = document.getElementById("logout");
-const loading = document.getElementById("loading");
-const photoIcon = document.getElementById("photoIcon");
-const backBlock = document.getElementById("backBlock");
-const profileBox = document.getElementById("profileBox");
-const changePhoto = document.getElementById("changePhoto");
-const uploadPhoto = document.getElementById("uploadPhoto");
-const changedImg = document.getElementById("changedImg");
-const saveProfile = document.getElementById("saveProfile");
-
-let view = {
-    enterProfile: function enterProfile(){
-        profileBox.style.display = "flex";
-        backBlock.style.display = "block";
-    },
-    leaveProfile: function leaveProfile(){
-        profileBox.style.display = "none";
-        backBlock.style.display = "none";
-    },
-    headPhotoFresh: function headPhotoFresh(url){
-        photoIcon.src = url;
-        changedImg.src = url;
-    }
-}
+import view from "./viewChat.js";
 
 let model = {
     logout: async function logout(){
@@ -87,34 +64,4 @@ let model = {
     }
 }
 
-logout.addEventListener("click", ()=>{
-    model.logout();
-});
-photoIcon.addEventListener("click", view.enterProfile);
-window.addEventListener("click", (event)=>{
-    if (event.target === backBlock){
-        view.leaveProfile();
-    }
-});
-changePhoto.addEventListener("click", ()=>{
-    uploadPhoto.click();
-});
-uploadPhoto.addEventListener("change", (event)=>{
-    const file = event.target.files[0];
-    if (file){
-        let src = URL.createObjectURL(file);
-        changedImg.src = src;
-        // avc
-    }
-});
-saveProfile.addEventListener("click", ()=>{
-    const file = uploadPhoto.files[0]
-    model.updateProfilePhoto(file);
-})
-
-let controller = {
-    init: async function(){
-        await model.refresh();
-    }
-};
-controller.init();
+export default model;
