@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/css/chat.css">
+    <title>The Chat</title>
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <index class="header-title-content">
+                <a class="header-title-link" href="/">The Chat</a>
+            </index>
+            <div class="header-end">
+                <img id="photoIcon" class="header-end-photo" src="/static/img/default_photo.jpeg" alt=""/>
+                <div id="profileBox" class="header-end-personal-box">
+                    <button class="header-end-personal-button">
+                        <img id="profile-icon" class="header-end-photo" src="/static/img/default_photo.jpeg" alt=""/>
+                        profile
+                    </button>
+                    <button class="header-end-personal-button">
+                        <img class="header-end-photo" src="/static/img/icon_setting.png" alt=""/>
+                        setting
+                    </button>
+                    <hr class="header-end-personal-hr">
+                    <button id="logout" class="header-end-personal-button">
+                        <img class="header-end-photo" src="/static/img/icon_logout.png" alt=""/>    
+                        logout
+                    </button>    
+                </div>
+            </div>
+        </div>
+        <div class="header-space"></div>
+    </header>
+    <main>
+        
+    </main>
+    <div id="popup" class="popup">
+        <div id="popupContent" class="popup-inside">
+            <div class="popup-content">
+                <input id="uploadPhoto" type="file" accept=".png, .jpg, .jpeg" hidden/>
+                <div id="changePhoto" class="photo-div">
+                    <img id="changedImg" class="edit-profile-photo" src="/static/img/default_photo.jpeg" alt=""/>
+                    <div class="change-photo-title">change photo</div>
+                </div>
+                <button id="saveProfile">save</button>
+            </div>
+            <img id="leaveBtn" class="popup-leave" src="/static/img/icon_close.png" alt="">
+        </div>
+    </div>
+    <div id="loading" class="loading-div">
+        <img class="loadingImg" src="/static/img/loading.gif" alt=""/>
+    </div>
+    <div id="backBlock" class="block"></div>
+    <script type="module" src="/static/js/chat.js"></script>
+</body>
+</html>
+

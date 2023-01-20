@@ -1,10 +1,10 @@
-FROM python:3.9-slim-buster
+FROM golang:1.19-alpine
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
-
 COPY . .
+RUN go mod download
 
-CMD ["python3", "app.py"]
+RUN go build -o app .
+
+CMD [ "./app" ]
