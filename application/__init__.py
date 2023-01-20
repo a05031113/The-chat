@@ -1,14 +1,24 @@
-from flask import Flask
-from .backend.controller import *
+from fastapi import *
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from application.backend.route import *
+from application.backend.controller.api_auth import *
+from application.backend.controller.api_user import *
 
 
 def create_app():
-    app = Flask(__name__, static_folder="frontend", static_url_path="/static")
-
-    with app.app_context():
-        app.config["JSON_AS_ASCII"] = False
-        app.config["TEMPLATES_AUTO_RELOAD"] = True
-
-        app.register_blueprint(index_controller)
+    app = FastAPI()
+    app.mount(
+        "/static", StaticFiles(directory="./application/frontend"), name="static")
+    app.include_router(router)
+    app.include_router(api_auth)
+    app.include_router(api_user)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     return app
