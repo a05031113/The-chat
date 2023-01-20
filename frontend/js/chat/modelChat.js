@@ -48,7 +48,6 @@ let model = {
             }
         });
         const result = await response.json();
-        console.log(result)
         const url = result.PresignedUrl;
         const photoUrl = result.PhotoUrl;
         await fetch(url, {
