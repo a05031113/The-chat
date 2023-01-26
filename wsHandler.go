@@ -1,10 +1,10 @@
-package ws
+package main
 
 import (
 	"log"
+	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
@@ -32,33 +32,23 @@ type connection struct {
 	send chan []byte
 }
 
-// var h = Hub{
-// 	broadcast:  make(chan message),
-// 	register:   make(chan subscription),
-// 	unregister: make(chan subscription),
-// 	rooms:      make(map[string]map[*connection]bool),
-// }
-
-type Handler struct {
-	hub *Hub
+var h = Hub{
+	broadcast:  make(chan message),
+	register:   make(chan subscription),
+	unregister: make(chan subscription),
+	rooms:      make(map[string]map[*connection]bool),
 }
 
-func NewHandler(h *Hub) *Handler {
-	return &Handler{
-		hub: h,
-	}
-}
-
-func (h *Handler) ServeWs(c *gin.Context) {
-	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+func ServeWs(w http.ResponseWriter, r *http.Request, roomId string) {
+	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
-	var roomId string = "5"
+
 	conn := &connection{send: make(chan []byte, 256), ws: ws}
 	subscript := subscription{conn, roomId}
-	h.hub.register <- subscript
+	h.register <- subscript
 	go subscript.writePump()
 	go subscript.readPump()
 }

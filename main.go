@@ -4,7 +4,6 @@ import (
 	"the-chat/application/controllers"
 	"the-chat/application/middleware"
 	"the-chat/application/render"
-	"the-chat/application/ws"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,14 +31,13 @@ func main() {
 	api.GET("/chat/addData", middleware.Require, controllers.AddData)
 	api.POST("/chat/checkAdded", middleware.Require, controllers.CheckAdded)
 
-	hub := ws.NewHub()
-	wsHandler := ws.NewHandler(hub)
-	go hub.Run()
+	go h.Run()
 
 	wsRoute := router.Group("/ws")
-	ws.AddWsRouter(wsRoute, wsHandler)
-
-	go h.run()
+	wsRoute.GET("/:roomId", func(c *gin.Context) {
+		roomId := c.Param("roomId")
+		ServeWs(c.Writer, c.Request, roomId)
+	})
 
 	router.Run("0.0.0.0:3000")
 }
