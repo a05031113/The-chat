@@ -12,8 +12,6 @@ let model = {
             });
             const result = await response.json();
             if (response.status === 200){
-                console.log(result.headPhoto)
-                localStorage.setItem("headPhoto", result.headPhoto)
                 window.location.href = "/chat";
             }else{
                 view.hideLoginLoading();
@@ -59,7 +57,6 @@ let model = {
             if (response.status === 200){
                 window.location.href = "/chat";
             }else{
-                loading.style.display = "none";
                 return false;
             }
         }catch(error){

@@ -17,5 +17,8 @@ func main() {
 	api := router.Group("/api")
 	route.AddApiRouter(api)
 
+	ws := router.Group("/ws")
+	route.AddWsRouter(ws)
+
 	router.Run(":3000")
 }

@@ -70,6 +70,7 @@ leaveBtn.addEventListener("click", view.closeRegister);
 let controller = {
     init: async function(){
         await model.refresh();
+        loading.style.display = "none";
     }
 };
 controller.init();

@@ -11,24 +11,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"gopkg.in/mgo.v2/bson"
 )
 
 var userCollection *mongo.Collection = database.OpenCollection(database.Client, "users")
 var validate = validator.New()
-
-func GetUserData(c *gin.Context) {
-	id, _ := c.Get("id")
-	username, _ := c.Get("username")
-	email, _ := c.Get("email")
-
-	var user models.User
-	user.ID = id.(string)
-	user.Email = email.(string)
-	user.Username = username.(string)
-	c.JSON(http.StatusOK, user)
-}
 
 func Register(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -81,13 +69,13 @@ func Register(c *gin.Context) {
 	signUp.Email = register.Email
 	signUp.Password = hashPass
 
-	resultInsertNumber, insertErr := userCollection.InsertOne(ctx, signUp)
+	_, insertErr := userCollection.InsertOne(ctx, signUp)
 	if insertErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error while insert data"})
 		return
 	}
 	defer cancel()
-	c.JSON(http.StatusOK, resultInsertNumber)
+	c.JSON(http.StatusOK, gin.H{"register": "success"})
 }
 
 func Login(c *gin.Context) {
@@ -96,7 +84,7 @@ func Login(c *gin.Context) {
 	var foundUser models.FoundUser
 
 	if err := c.BindJSON(&login); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "check"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
