@@ -1,4 +1,4 @@
-package webSocket
+package ws
 
 type Hub struct {
 	rooms      map[string]map[*connection]bool
@@ -17,7 +17,16 @@ type message struct {
 	room string
 }
 
-func (h *Hub) run() {
+func NewHub() *Hub {
+	return &Hub{
+		broadcast:  make(chan message),
+		register:   make(chan subscription),
+		unregister: make(chan subscription),
+		rooms:      make(map[string]map[*connection]bool),
+	}
+}
+
+func (h *Hub) Run() {
 	for {
 		select {
 		case s := <-h.register:

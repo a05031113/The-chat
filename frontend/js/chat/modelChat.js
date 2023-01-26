@@ -190,7 +190,7 @@ let model = {
                     const log = document.getElementById("chatRoom");
 
                     if (window["WebSocket"]){
-                        let conn = new WebSocket("ws://" + document.location.host + "/ws/");
+                        let conn = new WebSocket("ws://" + document.location.host + "/ws/5");
                         conn.onclose = function (evt) {
                             let item = document.createElement("div");
                             item.innerHTML = "<b>Connection closed.</b>";
@@ -198,6 +198,7 @@ let model = {
                         };
                         conn.onmessage = function (evt) {
                             let messages = evt.data.split('\n');
+                            console.log(evt)
                             for (let i = 0; i < messages.length; i++) {
                                 let item = document.createElement("div");
                                 item.innerText = messages[i];
@@ -215,7 +216,7 @@ let model = {
                         messageInput.addEventListener("keypress", (event)=>{
                             if (event.key === "Enter"){
                                 console.log(messageInput.value)
-                                conn.send(messageInput.value);
+                                conn.send(username+messageInput.value);
                                 messageInput.value = "";
                             }
                         });
