@@ -1,4 +1,4 @@
-package main
+package ws
 
 type Hub struct {
 	rooms      map[string]map[*connection]bool
@@ -17,14 +17,9 @@ type message struct {
 	room string
 }
 
-// func NewHub() *Hub {
-// 	return &Hub{
-// 		broadcast:  make(chan message),
-// 		register:   make(chan subscription),
-// 		unregister: make(chan subscription),
-// 		rooms:      make(map[string]map[*connection]bool),
-// 	}
-// }
+func NewHub() *Hub {
+	return &h
+}
 
 func (h *Hub) Run() {
 	for {
