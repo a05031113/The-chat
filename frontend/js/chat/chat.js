@@ -118,7 +118,6 @@ let controller = {
         const roomResponse = await model.getRooms();
         roomList = roomResponse.data;
         loading.style.display = "none";
-        console.log(roomList)
         addData = addResponse.add;
         addedData = addResponse.added;
     },
