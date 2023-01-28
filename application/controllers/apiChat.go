@@ -110,7 +110,6 @@ func AddData(c *gin.Context) {
 	}
 
 	var addOutput []primitive.ObjectID
-	fmt.Println("Add")
 	for _, result := range addResults {
 		addOutput = append(addOutput, result["addedid"].(primitive.ObjectID))
 	}
@@ -121,7 +120,6 @@ func AddData(c *gin.Context) {
 	}
 
 	var addedOutput []primitive.ObjectID
-	fmt.Println("Added")
 	for _, result := range addedResults {
 		addedOutput = append(addedOutput, result["addid"].(primitive.ObjectID))
 	}
@@ -141,9 +139,6 @@ func CheckAdded(c *gin.Context) {
 	primitiveAddId, _ := primitive.ObjectIDFromHex(checkAddedData.ID)
 	primitiveUserId, _ := primitive.ObjectIDFromHex(userID.(string))
 
-	userUpdate := bson.M{"$push": bson.M{"friend": primitiveAddId}}
-	addUpdate := bson.M{"$push": bson.M{"friend": primitiveUserId}}
-
 	count, err := addFriendCollection.CountDocuments(ctx, bson.M{"_id": primitiveUserId, "friend": primitiveAddId})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -154,6 +149,8 @@ func CheckAdded(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "already sent"})
 		return
 	}
+	userUpdate := bson.M{"$push": bson.M{"friend": primitiveAddId}}
+	addUpdate := bson.M{"$push": bson.M{"friend": primitiveUserId}}
 
 	userUpdateResult, err := userCollection.UpdateOne(ctx, bson.M{"_id": primitiveUserId}, userUpdate)
 	addedUpdateResult, err := userCollection.UpdateOne(ctx, bson.M{"_id": primitiveAddId}, addUpdate)

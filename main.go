@@ -32,14 +32,15 @@ func main() {
 	api.GET("/chat/addData", middleware.Require, controllers.AddData)
 	api.POST("/chat/checkAdded", middleware.Require, controllers.CheckAdded)
 
+	api.POST("/messages/send", middleware.Require, controllers.Send)
+	api.POST("/messages/room", middleware.Require, controllers.Room)
+	api.GET("/messages/room", middleware.Require, controllers.GetRoom)
+
 	var hub = ws.NewHub()
 	go hub.Run()
 
 	wsRoute := router.Group("/ws")
-	wsRoute.GET("/:roomId", func(c *gin.Context) {
-		roomId := c.Param("roomId")
-		ws.ServeWs(c.Writer, c.Request, roomId)
-	})
+	wsRoute.GET("/:roomId", ws.ServeWs)
 
 	router.Run("0.0.0.0:3000")
 }

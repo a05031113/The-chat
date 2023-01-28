@@ -100,11 +100,15 @@ let model = {
     chatMode: function chatMode(){
         console.log("chatMode")
     },
-    addMode: function addMode(allUserData, addData){
+    addMode: function addMode(allUserData, userData, addData){
         let addSent;
         for (let i = 0; i < allUserData.data.length; i++){
             if (searchInput.value === allUserData.data[i].username){
-                if (addData){
+                if (userData.Friend.includes(allUserData.data[i]._id)){
+                    view.showPopup();
+                    view.friendAlready(allUserData.data[i]);
+                    return false;
+                }else if (addData){
                     if (addData.includes(allUserData.data[i]._id)){
                         addSent = true;
                         view.showPopup();
@@ -171,63 +175,101 @@ let model = {
             console.log({"error": error})
         }
     },
-    addFriendClick: function addClick(className){
-        let friendList= document.querySelectorAll(className);
-        for (let i=0; i<friendList.length; i++){
-            friendList[i].addEventListener("click", (event)=>{
-                let src = event.currentTarget.firstElementChild.src;
-                let username = event.currentTarget.lastElementChild.textContent;
-                view.showPopup();
-                view.friendChat(src, username);
-                const friendStartChat = document.getElementById("friendStartChat");
-                const friendStartCall = document.getElementById("friendStartCall");
-                const friendStartVideoCall = document.getElementById("friendStartVideoCall");
-                friendStartChat.addEventListener("click", ()=>{
-                    view.chatBox(src, username);
-                    view.leavePopup()
-                    const messageInput = document.getElementById("messageInput");
-                    const messageSend = document.getElementById("messageSend");
-                    const log = document.getElementById("chatRoom");
-
-                    if (window["WebSocket"]){
-                        let conn = new WebSocket("ws://" + document.location.host + "/ws/5");
-                        conn.onclose = function (evt) {
-                            let item = document.createElement("div");
-                            item.innerHTML = "<b>Connection closed.</b>";
-                            appendLog(item);
-                        };
-                        conn.onmessage = function (evt) {
-                            let messages = evt.data.split('\n');
-                            console.log(evt)
-                            for (let i = 0; i < messages.length; i++) {
-                                let item = document.createElement("div");
-                                item.innerText = messages[i];
-                                appendLog(item);
-                            }
-                        };
-                        function appendLog(item) {
-                            let doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
-                            log.appendChild(item);
-                            if (doScroll) {
-                                log.scrollTop = log.scrollHeight - log.clientHeight;
-                            }
-                        }
-                        
-                        messageInput.addEventListener("keypress", (event)=>{
-                            if (event.key === "Enter"){
-                                console.log(messageInput.value)
-                                conn.send(username+messageInput.value);
-                                messageInput.value = "";
-                            }
-                        });
-    
-                    }else {
-                        let item = document.createElement("div");
-                        item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
-                        appendLog(item);
-                    }
-                });
+    makeRoomId: function makeRoomId(username, userData, allUserData){
+        let idList = [userData.ID];
+        for (let i=0; i<allUserData.length; i++){
+            if (username === allUserData[i].username){
+                idList.push(allUserData[i]._id);
+            }
+        }
+        idList.sort();
+        let roomId = idList[0] + "," + idList[1];
+        return roomId;
+    },
+    sendMessage: async function sendMessage(data){
+        try{
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }  
+            const response = await fetch("/api/messages/send", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    "Content-type": "application/json",
+                }
             });
+            if (response.status === 200){
+                return true;
+            }else{
+                return false;
+            }
+        }catch(error){
+            console.log(error)
+        }
+    },
+    getRooms: async function getRooms(){
+        try{ 
+            const response = await fetch("/api/messages/room", {
+                method: "GET",
+                headers: {
+                    "Content-type": "application/json",
+                }
+            });
+            const result = await response.json()
+            if (response.status === 200){
+                return result;
+            }else{
+                return false
+            }
+        }catch(error){
+            console.log(error)
+        }
+    }, 
+    getMessage: async function getMessage(data){
+        try{
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }  
+            const response = await fetch("/api/messages/room", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    "Content-type": "application/json",
+                }
+            });
+            const result = await response.json()
+            if (response.status === 200){
+                return result;
+            }else{
+                return false
+            }
+        }catch(error){
+            console.log(error)
+        }
+    },
+    showMessage: async function showMessage(roomId){
+        const roomData = {"roomId": roomId}
+        const roomResult = await model.getMessage(roomData)
+        if (roomResult.data){
+            const messages = roomResult.data.message
+
+            for (let i=0; i<messages.length; i++){
+                if (messages[i].sendId === userData.ID){
+                    let message = messages[i].content
+                    let timeNow = new Date(messages[i].time)
+                    let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
+                    let dateTime = timeNow.getHours() + ":" + timeMinutes; 
+                    view.myMessages(dateTime, message)
+                }else{
+                    let message = messages[i].content
+                    let timeNow = new Date(messages[i].time)
+                    let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
+                    let dateTime = timeNow.getHours() + ":" + timeMinutes; 
+                    view.friendMessages(dateTime, message)
+                }
+            }    
         }
     }
 }

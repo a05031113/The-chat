@@ -1,47 +1,6 @@
 import model from "./modelChat.js";
 import view from "./viewChat.js";
 
-const logout = document.getElementById("logout");
-const loading = document.getElementById("loading");
-const photoIcon = document.getElementById("photoIcon");
-const profileIcon = document.getElementById("profileIcon");
-const backBlock = document.getElementById("backBlock");
-const profileBox = document.getElementById("profileBox");
-
-const chatBoxContent = document.getElementById("chatBoxContent");
-
-let changePhoto;
-let uploadPhoto;
-let saveProfile;
-let changedImg;
-
-let addFriendBtn;
-
-const popup = document.getElementById("popup");
-const popupContent = document.getElementById("popupContent");
-const leaveBtn = document.getElementById("leaveBtn");
-const profileSetup = document.getElementById("profileSetup");
-
-const friendBtn = document.getElementById("friendBtn");
-const chatBtn = document.getElementById("chatBtn");
-const addBtn = document.getElementById("addBtn");
-const searchInput = document.getElementById("searchInput");
-const searchBtn = document.getElementById("searchBtn");
-
-const listContent = document.getElementById("listContent");
-
-let allUserData;
-let addData;
-let addedData;
-let userData;
-
-let friendMode = true;
-let chatMode = false;
-let addMode = false;
-
-
-
-
 
 logout.addEventListener("click", ()=>{
     model.logout();
@@ -83,58 +42,28 @@ profileSetup.addEventListener("click", ()=>{
     });
 });
 
-friendBtn.addEventListener("click", async ()=>{
+friendBtn.addEventListener("click", ()=>{
     friendMode = true;
     chatMode = false;
     addMode = false;
     view.showFriend(userData.Friend, allUserData);
-    model.addFriendClick(".friend-list");
+    controller.friendClick(allUserData.data, userData);
 });
 
-chatBtn.addEventListener("click", async ()=>{
+chatBtn.addEventListener("click", ()=>{
     friendMode = false;
     chatMode = true;
     addMode = false;
-    view.showChat();
+    view.showChat(userData, allUserData, roomList);
+    controller.chatClick(allUserData, userData);
 });
 
-addBtn.addEventListener("click", async ()=>{
+addBtn.addEventListener("click", ()=>{
     friendMode = false;
     chatMode = false;
     addMode = true;
     view.showAdd(allUserData, addedData);
-    let addFriendList = document.querySelectorAll(".add-added-friend");
-    for (let i=0; i<addFriendList.length; i++){
-        addFriendList[i].addEventListener("click", async (event)=>{
-            view.showPopup();
-            view.checkAdd(event.currentTarget.firstElementChild.src, event.currentTarget.lastElementChild.textContent);
-            const checkAddedBtn = document.getElementById("checkAddedBtn");
-            const data = {
-                "id": addedData[addFriendList.length - i - 1]
-            }
-            checkAddedBtn.addEventListener("click", async ()=>{
-                let auth = await model.refresh();
-                if (!auth){
-                    return false;
-                }
-                let addStatus = await model.checkAdded(data)
-                if (!addStatus){
-                    return false;
-                }
-                if (!userData.Friend){
-                    userData.Friend = [addedData[addFriendList.length - i - 1]];
-                }else{
-                    userData.Friend.push(addedData[addFriendList.length - i - 1]);
-                }
-                const index = addedData.indexOf(addedData[addFriendList.length - i - 1]);
-                if (index > -1){
-                    addedData.splice(index, 1);
-                }
-                view.leavePopup();
-                view.showAdd(allUserData, addedData);
-            });
-        });
-    };
+    controller.addClick(userData, allUserData, addedData)
 });
 
 searchInput.addEventListener("change", async ()=>{
@@ -153,7 +82,7 @@ searchInput.addEventListener("change", async ()=>{
     }else if(chatMode){
         model.chatMode();
     }else if(addMode){
-        let searchResult = await model.addMode(allUserData, addData);
+        let searchResult = await model.addMode(allUserData, userData, addData);
         if (searchResult){
             addFriendBtn = document.getElementById("addFriendBtn");
             addFriendBtn.addEventListener("click", async ()=>{
@@ -176,22 +105,155 @@ searchInput.addEventListener("change", async ()=>{
     searchInput.value = "";
 });
 
-
-
 let controller = {
     init: async function(){
         await model.refresh();
         userData = await model.getUserData();
         allUserData = await model.allUser();
-        console.log(allUserData)
-        console.log(userData)
         model.loadHeadPhoto(userData.HeadPhoto);
         view.showFriend(userData.Friend, allUserData);
+        controller.friendClick(allUserData.data, userData);
         loading.style.display = "none";
-        model.addFriendClick(".friend-list");
         const addResponse = await model.addData();
+        const roomResponse = await model.getRooms();
+        roomList = roomResponse.data;
+        loading.style.display = "none";
+        console.log(roomList)
         addData = addResponse.add;
         addedData = addResponse.added;
     },
+    friendClick: function friendClick(){
+        let friendList= document.querySelectorAll(".friend-list");
+        for (let i=0; i<friendList.length; i++){
+            friendList[i].addEventListener("click", (event)=>{
+                let src = event.currentTarget.firstElementChild.src;
+                let username = event.currentTarget.lastElementChild.textContent;
+                view.showPopup();
+                view.friendChat(src, username);
+                const friendStartChat = document.getElementById("friendStartChat");
+                const friendStartCall = document.getElementById("friendStartCall");
+                const friendStartVideoCall = document.getElementById("friendStartVideoCall");
+                friendStartChat.addEventListener("click", ()=>{
+                    view.chatBox(src, username);
+                    view.leavePopup();
+                    view.showChat(userData, allUserData, roomList);
+                    controller.enterChatRoom(username);
+                    controller.chatClick();
+                });
+            });
+        }
+    },
+    chatClick: function chatClick(){
+        let chatList = document.querySelectorAll(".chat-list");
+        for (let i=0; i<chatList.length; i++){
+            chatList[i].addEventListener("click", (event)=>{
+                let src = event.currentTarget.firstElementChild.src;
+                let username = event.currentTarget.children[1].children[0].innerText;
+                view.chatBox(src, username);
+                controller.enterChatRoom(username);
+            });
+        }
+    },
+    addClick: function addClick(userData, allUserData, addedData){
+        let addFriendList = document.querySelectorAll(".add-added-friend");
+        for (let i=0; i<addFriendList.length; i++){
+            addFriendList[i].addEventListener("click", async (event)=>{
+                view.showPopup();
+                view.checkAdd(event.currentTarget.firstElementChild.src, event.currentTarget.lastElementChild.textContent);
+                const checkAddedBtn = document.getElementById("checkAddedBtn");
+                const data = {
+                    "id": addedData[addFriendList.length - i - 1]
+                }
+                checkAddedBtn.addEventListener("click", async ()=>{
+                    let auth = await model.refresh();
+                    if (!auth){
+                        return false;
+                    }
+                    let addStatus = await model.checkAdded(data)
+                    if (!addStatus){
+                        return false;
+                    }
+                    if (!userData.Friend){
+                        userData.Friend = [addedData[addFriendList.length - i - 1]];
+                    }else{
+                        userData.Friend.push(addedData[addFriendList.length - i - 1]);
+                    }
+                    const index = addedData.indexOf(addedData[addFriendList.length - i - 1]);
+                    if (index > -1){
+                        addedData.splice(index, 1);
+                    }
+                    view.leavePopup();
+                    view.showAdd(allUserData, addedData);
+                });
+            });
+        };
+    },
+
+    enterChatRoom: async function enterChatRoom(username){
+        const messageInput = document.getElementById("messageInput");
+        const messageSend = document.getElementById("messageSend");
+        const chatRoom = document.getElementById("chatRoom");
+        const roomId = model.makeRoomId(username, userData, allUserData.data);
+        await model.showMessage(roomId);
+
+        let conn = new WebSocket("ws://" + document.location.host + "/ws/" + roomId);
+        conn.onclose = function () {
+            console.log("connection close")
+        };
+        conn.onmessage = function (evt) {
+            let userInfo = evt.data.split("::?")[0];
+            let messages = evt.data.split("::?")[1];
+            let userInfoUser = userInfo.split(":?")[0];
+            let time = userInfo.split(":?")[1];
+
+            if (userData.Username === userInfoUser){
+                view.myMessages(time, messages);
+            }else{
+                view.friendMessages(time, messages);
+            }
+            chatRoom.scrollTop = chatRoom.scrollHeight;
+        };
+        
+        messageInput.addEventListener("change", ()=>{
+            if (messageInput.value.trim() === ""){
+                return false;
+            }
+            let timeNow = new Date();
+            let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
+            let dateTime = timeNow.getHours() + ":" + timeMinutes; 
+            const data = {
+                "roomId": roomId,
+                "content": messageInput.value,
+                "sendTime": timeNow,
+                "type": "string"
+            }
+
+            controller.updateRoomList(roomId, messageInput.value, timeNow, "string")
+            view.showChat(userData, allUserData, roomList);
+            controller.chatClick();
+            conn.send(userData.Username+":?"+dateTime+"::?"+messageInput.value);
+            model.sendMessage(data);
+            messageInput.value = "";   
+        });
+    },
+    updateRoomList: function updateRoomList(roomId, content, time, type){
+        const found = roomList.findIndex(item => item.roomid === roomId)
+        if (found !== -1){
+            roomList[found].message[0].sendId = userData.ID
+            roomList[found].message[0].content = content
+            roomList[found].message[0].time = time
+            roomList[found].message[0].type = type
+        }else{
+            roomList.push({
+                "roomid": roomId,
+                "message": [{
+                    "content": content,
+                    "sendId": userData.ID,
+                    "time": time,
+                    "type": type
+                }]
+            });
+        }
+    }
 };
 controller.init();

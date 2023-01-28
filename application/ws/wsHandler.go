@@ -2,9 +2,9 @@ package ws
 
 import (
 	"log"
-	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
@@ -39,8 +39,9 @@ var h = Hub{
 	rooms:      make(map[string]map[*connection]bool),
 }
 
-func ServeWs(w http.ResponseWriter, r *http.Request, roomId string) {
-	ws, err := upgrader.Upgrade(w, r, nil)
+func ServeWs(c *gin.Context) {
+	roomId := c.Param("roomId")
+	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Println(err.Error())
 		return

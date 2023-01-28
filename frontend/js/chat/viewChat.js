@@ -32,11 +32,7 @@ let view = {
             let id = friendData[friendData.length-i-1]
             for (let i=0; i<allUserData.data.length; i++){
                 if (id === allUserData.data[i]._id){
-                    if (allUserData.data[i].headPhoto){
-                        src = allUserData.data[i].headPhoto;
-                    }else{
-                        src = "/static/img/default_photo.png";
-                    }
+                    let src = view.headPhotoSrc(allUserData.data[i]);
                     let username = allUserData.data[i].username;
                     let addedHtml =`
                         <div class="friend-list">
@@ -67,15 +63,48 @@ let view = {
         `  
         listContent.insertAdjacentHTML("afterbegin", searchFriendHtml)
     },
-    showChat: function showChat(){
+    showChat: function showChat(userData, allUserData, roomList){
         friendBtn.style.backgroundColor = "#6A6C75";
         chatBtn.style.backgroundColor = "#8d909d";
         addBtn.style.backgroundColor = "#6A6C75";
         listContent.innerHTML = "";
-        const chatHtml = `
-            <div>chat</div>
-        `
-        listContent.insertAdjacentHTML("afterbegin", chatHtml)
+        for (let j=0; j<roomList.length; j++){
+            let friendId;
+            const idList = roomList[j].roomid.split(",")
+            if (idList[0] === userData.ID){
+                friendId = idList[1];
+            }else{
+                friendId = idList[0];
+            }
+            for (let i=0; i<allUserData.data.length; i++){
+                if (friendId === allUserData.data[i]._id){
+                    let src = view.headPhotoSrc(allUserData.data[i]);
+                    let username = allUserData.data[i].username;
+                    let messageContent;
+                    let time = new Date(roomList[j].message[0].time);
+                    let timeMinutes = ("0" + time.getMinutes()).slice(-2);
+                    let dateTime = time.getHours() + ":" + timeMinutes; 
+                    if (roomList[j].message[0].sendId === userData.ID){
+                        messageContent = "You: " + roomList[j].message[0].content;
+                    }else{
+                        messageContent = roomList[j].message[0].content;
+                    }
+                    let chatHtml =`
+                        <div class="chat-list">
+                            <img class="friend-img" src="${src}" alt=""/>
+                            <div class="last-message-box">
+                                <div class="friend-username" >${username}</div>
+                                <div class="last-message">${messageContent}</div>
+                            </div>
+                            <div class="last-message-time-box">
+                                <div class="last-message-time">${dateTime}</div>  
+                            </div>
+                        </div>
+                    `  
+                    listContent.insertAdjacentHTML("afterbegin", chatHtml)
+                }
+            }
+        }
     },
     showAdd: function showAdd(allUserData, addedData){
         friendBtn.style.backgroundColor = "#6A6C75";
@@ -83,7 +112,6 @@ let view = {
         addBtn.style.backgroundColor = "#8d909d";
         listContent.innerHTML = "";
         let showAddHtml = ``;
-        let src;
         if (!addedData){
             return false;
         }
@@ -91,11 +119,7 @@ let view = {
             let id = addedData[addedData.length-i-1]
             for (let i=0; i<allUserData.data.length; i++){
                 if (id === allUserData.data[i]._id){
-                    if (allUserData.data[i].headPhoto){
-                        src = allUserData.data[i].headPhoto;
-                    }else{
-                        src = "/static/img/default_photo.png";
-                    }
+                    let src = view.headPhotoSrc(allUserData.data[i]);
                     let username = allUserData.data[i].username;
                     let addedHtml =`
                         <div class="add-added-friend">
@@ -108,6 +132,15 @@ let view = {
             }
         }
         listContent.insertAdjacentHTML("afterbegin", showAddHtml);
+    },
+    headPhotoSrc: function headPhotoSrc(allUserData){    
+        let src;        
+        if (allUserData.headPhoto){
+            src = allUserData.headPhoto;
+        }else{
+            src = "/static/img/default_photo.png";
+        }
+        return src;
     },
     showProfile: function showProfile(url){
         const profileHtml = `
@@ -151,6 +184,24 @@ let view = {
         }
         popupContent.insertAdjacentHTML("afterbegin", showUserHtml);
     },
+    friendAlready: function friendAlready(data, addSent){
+        let src;
+        if (data.headPhoto === undefined){
+            src = "/static/img/default_photo.png"
+        }else{
+            src = data.headPhoto
+        }
+        const username = data.username
+        let showUserHtml = `
+            <div id="userPhoto" class="photo-div">
+                <img id="userImg" class="edit-profile-photo" src=${src} alt=""/>
+            </div>
+            <div class="search-username" >${username}</div>
+            <div class="search-message">Friend already</div>
+        `
+        popupContent.insertAdjacentHTML("afterbegin", showUserHtml);
+    },
+
     addSent: function addSent(){
         addFriendBtn.style.display = "none";
         const addSendedHtml = `
@@ -198,6 +249,32 @@ let view = {
             </div>
         `
         chatBoxContent.insertAdjacentHTML("afterbegin", chatBoxHtml);
+    },
+    myMessages: function myMessages(time, messages){
+        const messageHtml = `
+            <div class="my-message-div">
+                <div class="message-box">
+                    <div class="time-and-content">
+                        <div class="messages-time">${time}</div>
+                        <div class="messages-myMessage">${messages}</div>
+                    </div>
+                </div>
+            </div>
+        `
+        chatRoom.insertAdjacentHTML("beforeend", messageHtml);
+    },
+    friendMessages: function friendMessages(time, messages){
+        const messageHtml = `
+            <div class="friend-message-div">
+                <div class="message-box">
+                    <div class="time-and-content">
+                        <div class="messages-friendMessage">${messages}</div>
+                        <div class="messages-time">${time}</div>
+                    </div>
+                </div>
+            </div>
+        `
+        chatRoom.insertAdjacentHTML("beforeend", messageHtml);
     }
 }
 
