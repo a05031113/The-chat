@@ -234,6 +234,7 @@ let controller = {
             conn.send(userData.Username+":?"+dateTime+"::?"+messageInput.value);
             model.sendMessage(data);
             messageInput.value = "";   
+        
         });
     },
     updateRoomList: function updateRoomList(roomId, content, time, type){
