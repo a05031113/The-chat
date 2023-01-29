@@ -1,5 +1,54 @@
-python-fastapi
+# [the-chat](https://the-chat.live)
 
-Azure VM, cosmosDB(mongoDB)
+## Core Feature
 
-docker
+- Real-time communication
+
+---
+
+## Project Architecture
+
+![](/frontend/img/project_structure)
+
+---
+
+## Technique
+
+### Backend
+
+#### language and Framework
+
+- Golang
+- Gin-Gonic
+
+#### realtime message
+
+- WebSocket
+
+#### Database
+
+- Azure CosmosDB(NoSQL)
+
+#### Authorization
+
+- JWT
+
+#### Storage
+
+- Cloudflare R2
+
+#### https/Proxy
+
+- Nginx
+
+#### Cloud VM
+
+- AWS EC2
+
+---
+
+### Frontend
+
+- Html
+- Javascript
+- CSS
