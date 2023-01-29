@@ -50,18 +50,23 @@ friendBtn.addEventListener("click", ()=>{
     controller.friendClick(allUserData.data, userData);
 });
 
-chatBtn.addEventListener("click", ()=>{
+chatBtn.addEventListener("click", async ()=>{
     friendMode = false;
     chatMode = true;
     addMode = false;
+    const roomResponse = await model.getRooms();
+    roomList = roomResponse.data;
     view.showChat(userData, allUserData, roomList);
     controller.chatClick(allUserData, userData);
 });
 
-addBtn.addEventListener("click", ()=>{
+addBtn.addEventListener("click", async ()=>{
     friendMode = false;
     chatMode = false;
     addMode = true;
+    const addResponse = await model.addData();
+    addData = addResponse.add;
+    addedData = addResponse.added;
     view.showAdd(allUserData, addedData);
     controller.addClick(userData, allUserData, addedData)
 });
@@ -195,7 +200,9 @@ let controller = {
         const roomId = model.makeRoomId(username, userData, allUserData.data);
         await model.showMessage(roomId);
 
-        let conn = new WebSocket("wss://" + document.location.host + "/ws/" + roomId);
+        chatRoom.scrollTop = chatRoom.scrollHeight;
+
+        conn = new WebSocket("wss://" + document.location.host + "/ws/" + roomId);
         conn.onclose = function () {
             console.log("connection close")
         };

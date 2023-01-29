@@ -38,4 +38,6 @@ let friendMode = true;
 let chatMode = false;
 let addMode = false;
 
+let conn;
+
 

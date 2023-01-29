@@ -134,6 +134,7 @@ body{
     width: 70%;
 }
 .chat-left-inside{
+    height: calc(100%);
     margin: 20px;
 }
 
@@ -148,6 +149,8 @@ body{
     height: 50px;
 }
 .listContent{
+    position: relative;
+    height: calc(100% - 162px);
     overflow: auto;
 }
 .btn-split{
