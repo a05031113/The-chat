@@ -195,7 +195,7 @@ let controller = {
         const roomId = model.makeRoomId(username, userData, allUserData.data);
         await model.showMessage(roomId);
 
-        let conn = new WebSocket("ws://" + document.location.host + "/ws/" + roomId);
+        let conn = new WebSocket("wss://" + document.location.host + "/ws/" + roomId);
         conn.onclose = function () {
             console.log("connection close")
         };
