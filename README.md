@@ -8,7 +8,7 @@
 
 ## Project Architecture
 
-![](/frontend/img/project_structure)
+![](/frontend/img/project_structure.png)
 
 ---
 
@@ -44,8 +44,6 @@
 #### Cloud VM
 
 - AWS EC2
-
----
 
 ### Frontend
 
