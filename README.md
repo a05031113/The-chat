@@ -21,6 +21,10 @@
 - Golang
 - Gin-Gonic
 
+#### Cloud VM
+
+- AWS EC2
+
 #### realtime message
 
 - WebSocket
@@ -37,13 +41,13 @@
 
 - Cloudflare R2
 
+### DNS
+
+- Cloudflare Website
+
 #### https/Proxy
 
 - Nginx
-
-#### Cloud VM
-
-- AWS EC2
 
 ### Frontend
 
