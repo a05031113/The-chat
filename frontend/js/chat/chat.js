@@ -42,10 +42,13 @@ profileSetup.addEventListener("click", ()=>{
     });
 });
 
-friendBtn.addEventListener("click", ()=>{
+friendBtn.addEventListener("click", async ()=>{
     friendMode = true;
     chatMode = false;
     addMode = false;
+    const allUserData = await model.allUser();
+    const roomResponse = await model.getRooms();
+    roomList = roomResponse.data;
     view.showFriend(userData.Friend, allUserData);
     controller.friendClick(allUserData.data, userData);
 });
@@ -54,6 +57,7 @@ chatBtn.addEventListener("click", async ()=>{
     friendMode = false;
     chatMode = true;
     addMode = false;
+    const allUserData = await model.allUser();
     const roomResponse = await model.getRooms();
     roomList = roomResponse.data;
     view.showChat(userData, allUserData, roomList);
@@ -64,6 +68,7 @@ addBtn.addEventListener("click", async ()=>{
     friendMode = false;
     chatMode = false;
     addMode = true;
+    const allUserData = await model.allUser();
     const addResponse = await model.addData();
     addData = addResponse.add;
     addedData = addResponse.added;
@@ -76,6 +81,7 @@ searchInput.addEventListener("change", async ()=>{
     if (!auth){
         return false;
     }
+    const allUserData = await model.allUser();
     if (friendMode){
         for (let i = 0; i < allUserData.data.length; i++){
             if (searchInput.value === allUserData.data[i].username){
@@ -87,6 +93,9 @@ searchInput.addEventListener("change", async ()=>{
     }else if(chatMode){
         model.chatMode();
     }else if(addMode){
+        if (searchInput.value === userData.Username){
+            return false;
+        }
         let searchResult = await model.addMode(allUserData, userData, addData);
         if (searchResult){
             addFriendBtn = document.getElementById("addFriendBtn");
@@ -113,8 +122,8 @@ searchInput.addEventListener("change", async ()=>{
 let controller = {
     init: async function(){
         await model.refresh();
+        const allUserData = await model.allUser();
         userData = await model.getUserData();
-        allUserData = await model.allUser();
         model.loadHeadPhoto(userData.HeadPhoto);
         view.showFriend(userData.Friend, allUserData);
         controller.friendClick(allUserData.data, userData);
@@ -126,7 +135,8 @@ let controller = {
         addData = addResponse.add;
         addedData = addResponse.added;
     },
-    friendClick: function friendClick(){
+    friendClick: async function friendClick (){
+        const allUserData = await model.allUser();
         let friendList= document.querySelectorAll(".friend-list");
         for (let i=0; i<friendList.length; i++){
             friendList[i].addEventListener("click", (event)=>{
@@ -158,7 +168,8 @@ let controller = {
             });
         }
     },
-    addClick: function addClick(userData, allUserData, addedData){
+    addClick: async function addClick(){
+        const allUserData = await model.allUser();
         let addFriendList = document.querySelectorAll(".add-added-friend");
         for (let i=0; i<addFriendList.length; i++){
             addFriendList[i].addEventListener("click", async (event)=>{
@@ -188,12 +199,14 @@ let controller = {
                     }
                     view.leavePopup();
                     view.showAdd(allUserData, addedData);
+                    controller.addClick(userData, allUserData, addedData);
                 });
             });
         };
     },
 
     enterChatRoom: async function enterChatRoom(username){
+        const allUserData = await model.allUser();
         const messageInput = document.getElementById("messageInput");
         const messageSend = document.getElementById("messageSend");
         const chatRoom = document.getElementById("chatRoom");

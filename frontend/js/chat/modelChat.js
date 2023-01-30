@@ -17,7 +17,7 @@ let model = {
         }
     },
     refresh: async function refresh(){
-        try{
+        try{    
             const response = await fetch("/api/refresh", {
                 method: "GET",
                 headers: {
@@ -35,6 +35,10 @@ let model = {
     },
     getUserData: async function getUserData(){
         try{
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }        
             const response = await fetch("/api/user/data", {
                 method: "GET",
                 headers: {
@@ -58,6 +62,10 @@ let model = {
     },
     updateProfilePhoto: async function updateProfilePhoto(file){
         try{
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }        
             const response = await fetch("/api/user/presigned", {
                 method: "GET",
                 headers: {
@@ -82,7 +90,11 @@ let model = {
     },
     allUser: async function allUser(){
         try{
-            const response = await fetch("/api/chat/allUser", {
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }        
+            const response = await fetch("/api/user/allUser", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -127,6 +139,10 @@ let model = {
     },
     addFriend: async function addFriend(data){
         try{
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }        
             const response = await fetch("/api/chat/addFriend", {
                 method: "POST",
                 body: JSON.stringify(data),
@@ -145,6 +161,10 @@ let model = {
     },
     addData: async function addData(){
         try{
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }        
             const response = await fetch("/api/chat/addData", {
                 method: "GET",
                 headers: {
@@ -159,6 +179,10 @@ let model = {
     },
     checkAdded: async function checkAdded(data){
         try{
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }        
             const response = await fetch("/api/chat/checkAdded", {
                 method: "POST",
                 body: JSON.stringify(data),
@@ -210,6 +234,10 @@ let model = {
     },
     getRooms: async function getRooms(){
         try{ 
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }        
             const response = await fetch("/api/messages/room", {
                 method: "GET",
                 headers: {

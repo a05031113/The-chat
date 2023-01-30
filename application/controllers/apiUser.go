@@ -2,7 +2,10 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"the-chat/application/database"
 	"the-chat/application/models"
 	"the-chat/application/storage"
 	"time"
@@ -32,6 +35,24 @@ func GetUserData(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+func AllUser(c *gin.Context) {
+	var ctx = context.Background()
+	rdb := database.RedisClient()
+	val, err := rdb.Get(ctx, "allUserData").Bytes()
+	if err != nil {
+		panic(err)
+	}
+
+	var data []primitive.M
+	err = json.Unmarshal(val, &data)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": data})
+}
+
 func Presigned(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	id, _ := c.Get("id")
@@ -49,4 +70,5 @@ func Presigned(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, url)
+	database.AllUserData()
 }

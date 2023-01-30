@@ -27,12 +27,10 @@ const searchBtn = document.getElementById("searchBtn");
 
 const listContent = document.getElementById("listContent");
 
-let allUserData;
 let addData;
 let addedData;
 let userData;
 let roomList;
-let lastMessage = [];
 
 let friendMode = true;
 let chatMode = false;

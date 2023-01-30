@@ -75,7 +75,9 @@ func Register(c *gin.Context) {
 		return
 	}
 	defer cancel()
+
 	c.JSON(http.StatusOK, gin.H{"register": "success"})
+	database.AllUserData()
 }
 
 func Login(c *gin.Context) {

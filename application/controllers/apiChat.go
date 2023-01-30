@@ -17,33 +17,6 @@ import (
 
 var addFriendCollection *mongo.Collection = database.OpenCollection(database.Client, "addFriend")
 
-func AllUser(c *gin.Context) {
-	username, _ := c.Get("username")
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-
-	opts := options.Find().SetProjection(bson.D{{"username", 1}, {"headPhoto", 1}})
-	cursor, err := userCollection.Find(ctx, bson.M{}, opts)
-	defer cancel()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	}
-	var results []bson.M
-	if err = cursor.All(context.TODO(), &results); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	}
-
-	var output []primitive.M
-	for _, result := range results {
-		if result["username"] != username.(string) {
-			// id := result["_id"].(primitive.ObjectID)
-			// idString := id.Hex()
-			// result["_id"] = idString
-			output = append(output, result)
-		}
-	}
-	c.JSON(http.StatusOK, gin.H{"data": output})
-}
-
 func AddFriend(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	var addFriendData models.AddFriendData

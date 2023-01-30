@@ -24,7 +24,6 @@ let view = {
         addBtn.style.backgroundColor = "#6A6C75";
         listContent.innerHTML = "";
         let friendHtml = ``;
-        let src;
         if (!friendData){
             return false;
         }

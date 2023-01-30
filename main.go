@@ -2,6 +2,7 @@ package main
 
 import (
 	"the-chat/application/controllers"
+	"the-chat/application/database"
 	"the-chat/application/middleware"
 	"the-chat/application/render"
 	"the-chat/application/ws"
@@ -26,8 +27,8 @@ func main() {
 
 	api.GET("/user/data", middleware.Require, controllers.GetUserData)
 	api.GET("/user/presigned", middleware.Require, controllers.Presigned)
+	api.GET("/user/allUser", middleware.Require, controllers.AllUser)
 
-	api.GET("/chat/allUser", middleware.Require, controllers.AllUser)
 	api.POST("/chat/addFriend", middleware.Require, controllers.AddFriend)
 	api.GET("/chat/addData", middleware.Require, controllers.AddData)
 	api.POST("/chat/checkAdded", middleware.Require, controllers.CheckAdded)
@@ -43,4 +44,8 @@ func main() {
 	wsRoute.GET("/:roomId", ws.ServeWs)
 
 	router.Run("0.0.0.0:3000")
+}
+
+func init() {
+	database.AllUserData()
 }
