@@ -106,34 +106,27 @@ let model = {
             console.log({"error": error})
         }
     },
-    friendMode: function friendMode(){
-        console.log("friendMode")
-    },
-    chatMode: function chatMode(){
-        console.log("chatMode")
-    },
     addMode: function addMode(allUserData, userData, addData){
         let addSent;
-        for (let i = 0; i < allUserData.data.length; i++){
-            if (searchInput.value === allUserData.data[i].username){
-                if (userData.Friend.includes(allUserData.data[i]._id)){
-                    view.showPopup();
-                    view.friendAlready(allUserData.data[i]);
-                    return false;
-                }else if (addData){
-                    if (addData.includes(allUserData.data[i]._id)){
-                        addSent = true;
-                        view.showPopup();
-                        view.searchUser(allUserData.data[i], addSent)
-                        return false;
-                    }else{
-                        addSent = false;
-                    }
-                }
+        const found = allUserData.data.findIndex(item => item.username === searchInput.value)
+        if (found !== -1){
+            if (userData.Friend.includes(allUserData.data[found]._id)){
                 view.showPopup();
-                view.searchUser(allUserData.data[i], addSent);
-                return allUserData.data[i]._id;
+                view.friendAlready(allUserData.data[found]);
+                return false;
+            }else if (addData){
+                if (addData.includes(allUserData.data[found]._id)){
+                    addSent = true;
+                    view.showPopup();
+                    view.searchUser(allUserData.data[found], addSent)
+                    return false;
+                }else{
+                    addSent = false;
+                }
             }
+            view.showPopup();
+            view.searchUser(allUserData.data[found], addSent);
+            return allUserData.data[found]._id;
         }
         return false;
     },
@@ -201,14 +194,16 @@ let model = {
     },
     makeRoomId: function makeRoomId(username, userData, allUserData){
         let idList = [userData.ID];
+        let friendId;
         for (let i=0; i<allUserData.length; i++){
             if (username === allUserData[i].username){
                 idList.push(allUserData[i]._id);
+                friendId = allUserData[i]._id;
             }
         }
         idList.sort();
         let roomId = idList[0] + "," + idList[1];
-        return roomId;
+        return {"roomId": roomId, "friendId": friendId};
     },
     sendMessage: async function sendMessage(data){
         try{
@@ -299,6 +294,51 @@ let model = {
                 }
             }    
         }
+    },
+    resetUnRead: async function resetUnRead(data){
+        try{
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }  
+            const response = await fetch("/api/messages/resetUnRead", {
+                method: "PATCH",
+                body: JSON.stringify(data),
+                headers: {
+                    "Content-type": "application/json",
+                }
+            });
+            if (response.status === 200){
+                return true;
+            }else{
+                return false
+            }
+        }catch(error){
+            console.log(error)
+        }
+    },
+    totalUnRead: function totalUnRead(){
+        let count = 0;
+        for (let i=0; i<roomList.length; i++){
+            if (roomList[i].unRead[userData.ID] === undefined || !roomList[i].unRead[userData.ID]){
+                continue
+            }
+            count += roomList[i].unRead[userData.ID]
+        }
+        if (count >= 99){
+            count = 99
+        }
+        return count
+    },
+    totalAdded: function totalAdded(){
+        let count = 0;
+        for (let i=0; i<addedData.length; i++){
+            count ++;
+        }
+        if (count >= 99){
+            count = 99
+        }
+        return count
     }
 }
 

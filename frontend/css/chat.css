@@ -89,7 +89,7 @@ body{
     height: 100%;
     top: 0px;
     left: 0px;
-    z-index: 5;
+    z-index: 50;
 }
 .loading{
     height: 500px;
@@ -158,6 +158,7 @@ body{
     height: 45px;
 }
 .chat-left-top-btn{
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -172,6 +173,21 @@ body{
 }
 #friendBtn{
     background-color: #8d909d;
+}
+.chat-tag-div{
+    position: absolute;
+    top: 2px;
+    right: 15px;
+}
+.chat-tag{
+    background-color: rgba(255, 84, 84, 0.835);
+    color: white;
+    font-size: 8px;
+    min-width: 18px;
+    padding: 1px;
+    border-radius: 50%;
+    text-align: center;
+    
 }
 
 .userSearch{
@@ -300,17 +316,31 @@ body{
     background-color: #8d909d;
 }
 .last-message-box{
-    width: 170px;
+    width: 150px;
 }
 .last-message{
     color: #bebebe;
     font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow:hidden;
 }
 .last-message-time-box{
     display: flex;
+    flex-direction: column;
     width: auto;
     justify-content: end;
     align-items: flex-end;
+    margin-right: 10px;
+}
+.unRead{
+    border-radius: 50%;
+    min-width: 20px;
+    background-color: #374151;
+    color: white;
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 5px;
 }
 .last-message-time{
     color: #bebebe;
@@ -326,6 +356,9 @@ body{
 .chat-right-middle{
     height: calc(100% - 114.5px);
     overflow: auto;
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+    border-color: #374151;
 }
 .chat-right-bottom{
     display: flex;

@@ -36,6 +36,7 @@ func main() {
 	api.POST("/messages/send", middleware.Require, controllers.Send)
 	api.POST("/messages/room", middleware.Require, controllers.Room)
 	api.GET("/messages/room", middleware.Require, controllers.GetRoom)
+	api.PATCH("/messages/resetUnRead", middleware.Require, controllers.ResetUnRead)
 
 	var hub = ws.NewHub()
 	go hub.Run()

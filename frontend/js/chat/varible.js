@@ -37,5 +37,8 @@ let chatMode = false;
 let addMode = false;
 
 let conn;
+let notifyConn;
 
+const chatTag = document.getElementById("chatTag");
+const addTag = document.getElementById("addTag");
 

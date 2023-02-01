@@ -10,3 +10,8 @@ type SendMessage struct {
 type Room struct {
 	RoomID string `json: "roomId"`
 }
+
+// type UnRead struct {
+// 	RoomID string `json: "roomId"`
+// 	UnRead string `json: "unRead"`
+// }

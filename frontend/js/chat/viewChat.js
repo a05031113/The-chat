@@ -29,18 +29,17 @@ let view = {
         }
         for (let i=0; i<friendData.length; i++){
             let id = friendData[friendData.length-i-1]
-            for (let i=0; i<allUserData.data.length; i++){
-                if (id === allUserData.data[i]._id){
-                    let src = view.headPhotoSrc(allUserData.data[i]);
-                    let username = allUserData.data[i].username;
-                    let addedHtml =`
-                        <div class="friend-list">
-                            <img class="friend-img" src="${src}" alt=""/>
-                            <div class="friend-username" >${username}</div>
-                        </div>
-                    `  
-                    friendHtml = friendHtml + addedHtml
-                }
+            const found = allUserData.data.findIndex(item => item._id === id)
+            if (found !== -1){
+                let src = view.headPhotoSrc(allUserData.data[found]);
+                let username = allUserData.data[found].username;
+                let addedHtml =`
+                    <div class="friend-list">
+                        <img class="friend-img" src="${src}" alt=""/>
+                        <div class="friend-username" >${username}</div>
+                    </div>
+                `  
+                friendHtml = friendHtml + addedHtml
             }
         }
         listContent.insertAdjacentHTML("afterbegin", friendHtml)
@@ -67,6 +66,9 @@ let view = {
         chatBtn.style.backgroundColor = "#8d909d";
         addBtn.style.backgroundColor = "#6A6C75";
         listContent.innerHTML = "";
+        if (!roomList){
+            return false;
+        }
         for (let j=0; j<roomList.length; j++){
             let friendId;
             const idList = roomList[j].roomid.split(",")
@@ -75,35 +77,71 @@ let view = {
             }else{
                 friendId = idList[0];
             }
-            for (let i=0; i<allUserData.data.length; i++){
-                if (friendId === allUserData.data[i]._id){
-                    let src = view.headPhotoSrc(allUserData.data[i]);
-                    let username = allUserData.data[i].username;
-                    let messageContent;
-                    let time = new Date(roomList[j].message[0].time);
-                    let timeMinutes = ("0" + time.getMinutes()).slice(-2);
-                    let dateTime = time.getHours() + ":" + timeMinutes; 
-                    if (roomList[j].message[0].sendId === userData.ID){
-                        messageContent = "You: " + roomList[j].message[0].content;
-                    }else{
-                        messageContent = roomList[j].message[0].content;
-                    }
-                    let chatHtml =`
-                        <div class="chat-list">
-                            <img class="friend-img" src="${src}" alt=""/>
-                            <div class="last-message-box">
-                                <div class="friend-username" >${username}</div>
-                                <div class="last-message">${messageContent}</div>
-                            </div>
-                            <div class="last-message-time-box">
-                                <div class="last-message-time">${dateTime}</div>  
-                            </div>
-                        </div>
-                    `  
-                    listContent.insertAdjacentHTML("afterbegin", chatHtml)
+            const found = allUserData.data.findIndex(item => item._id === friendId)
+            if (found !== -1){
+                let src = view.headPhotoSrc(allUserData.data[found]);
+                let username = allUserData.data[found].username;
+                let messageContent;
+                let time = new Date(roomList[j].message[0].time);
+                let timeMinutes = ("0" + time.getMinutes()).slice(-2);
+                let dateTime = time.getHours() + ":" + timeMinutes; 
+                let unRead = roomList[j].unRead[userData.ID]
+                if (roomList[j].message[0].sendId === userData.ID){
+                    messageContent = "You: " + roomList[j].message[0].content;
+                }else{
+                    messageContent = roomList[j].message[0].content;
                 }
+                function unReadDiv(unRead){
+                    let unReadHtml;
+                    if (unRead === 0 || unRead === undefined){
+                        unReadHtml = ``
+                    }else{
+                        unReadHtml = `<div class="unRead">${unRead}</div>`
+                    }
+                    return unReadHtml
+                }
+                let chatHtml =`
+                    <div class="chat-list">
+                        <img class="friend-img" src="${src}" alt=""/>
+                        <div class="last-message-box">
+                            <div class="friend-username" >${username}</div>
+                            <div class="last-message">${messageContent}</div>
+                        </div>
+                        <div class="last-message-time-box">
+                            ${unReadDiv(unRead)}
+                            <div class="last-message-time">${dateTime}</div>  
+                        </div>
+                    </div>
+                `  
+                listContent.insertAdjacentHTML("afterbegin", chatHtml)
             }
         }
+    },
+    searchChat: function searchChat(src, username, messageContent, unRead, dateTime){
+        listContent.innerHTML = "";
+        function unReadDiv(unRead){
+            let unReadHtml;
+            if (unRead === 0 || unRead === undefined){
+                unReadHtml = ``
+            }else{
+                unReadHtml = `<div class="unRead">${unRead}</div>`
+            }
+            return unReadHtml
+        }
+        let searchChatHtml =`
+            <div class="chat-list">
+                <img class="friend-img" src="${src}" alt=""/>
+                <div class="last-message-box">
+                    <div class="friend-username" >${username}</div>
+                    <div class="last-message">${messageContent}</div>
+                </div>
+                <div class="last-message-time-box">
+                    ${unReadDiv(unRead)}
+                    <div class="last-message-time">${dateTime}</div>  
+                </div>
+            </div>        
+        `  
+        listContent.insertAdjacentHTML("afterbegin", searchChatHtml)
     },
     showAdd: function showAdd(allUserData, addedData){
         friendBtn.style.backgroundColor = "#6A6C75";
@@ -116,18 +154,17 @@ let view = {
         }
         for (let i=0; i<addedData.length; i++){
             let id = addedData[addedData.length-i-1]
-            for (let i=0; i<allUserData.data.length; i++){
-                if (id === allUserData.data[i]._id){
-                    let src = view.headPhotoSrc(allUserData.data[i]);
-                    let username = allUserData.data[i].username;
-                    let addedHtml =`
-                        <div class="add-added-friend">
-                            <img class="add-added-img" src="${src}" alt=""/>
-                            <div class="add-added-username" >${username}</div>
-                        </div>
-                    `  
-                    showAddHtml = showAddHtml + addedHtml
-                }
+            const found = allUserData.data.findIndex(item => item._id === id)
+            if (found !== -1){
+                let src = view.headPhotoSrc(allUserData.data[found]);
+                let username = allUserData.data[found].username;
+                let addedHtml =`
+                    <div class="add-added-friend">
+                        <img class="add-added-img" src="${src}" alt=""/>
+                        <div class="add-added-username" >${username}</div>
+                    </div>
+                `  
+                showAddHtml = showAddHtml + addedHtml
             }
         }
         listContent.insertAdjacentHTML("afterbegin", showAddHtml);
@@ -239,9 +276,7 @@ let view = {
                 <img class="friend-img" src="${src}" alt=""/>
                 <div class="chat-right-top-username">${username}</div>
             </div>
-            <hr class="chatBox-split">
             <div id="chatRoom" class="chat-right-middle"></div>
-            <hr class="chatBox-split">
             <div class="chat-right-bottom">
                 <input id="messageInput" class="chat-right-bottom-input" placeholder="..." type="text"/>
                 <div id="messageSend" class="chat-right-bottom-btn" ><img class="chat-right-bottom-btn-img" src="/static/img/icon_send.png" alt=""></div>
@@ -274,6 +309,20 @@ let view = {
             </div>
         `
         chatRoom.insertAdjacentHTML("beforeend", messageHtml);
+    },
+    chatRedTag: function chatRedTag(unRead){
+        if (unRead === 0){
+            return false;
+        }
+        const RedTag = `<div class="chat-tag">${unRead}</div>`
+        chatTag.insertAdjacentHTML("beforeend", RedTag);
+    },
+    addRedTag: function addRedTag(addCount){
+        if (addCount === 0){
+            return false;
+        }
+        const RedTag = `<div class="chat-tag">${addCount}</div>`
+        addTag.insertAdjacentHTML("beforeend", RedTag);
     }
 }
 

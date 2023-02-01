@@ -47,8 +47,6 @@ friendBtn.addEventListener("click", async ()=>{
     chatMode = false;
     addMode = false;
     const allUserData = await model.allUser();
-    const roomResponse = await model.getRooms();
-    roomList = roomResponse.data;
     view.showFriend(userData.Friend, allUserData);
     controller.friendClick(allUserData.data, userData);
 });
@@ -58,8 +56,6 @@ chatBtn.addEventListener("click", async ()=>{
     chatMode = true;
     addMode = false;
     const allUserData = await model.allUser();
-    const roomResponse = await model.getRooms();
-    roomList = roomResponse.data;
     view.showChat(userData, allUserData, roomList);
     controller.chatClick(allUserData, userData);
 });
@@ -69,9 +65,6 @@ addBtn.addEventListener("click", async ()=>{
     chatMode = false;
     addMode = true;
     const allUserData = await model.allUser();
-    const addResponse = await model.addData();
-    addData = addResponse.add;
-    addedData = addResponse.added;
     view.showAdd(allUserData, addedData);
     controller.addClick(userData, allUserData, addedData)
 });
@@ -83,27 +76,37 @@ searchInput.addEventListener("change", async ()=>{
     }
     const allUserData = await model.allUser();
     if (friendMode){
-        for (let i = 0; i < allUserData.data.length; i++){
-            if (searchInput.value === allUserData.data[i].username){
-                if (userData.Friend.includes(allUserData.data[i]._id)){
-                    view.searchFriend(allUserData.data[i])
-                }
-            }
+        const found = allUserData.data.findIndex(item => item.username === searchInput.value)
+        if (found !== -1){
+            view.searchFriend(allUserData.data[found]);
+            controller.friendClick();
         }
     }else if(chatMode){
-        model.chatMode();
+        let friendUsername = document.querySelectorAll(".friend-username");
+        let friendImg = document.querySelectorAll(".friend-img");
+        let lastMessage = document.querySelectorAll(".last-message");
+        let unReadDiv = document.querySelectorAll(".unRead");
+        let lastMessageTime = document.querySelectorAll(".last-message-time")
+        let unRead;
+        for (let i=0; i<friendUsername.length; i++){
+            if (searchInput.value === friendUsername[i].innerText){
+                if (unReadDiv[i] === undefined){
+                    unRead = 0
+                }else{
+                    unRead = unReadDiv[i].textContent
+                }
+                view.searchChat(friendImg[i].currentSrc, friendUsername[i].innerText, lastMessage[i].innerText, unRead, lastMessageTime[i].innerText)
+                controller.chatClick();
+            }
+        }
     }else if(addMode){
         if (searchInput.value === userData.Username){
             return false;
         }
-        let searchResult = await model.addMode(allUserData, userData, addData);
+        let searchResult = model.addMode(allUserData, userData, addData);
         if (searchResult){
             addFriendBtn = document.getElementById("addFriendBtn");
             addFriendBtn.addEventListener("click", async ()=>{
-                let auth = await model.refresh();
-                if (!auth){
-                    return false;
-                }
                 const data = {"id": searchResult};
                 let result = await model.addFriend(data);
                 if (result){
@@ -113,6 +116,13 @@ searchInput.addEventListener("change", async ()=>{
                     }
                     addData.push(searchResult);
                 }
+                
+                const notification = {
+                    "to": searchResult,
+                    "type": "added",
+                    "who": userData.ID
+                }
+                notifyConn.send(JSON.stringify(notification));
             });
         }
     }
@@ -131,9 +141,87 @@ let controller = {
         const addResponse = await model.addData();
         const roomResponse = await model.getRooms();
         roomList = roomResponse.data;
+        if (!roomList){
+            roomList = [];
+        }
         loading.style.display = "none";
         addData = addResponse.add;
         addedData = addResponse.added;
+        if (!addedData){
+            addedData = [];
+        }
+
+        let addedCount = model.totalAdded();
+        view.addRedTag(addedCount);
+
+        let UnReadCount = model.totalUnRead();
+        view.chatRedTag(UnReadCount);
+
+        notifyConn = new WebSocket("wss://" + document.location.host + "/ws/notify");
+
+        notifyConn.onopen = function (){
+            return {"connection": true}
+        }
+
+        notifyConn.onclose = function () {
+            return {"connection": false}
+        };
+        notifyConn.onmessage = async function (event) {
+            const allUserData = await model.allUser();
+            const notification = JSON.parse(event.data);
+            if (notification.to !== userData.ID){
+                return false;
+            }
+            if (notification.type === "message"){
+                const found = roomList.findIndex(item => item.roomid === notification.roomId)
+                let unRead = 0;
+                const userId = userData.ID
+                if (found !== -1){
+                    unRead = roomList[found].unRead[userId]
+                }
+                if (!conn || conn.url.split("/")[4] !== notification.roomId){
+                    unRead++;
+                }else{
+                    unRead = 0;
+                    setTimeout(() =>{
+                        const data = {
+                            "roomId": notification.roomId
+                        }
+                        model.resetUnRead(data)
+                    }, 3500)
+                }
+                controller.updateRoomList(notification.roomId, notification.content, notification.who, notification.sendTime, "string", unRead)
+                if (chatMode){
+                    view.showChat(userData, allUserData, roomList);
+                    controller.chatClick();
+                }
+                chatTag.innerHTML = "";
+                let UnReadCount = model.totalUnRead();
+                view.chatRedTag(UnReadCount);        
+            }else if(notification.type === "added"){
+                if (!addedData){
+                    addedData = []
+                }
+                addedData.push(notification.who)
+                if (addMode){
+                    view.showAdd(allUserData, addedData);
+                    controller.addClick(userData, allUserData, addedData)  
+                }
+                addTag.innerHTML = "";
+                let addedCount = model.totalAdded();
+                view.addRedTag(addedCount);                          
+            }else if(notification.type === "add"){
+                if (!userData.Friend){
+                    userData.Friend = [notification.who];
+                }else{
+                    userData.Friend.push(notification.who);
+                }
+                if (friendMode){
+                    view.showFriend(userData.Friend, allUserData);
+                    controller.friendClick(allUserData.data, userData);                
+                }
+            }
+        }
     },
     friendClick: async function friendClick (){
         const allUserData = await model.allUser();
@@ -180,10 +268,6 @@ let controller = {
                     "id": addedData[addFriendList.length - i - 1]
                 }
                 checkAddedBtn.addEventListener("click", async ()=>{
-                    let auth = await model.refresh();
-                    if (!auth){
-                        return false;
-                    }
                     let addStatus = await model.checkAdded(data)
                     if (!addStatus){
                         return false;
@@ -193,6 +277,13 @@ let controller = {
                     }else{
                         userData.Friend.push(addedData[addFriendList.length - i - 1]);
                     }
+                    const notification = {
+                        "to": addedData[addFriendList.length - i - 1],
+                        "type": "add",
+                        "who": userData.ID
+                    }
+                    notifyConn.send(JSON.stringify(notification));
+
                     const index = addedData.indexOf(addedData[addFriendList.length - i - 1]);
                     if (index > -1){
                         addedData.splice(index, 1);
@@ -200,6 +291,9 @@ let controller = {
                     view.leavePopup();
                     view.showAdd(allUserData, addedData);
                     controller.addClick(userData, allUserData, addedData);
+                    addTag.innerHTML = "";
+                    let addedCount = model.totalAdded();
+                    view.addRedTag(addedCount);            
                 });
             });
         };
@@ -210,22 +304,44 @@ let controller = {
         const messageInput = document.getElementById("messageInput");
         const messageSend = document.getElementById("messageSend");
         const chatRoom = document.getElementById("chatRoom");
-        const roomId = model.makeRoomId(username, userData, allUserData.data);
+        const roomId = model.makeRoomId(username, userData, allUserData.data)["roomId"];
+        const friendId = model.makeRoomId(username, userData, allUserData.data)["friendId"];
         await model.showMessage(roomId);
+        chatRoom.scrollTop = chatRoom.scrollHeight;     
+        
+        controller.resetUnRead(roomId);
+        view.showChat(userData, allUserData, roomList);
+        let unReadCount = model.totalUnRead();
+        chatTag.innerHTML = "";
+        view.chatRedTag(unReadCount);
+        controller.chatClick(allUserData, userData); 
+        const data = {
+            "roomId": roomId
+        } 
+        model.resetUnRead(data)  
 
-        chatRoom.scrollTop = chatRoom.scrollHeight;
-
+        if (conn){
+            conn.onclose();
+        }
         conn = new WebSocket("wss://" + document.location.host + "/ws/" + roomId);
+        conn.onopen = function (){
+            return {"connection": true}
+        }
         conn.onclose = function () {
-            console.log("connection close")
+            return {"connection": false}
         };
-        conn.onmessage = function (evt) {
-            let userInfo = evt.data.split("::?")[0];
-            let messages = evt.data.split("::?")[1];
-            let userInfoUser = userInfo.split(":?")[0];
-            let time = userInfo.split(":?")[1];
-
-            if (userData.Username === userInfoUser){
+        conn.onmessage = function (event) {
+            if (conn.url.split("/")[4] !== roomId){
+                return false;
+            }
+            const messageData = JSON.parse(event.data)
+            let username = messageData["username"]
+            let messages = messageData["content"]
+            let dateTime = new Date(messageData["sendTime"]);
+            let timeMinutes = ("0" + dateTime.getMinutes()).slice(-2);
+            let time = dateTime.getHours() + ":" + timeMinutes; 
+            
+            if (userData.Username === username){
                 view.myMessages(time, messages);
             }else{
                 view.friendMessages(time, messages);
@@ -238,42 +354,73 @@ let controller = {
                 return false;
             }
             let timeNow = new Date();
-            let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
-            let dateTime = timeNow.getHours() + ":" + timeMinutes; 
             const data = {
                 "roomId": roomId,
                 "content": messageInput.value,
                 "sendTime": timeNow,
+                "type": "string",
+            }
+            const messageInfo = {
+                "username": userData.Username,
+                "content": messageInput.value,
+                "sendTime": timeNow,
                 "type": "string"
             }
+            const notification = {
+                "to": friendId,
+                "type": "message",
+                "who": userData.ID,
+                "roomId": roomId,
+                "content": messageInput.value,
+                "sendTime": timeNow,
+            }
 
-            controller.updateRoomList(roomId, messageInput.value, timeNow, "string")
+            controller.updateRoomList(roomId, messageInput.value, userData.ID, timeNow, "string", 0)
             view.showChat(userData, allUserData, roomList);
             controller.chatClick();
-            conn.send(userData.Username+":?"+dateTime+"::?"+messageInput.value);
             model.sendMessage(data);
+            conn.send(JSON.stringify(messageInfo));
+            notifyConn.send(JSON.stringify(notification));
             messageInput.value = "";   
-        
         });
     },
-    updateRoomList: function updateRoomList(roomId, content, time, type){
+    updateRoomList: function updateRoomList(roomId, content, sendId, time, type, unRead){
+        if (!roomList){
+            roomList = []
+        }
         const found = roomList.findIndex(item => item.roomid === roomId)
+        const userId = userData.ID
         if (found !== -1){
-            roomList[found].message[0].sendId = userData.ID
+            roomList[found].message[0].sendId = sendId
             roomList[found].message[0].content = content
             roomList[found].message[0].time = time
             roomList[found].message[0].type = type
+            roomList[found].unRead[userId] = unRead
         }else{
             roomList.push({
                 "roomid": roomId,
+                "unRead":{[userId]: unRead},
                 "message": [{
                     "content": content,
-                    "sendId": userData.ID,
+                    "sendId": sendId,
                     "time": time,
                     "type": type
                 }]
             });
         }
+    },
+    createUUID: function createUUID(){
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    },
+    resetUnRead: function resetUnRead(roomId){
+        const found = roomList.findIndex(item => item.roomid === roomId)
+        if (found === -1){
+            return false;
+        }
+        roomList[found].unRead[userData.ID] = 0;
     }
 };
 controller.init();
