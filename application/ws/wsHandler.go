@@ -69,7 +69,7 @@ func (s subscription) readPump() {
 	for {
 		_, msg, err := connection.ws.ReadMessage()
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Panicf("error: %v", err)
 			}
 			break
