@@ -40,6 +40,7 @@ body{
     padding-right: 12px;
     border-radius: 50%;
     cursor: pointer;
+    object-fit: cover;
 }
 .header-end-personal-box{
     position: absolute;
@@ -316,7 +317,7 @@ body{
     background-color: #8d909d;
 }
 .last-message-box{
-    width: 150px;
+    width: calc(100% - 100px);
 }
 .last-message{
     color: #bebebe;
@@ -332,6 +333,7 @@ body{
     justify-content: end;
     align-items: flex-end;
     margin-right: 10px;
+    width: 30px;
 }
 .unRead{
     border-radius: 50%;
