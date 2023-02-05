@@ -166,7 +166,7 @@ let controller = {
         notifyConn.onclose = function () {
             return {"connection": false}
         };
-        notifyConn.addEventListener("message", async()=>{
+        notifyConn.addEventListener("message", async(event)=>{
             const allUserData = await model.allUser();
             const notification = JSON.parse(event.data);
             if (notification.to !== userData.ID){
