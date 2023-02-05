@@ -107,6 +107,9 @@ let model = {
         }
     },
     addMode: function addMode(allUserData, userData, addData){
+        if (!userData.Friend){
+            userData.Friend = [];
+        }
         let addSent;
         const found = allUserData.data.findIndex(item => item.username === searchInput.value)
         if (found !== -1){

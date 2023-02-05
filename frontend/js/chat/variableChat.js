@@ -42,3 +42,4 @@ let notifyConn;
 const chatTag = document.getElementById("chatTag");
 const addTag = document.getElementById("addTag");
 
+let roomId;

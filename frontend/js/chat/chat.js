@@ -166,7 +166,7 @@ let controller = {
         notifyConn.onclose = function () {
             return {"connection": false}
         };
-        notifyConn.onmessage = async function (event) {
+        notifyConn.addEventListener("message", async()=>{
             const allUserData = await model.allUser();
             const notification = JSON.parse(event.data);
             if (notification.to !== userData.ID){
@@ -179,7 +179,7 @@ let controller = {
                 if (found !== -1){
                     unRead = roomList[found].unRead[userId]
                 }
-                if (!conn || conn.url.split("/")[4] !== notification.roomId){
+                if (!roomId || roomId !== notification.roomId){
                     unRead++;
                 }else{
                     unRead = 0;
@@ -197,7 +197,21 @@ let controller = {
                 }
                 chatTag.innerHTML = "";
                 let UnReadCount = model.totalUnRead();
-                view.chatRedTag(UnReadCount);        
+                view.chatRedTag(UnReadCount);
+                
+                if (roomId === notification.roomId){
+                    const messageData = JSON.parse(event.data)
+                    let username = messageData["username"]
+                    let messages = messageData["content"]
+                    let dateTime = new Date(messageData["sendTime"]);
+                    let timeMinutes = ("0" + dateTime.getMinutes()).slice(-2);
+                    let time = dateTime.getHours() + ":" + timeMinutes; 
+                    
+                    if (userData.Username !== username){
+                        view.friendMessages(time, messages);
+                    }
+                    chatRoom.scrollTop = chatRoom.scrollHeight;        
+                }
             }else if(notification.type === "added"){
                 if (!addedData){
                     addedData = []
@@ -221,7 +235,7 @@ let controller = {
                     controller.friendClick(allUserData.data, userData);                
                 }
             }
-        }
+        });
     },
     friendClick: async function friendClick (){
         const allUserData = await model.allUser();
@@ -304,10 +318,10 @@ let controller = {
         const messageInput = document.getElementById("messageInput");
         const messageSend = document.getElementById("messageSend");
         const chatRoom = document.getElementById("chatRoom");
-        const roomId = model.makeRoomId(username, userData, allUserData.data)["roomId"];
         const friendId = model.makeRoomId(username, userData, allUserData.data)["friendId"];
+        roomId = model.makeRoomId(username, userData, allUserData.data)["roomId"]; 
         await model.showMessage(roomId);
-        chatRoom.scrollTop = chatRoom.scrollHeight;     
+        chatRoom.scrollTop = chatRoom.scrollHeight;
         
         controller.resetUnRead(roomId);
         view.showChat(userData, allUserData, roomList);
@@ -320,51 +334,19 @@ let controller = {
         } 
         model.resetUnRead(data)  
 
-        if (conn){
-            conn.onclose();
-        }
-        conn = new WebSocket("wss://" + document.location.host + "/ws/" + roomId);
-        conn.onopen = function (){
-            return {"connection": true}
-        }
-        conn.onclose = function () {
-            return {"connection": false}
-        };
-        conn.onmessage = function (event) {
-            if (conn.url.split("/")[4] !== roomId){
-                return false;
-            }
-            const messageData = JSON.parse(event.data)
-            let username = messageData["username"]
-            let messages = messageData["content"]
-            let dateTime = new Date(messageData["sendTime"]);
-            let timeMinutes = ("0" + dateTime.getMinutes()).slice(-2);
-            let time = dateTime.getHours() + ":" + timeMinutes; 
-            
-            if (userData.Username === username){
-                view.myMessages(time, messages);
-            }else{
-                view.friendMessages(time, messages);
-            }
-            chatRoom.scrollTop = chatRoom.scrollHeight;
-        };
-        
         messageInput.addEventListener("change", ()=>{
             if (messageInput.value.trim() === ""){
                 return false;
             }
             let timeNow = new Date();
+            let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
+            const sendTime = timeNow.getHours() + ":" + timeMinutes; 
+
             const data = {
                 "roomId": roomId,
                 "content": messageInput.value,
                 "sendTime": timeNow,
                 "type": "string",
-            }
-            const messageInfo = {
-                "username": userData.Username,
-                "content": messageInput.value,
-                "sendTime": timeNow,
-                "type": "string"
             }
             const notification = {
                 "to": friendId,
@@ -374,14 +356,15 @@ let controller = {
                 "content": messageInput.value,
                 "sendTime": timeNow,
             }
-
+            console.log("click:", new Date())
             controller.updateRoomList(roomId, messageInput.value, userData.ID, timeNow, "string", 0)
             view.showChat(userData, allUserData, roomList);
             controller.chatClick();
             model.sendMessage(data);
-            conn.send(JSON.stringify(messageInfo));
+            view.myMessages(sendTime, messageInput.value);
             notifyConn.send(JSON.stringify(notification));
             messageInput.value = "";   
+            chatRoom.scrollTop = chatRoom.scrollHeight;
         });
     },
     updateRoomList: function updateRoomList(roomId, content, sendId, time, type, unRead){
