@@ -241,6 +241,7 @@ let controller = {
                     controller.friendClick(allUserData.data, userData);                
                 }
             }else if(notification.type === "call"){
+                calling = true;
                 const found = allUserData.data.findIndex(item => item._id === notification.who)
                 if (found !== -1){
                     let src;
@@ -266,6 +267,7 @@ let controller = {
                         notifyConn.send(JSON.stringify(pickup))
                         window.open(url, "call", config="height=900, width=1200");
                         view.leavePopup();
+                        calling = false;    
                     });
                     callDrop.addEventListener("click", ()=>{
                         const drop = {
@@ -275,14 +277,18 @@ let controller = {
                         }
                         notifyConn.send(JSON.stringify(drop));
                         view.leavePopup();
+                        calling = false;    
                     });
                     leaveBtn.addEventListener("click", ()=>{
-                        const drop = {
-                            "to": notification.who,
-                            "type": "dropCall",
-                            "who": userData.ID,
+                        if (calling){
+                            const drop = {
+                                "to": notification.who,
+                                "type": "dropCall",
+                                "who": userData.ID,
+                            }
+                            notifyConn.send(JSON.stringify(drop));
+                            calling = false;    
                         }
-                        notifyConn.send(JSON.stringify(drop));
                     });      
                 }              
             }else if(notification.type === "callCatch"){
@@ -290,10 +296,16 @@ let controller = {
                 let config;
                 window.open(notification.url, "call", config="height=900, width=1200");
                 view.leavePopup();
+                call = false;
             }else if(notification.type === "dropCall"){
+                if(!calling){
+                    return 
+                }
                 view.callDropped();
+                calling = false;
             }else if(notification.type === "cancelCall"){
                 view.leavePopup();
+                calling = false;
             }
         });
     },
@@ -329,15 +341,18 @@ let controller = {
                         "uuid": uuid
                     }        
                     notifyConn.send(JSON.stringify(notification))
+                    calling = true
                     view.callWait();
 
                     leaveBtn.addEventListener("click", ()=>{
-                        const cancel = {
-                            "to": friendId,
-                            "type": "cancelCall",
-                            "who": userData.ID,
+                        if (calling){
+                            const cancel = {
+                                "to": friendId,
+                                "type": "cancelCall",
+                                "who": userData.ID,
+                            }
+                            notifyConn.send(JSON.stringify(cancel));    
                         }
-                        notifyConn.send(JSON.stringify(cancel));
                     }); 
                 });
             });
