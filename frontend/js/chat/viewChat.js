@@ -261,13 +261,41 @@ let view = {
                 <img id="userImg" class="edit-profile-photo" src=${src} alt=""/>
             </div>
             <div class="search-username" >${username}</div>
-            <div class="friend-chat-btn-list">
+            <div id="friendCallDiv" class="friend-chat-btn-list">
                 <button id="friendStartChat" class="add-friend"><img class="addImg" src="/static/img/icon_start_chat.png" alt=""/></button>
                 <button id="friendStartCall" class="add-friend"><img class="addImg" src="/static/img/icon_call.png" alt=""/></button>
-                <button id="friendStartVideoCall" class="add-friend"><img class="addImg" src="/static/img/icon_video_call.png" alt=""/></button>
             </div>
         `
         popupContent.insertAdjacentHTML("afterbegin", showFriendHtml);
+    },
+    friendCall: function(src, username){
+        let friendCallHtml = `
+            <div id="userPhoto" class="photo-div">
+                <img id="userImg" class="edit-profile-photo" src=${src} alt=""/>
+            </div>
+            <div class="search-username" >${username}</div>
+            <div class="friend-chat-btn-list">
+                <button id="callCatch" class="add-friend"><img class="addImg" src="/static/img/icon_call.png" alt=""/></button>
+                <button id="callDrop" class="add-friend"><img class="addImg" src="/static/img/icon_cross.png" alt=""/></button>
+            </div>
+        `
+        popupContent.insertAdjacentHTML("afterbegin", friendCallHtml);
+    },
+    callWait: function(){
+        const friendCallDiv = document.getElementById("friendCallDiv");
+        friendCallDiv.innerHTML = "";
+        const callingHtml = `
+            <img class="callingGif" src="/static/img/phone.gif" alt=""/>
+        `
+        friendCallDiv.insertAdjacentHTML("beforeend", callingHtml);
+    },
+    callDropped: function(){
+        const friendCallDiv = document.getElementById("friendCallDiv");
+        friendCallDiv.innerHTML = "";
+        const droppedHtml = `
+            <div class="search-message">call was been dropped</div>
+        `
+        friendCallDiv.insertAdjacentHTML("beforeend", droppedHtml);
     },
     chatBox: function chatBox(src, username){
         chatBoxContent.innerHTML = "";

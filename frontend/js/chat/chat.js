@@ -128,6 +128,12 @@ searchInput.addEventListener("change", async ()=>{
     }
     searchInput.value = "";
 });
+window.addEventListener("click", ()=>{
+    if (notifyConn.readyState === 3){
+        notifyConn = new WebSocket("wss://" + document.location.host + "/ws/notify");
+        console.log("connect")
+    }
+})
 
 let controller = {
     init: async function(){
@@ -165,7 +171,7 @@ let controller = {
 
         notifyConn.onclose = function () {
             return {"connection": false}
-        };
+        }
         notifyConn.addEventListener("message", async(event)=>{
             const allUserData = await model.allUser();
             const notification = JSON.parse(event.data);
@@ -234,6 +240,60 @@ let controller = {
                     view.showFriend(userData.Friend, allUserData);
                     controller.friendClick(allUserData.data, userData);                
                 }
+            }else if(notification.type === "call"){
+                const found = allUserData.data.findIndex(item => item._id === notification.who)
+                if (found !== -1){
+                    let src;
+                    let username = allUserData.data[found].username
+                    if (!allUserData.data[found].headPhoto){
+                        src = "/static/img/default_photo.png";
+                    }else{
+                        src = allUserData.data[found].headPhoto;
+                    }
+                    view.showPopup();
+                    view.friendCall(src, username)  
+                    const callCatch = document.getElementById("callCatch");
+                    const callDrop = document.getElementById("callDrop");
+                    callCatch.addEventListener("click", ()=>{
+                        let config;
+                        const url = "/room/" + notification.uuid;
+                        const pickup = {
+                            "to": notification.who,
+                            "type": "callCatch",
+                            "who": userData.ID,
+                            "url": url
+                        }
+                        notifyConn.send(JSON.stringify(pickup))
+                        window.open(url, "call", config="height=900, width=1200");
+                        view.leavePopup();
+                    });
+                    callDrop.addEventListener("click", ()=>{
+                        const drop = {
+                            "to": notification.who,
+                            "type": "dropCall",
+                            "who": userData.ID,
+                        }
+                        notifyConn.send(JSON.stringify(drop));
+                        view.leavePopup();
+                    });
+                    leaveBtn.addEventListener("click", ()=>{
+                        const drop = {
+                            "to": notification.who,
+                            "type": "dropCall",
+                            "who": userData.ID,
+                        }
+                        notifyConn.send(JSON.stringify(drop));
+                    });      
+                }              
+            }else if(notification.type === "callCatch"){
+                console.log("test")
+                let config;
+                window.open(notification.url, "call", config="height=900, width=1200");
+                view.leavePopup();
+            }else if(notification.type === "dropCall"){
+                view.callDropped();
+            }else if(notification.type === "cancelCall"){
+                view.leavePopup();
             }
         });
     },
@@ -242,19 +302,43 @@ let controller = {
         let friendList= document.querySelectorAll(".friend-list");
         for (let i=0; i<friendList.length; i++){
             friendList[i].addEventListener("click", (event)=>{
+                let friendId;
                 let src = event.currentTarget.firstElementChild.src;
                 let username = event.currentTarget.lastElementChild.textContent;
+                const found = allUserData.data.findIndex(item => item.username === username)
+                if (found !== -1){
+                    friendId = allUserData.data[found]._id
+                }
                 view.showPopup();
                 view.friendChat(src, username);
                 const friendStartChat = document.getElementById("friendStartChat");
                 const friendStartCall = document.getElementById("friendStartCall");
-                const friendStartVideoCall = document.getElementById("friendStartVideoCall");
                 friendStartChat.addEventListener("click", ()=>{
                     view.chatBox(src, username);
                     view.leavePopup();
                     view.showChat(userData, allUserData, roomList);
                     controller.enterChatRoom(username);
                     controller.chatClick();
+                });
+                friendStartCall.addEventListener("click", ()=>{
+                    const uuid = controller.createUUID();
+                    const notification = {
+                        "to": friendId,
+                        "type": "call",
+                        "who": userData.ID,
+                        "uuid": uuid
+                    }        
+                    notifyConn.send(JSON.stringify(notification))
+                    view.callWait();
+
+                    leaveBtn.addEventListener("click", ()=>{
+                        const cancel = {
+                            "to": friendId,
+                            "type": "cancelCall",
+                            "who": userData.ID,
+                        }
+                        notifyConn.send(JSON.stringify(cancel));
+                    }); 
                 });
             });
         }
@@ -333,7 +417,7 @@ let controller = {
             "roomId": roomId
         } 
         model.resetUnRead(data)  
-
+    
         messageInput.addEventListener("change", ()=>{
             if (messageInput.value.trim() === ""){
                 return false;
@@ -356,7 +440,6 @@ let controller = {
                 "content": messageInput.value,
                 "sendTime": timeNow,
             }
-            console.log("click:", new Date())
             controller.updateRoomList(roomId, messageInput.value, userData.ID, timeNow, "string", 0)
             view.showChat(userData, allUserData, roomList);
             controller.chatClick();

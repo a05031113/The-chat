@@ -304,6 +304,8 @@ body{
 }
 .friend-chat-btn-list{
     display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .chat-list{
     display: flex;
@@ -400,6 +402,27 @@ body{
     height: 1px;
     margin: 0px;
 }
+#callCatch{
+    background-color: rgba(0, 128, 0, 0.4);
+}
+#callCatch:hover{
+    background-color: rgba(0, 128, 0, 0.5);
+}
+#callDrop{
+    background-color: rgba(255, 0, 0, 0.4);
+}
+#callDrop:hover{
+    background-color: rgba(255, 0, 0, 0.5);
+}
+.callingGif{
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: auto;
+    margin-left: auto;
+}
+
 
 
 

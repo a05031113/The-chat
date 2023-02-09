@@ -5,6 +5,7 @@ import (
 	"the-chat/application/database"
 	"the-chat/application/middleware"
 	"the-chat/application/render"
+	"the-chat/application/room"
 	"the-chat/application/ws"
 
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,7 @@ func main() {
 	html := router.Group("/")
 	html.GET("", render.Index)
 	html.GET("/chat", render.Chat)
+	html.GET("/room/:uuid", room.Room)
 
 	api := router.Group("/api")
 	api.POST("/auth", controllers.Register)

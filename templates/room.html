@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/css/room.css">
+    <title>The Chat</title>
+</head>
+<body>
+    <div id="live" class="video">
+        <video id="remoteVideo" class="remote-video"></video>
+        <video id="localVideo" class="local-video" autoplay muted></video>
+        <div class="button-list">
+            <button id="cancel" class="call-button"><img class="call-img" src="/static/img/icon_cross.png" alt=""/></button>
+            <button id="microphone" class="call-button"><img class="call-img" src="/static/img/icon-microphone.png" alt=""/></button>
+            <button id="camera" class="call-button"><img class="call-img" src="/static/img/icon_video_call.png" alt=""/></button>
+            <button id="screen" class="call-button"><img class="call-img" src="/static/img/icon-screen.png" alt=""/></button>
+        </div>
+    </div>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script type="module" src="/static/js/room/room.js"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -16,12 +17,12 @@ const (
 	// Send pings to peer with this period. Must be less than pongWait.
 	pingPeriod = (pongWait * 9) / 10
 	// Maximum message size allowed from peer.
-	maxMessageSize = 512
+	maxMessageSize = 102400
 )
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	ReadBufferSize:  102400,
+	WriteBufferSize: 102400,
 }
 
 type connection struct {
@@ -48,6 +49,7 @@ func ServeWs(c *gin.Context) {
 	h.register <- subscript
 	go subscript.writePump()
 	go subscript.readPump()
+	fmt.Println(h)
 }
 
 func (s subscription) readPump() {
