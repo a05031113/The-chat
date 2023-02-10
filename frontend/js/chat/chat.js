@@ -163,6 +163,8 @@ let controller = {
         let UnReadCount = model.totalUnRead();
         view.chatRedTag(UnReadCount);
 
+        // controller.getUserMedia();
+
         notifyConn = new WebSocket("wss://" + document.location.host + "/ws/notify");
 
         notifyConn.onopen = function (){
@@ -292,7 +294,6 @@ let controller = {
                     });      
                 }              
             }else if(notification.type === "callCatch"){
-                console.log("test")
                 let config;
                 window.open(notification.url, "call", config="height=900, width=1200");
                 view.leavePopup();
@@ -333,27 +334,7 @@ let controller = {
                     controller.chatClick();
                 });
                 friendStartCall.addEventListener("click", ()=>{
-                    const uuid = controller.createUUID();
-                    const notification = {
-                        "to": friendId,
-                        "type": "call",
-                        "who": userData.ID,
-                        "uuid": uuid
-                    }        
-                    notifyConn.send(JSON.stringify(notification))
-                    calling = true
-                    view.callWait();
-
-                    leaveBtn.addEventListener("click", ()=>{
-                        if (calling){
-                            const cancel = {
-                                "to": friendId,
-                                "type": "cancelCall",
-                                "who": userData.ID,
-                            }
-                            notifyConn.send(JSON.stringify(cancel));    
-                        }
-                    }); 
+                    controller.Call(friendId);
                 });
             });
         }
@@ -417,6 +398,7 @@ let controller = {
         const messageInput = document.getElementById("messageInput");
         const messageSend = document.getElementById("messageSend");
         const chatRoom = document.getElementById("chatRoom");
+        const chatBoxCall = document.getElementById("chatBoxCall");
         const friendId = model.makeRoomId(username, userData, allUserData.data)["friendId"];
         roomId = model.makeRoomId(username, userData, allUserData.data)["roomId"]; 
         await model.showMessage(roomId);
@@ -464,6 +446,18 @@ let controller = {
             messageInput.value = "";   
             chatRoom.scrollTop = chatRoom.scrollHeight;
         });
+        chatBoxCall.addEventListener("click", ()=>{
+            const found = allUserData.data.findIndex(item => item._id === friendId)
+            let src;
+            let username;
+            if (found !== -1){
+                src = allUserData.data[found].headPhoto;
+                username = allUserData.data[found].username;
+            }
+            view.showPopup();
+            view.friendChat(src, username);
+            controller.Call(friendId);
+        });
     },
     updateRoomList: function updateRoomList(roomId, content, sendId, time, type, unRead){
         if (!roomList){
@@ -502,6 +496,49 @@ let controller = {
             return false;
         }
         roomList[found].unRead[userData.ID] = 0;
+    },
+    getUserMedia: function(){
+        navigator.mediaDevices.getUserMedia({video: true, audio: true}, (stream)=>{
+            stream.getVideoTracks().forEach(function(track) {
+                track.stop();
+            });
+        });
+    },
+    Call: function(friendId){
+        const uuid = controller.createUUID();
+        const notification = {
+            "to": friendId,
+            "type": "call",
+            "who": userData.ID,
+            "uuid": uuid
+        }        
+        notifyConn.send(JSON.stringify(notification))
+        calling = true
+        view.callWait();
+
+        leaveBtn.addEventListener("click", ()=>{
+            if (calling){
+                const cancel = {
+                    "to": friendId,
+                    "type": "cancelCall",
+                    "who": userData.ID,
+                }
+                notifyConn.send(JSON.stringify(cancel)); 
+                calling = false;   
+            }
+        }); 
+        setTimeout(()=>{
+            if (calling){
+                const cancel = {
+                    "to": friendId,
+                    "type": "cancelCall",
+                    "who": userData.ID,
+                }
+                notifyConn.send(JSON.stringify(cancel)); 
+                calling = false;   
+                view.callNoResponse();
+            }
+        }, 30000)
     }
 };
 controller.init();

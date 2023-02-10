@@ -39,6 +39,7 @@ body{
     border-radius: 50%;
     border: none;
     margin: 5px;
+    cursor: pointer;
 }
 .call-img{
     height: 45px;

@@ -95,6 +95,41 @@ let controller = {
                 currentPeer = call;
             })
         })
+    },
+    startScreenShare: function(){
+        if (screenSharing) {
+            stopScreenSharing()
+        }
+        navigator.mediaDevices.getDisplayMedia({ video: true }).then((stream) => {
+            screenStream = stream;
+            let videoTrack = screenStream.getVideoTracks()[0];
+            videoTrack.onended = () => {
+                stopScreenSharing()
+            }
+            if (peer) {
+                let sender = currentPeer.peerConnection.getSenders().find(function (s) {
+                    return s.track.kind == videoTrack.kind;
+                })
+                sender.replaceTrack(videoTrack)
+                screenSharing = true
+            }
+            console.log(screenStream)
+        })    
+    },
+    stopScreenSharing: function(){
+        if (!screenSharing) return;
+        let videoTrack = local_stream.getVideoTracks()[0];
+        if (peer) {
+            let sender = currentPeer.peerConnection.getSenders().find(function (s) {
+                return s.track.kind == videoTrack.kind;
+            })
+            sender.replaceTrack(videoTrack)
+        }
+        screenStream.getTracks().forEach(function (track) {
+            track.stop();
+        });
+        screenSharing = false
+    
     }
 }
 controller.init();

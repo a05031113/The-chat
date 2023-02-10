@@ -297,12 +297,25 @@ let view = {
         `
         friendCallDiv.insertAdjacentHTML("beforeend", droppedHtml);
     },
+    callNoResponse: function(){
+        const friendCallDiv = document.getElementById("friendCallDiv");
+        friendCallDiv.innerHTML = "";
+        const noResponseHtml = `
+            <div class="search-message">No response</div>
+        `
+        friendCallDiv.insertAdjacentHTML("beforeend", noResponseHtml);
+    },
     chatBox: function chatBox(src, username){
         chatBoxContent.innerHTML = "";
         let chatBoxHtml = `
             <div class="chat-right-top">
-                <img class="friend-img" src="${src}" alt=""/>
-                <div class="chat-right-top-username">${username}</div>
+                <div class="chat-right-top-left">
+                    <img class="friend-img" src="${src}" alt=""/>
+                    <div class="chat-right-top-username">${username}</div>
+                </div>
+                <div class="chat-right-top-right">
+                    <button id="chatBoxCall" class="chat-call-button"><img class="chat-call-img" src="/static/img/icon_call.png" alt=""/></button>
+                </div>
             </div>
             <div id="chatRoom" class="chat-right-middle"></div>
             <div class="chat-right-bottom">
