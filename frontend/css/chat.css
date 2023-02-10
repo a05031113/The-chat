@@ -442,7 +442,7 @@ body{
     align-items: center;
     margin-right: 10px;
     border-radius: 50%;
-    background-color: white;
+    background-color: #ffffff;
     cursor: pointer;
 }
 .chat-call-button:hover{

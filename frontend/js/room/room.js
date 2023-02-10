@@ -1,33 +1,22 @@
 import model from "./modelRoom.js";
-
-const localVideo = document.getElementById("localVideo");
-const remoteVideo = document.getElementById("remoteVideo");
-const cancel = document.getElementById("cancel");
-const microphone = document.getElementById("microphone");
-const camera = document.getElementById("camera");
-const screen = document.getElementById("screen");
-
-
-let userData;
-
-let getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-let localStream;
-let remoteStream;
-let screamStream;
-let peer = null;
-let currentPeer = null;
-let screamSharing = false;
-
-
-let ws;
-
-const roomID = location.pathname.split("/")[2];
+import view from "./viewRoom.js"
 
 cancel.addEventListener("click", ()=>{
+    ws.send(JSON.stringify({"drop": true, "from": userData.ID}))
     window.close();
+});
+screenShare.addEventListener("click", ()=>{
+    controller.startScreenShare();
+});
+microphone.addEventListener("click", ()=>{
+    controller.switchMicrophone();
+});
+camera.addEventListener("click", ()=>{
+    controller.switchCamera();
+});
+window.addEventListener("beforeunload", ()=>{
+    ws.send(JSON.stringify({"drop": true, "from": userData.ID}))
 })
-
-
 
 let controller = {
     init: async function(){
@@ -47,20 +36,20 @@ let controller = {
                 return
             }
             if (message.join){
-                console.log("create Room")
                 await controller.createRoom();
                 await ws.send(JSON.stringify({"create": true, "from": userData.ID}))
             }
             if (message.create){
-                console.log("Join Room")
                 await controller.joinRoom();
+            }
+            if (message.drop){
+                window.close();
             }
         });
     },
     createRoom: function(){
         peer = new Peer(roomID);
         peer.on("open", ()=>{
-            console.log("Peer Connected");
             getUserMedia({video: true, audio: true}, (stream)=>{
                 localStream = stream;
                 localVideo.srcObject = localStream;
@@ -70,7 +59,6 @@ let controller = {
             })
         });
         peer.on("call", (call)=>{
-            console.log("remote Connected")
             call.answer(localStream);
             call.on("stream", (stream)=>{
                 remoteVideo.srcObject = stream;
@@ -82,7 +70,6 @@ let controller = {
     joinRoom: function(){
         peer = new Peer()
         peer.on("open", ()=>{
-            console.log("Joining!!!!")
             getUserMedia({video: true, audio: true}, (stream)=>{
                 localStream = stream;
                 localVideo.srcObject = localStream;
@@ -96,29 +83,57 @@ let controller = {
             })
         })
     },
+    switchMicrophone: function(){
+        const videoTrack = localStream.getTracks().find(track => track.kind === "audio");
+        if (videoTrack.enabled){
+            videoTrack.enabled = false;
+            microphoneOn = false;
+            view.switchMicrophone()
+        }else{
+            videoTrack.enabled = true;
+            microphoneOn = true;
+            view.switchMicrophone()
+        }
+    },
+    switchCamera: function(){
+        const videoTrack = localStream.getTracks().find(track => track.kind === "video");
+        if (videoTrack.enabled){
+            videoTrack.enabled = false;
+            cameraOn = false;
+            view.switchCamera()
+        }else{
+            videoTrack.enabled = true;
+            cameraOn = true;
+            view.switchCamera()
+        }
+    },
     startScreenShare: function(){
         if (screenSharing) {
-            stopScreenSharing()
+            controller.stopScreenSharing()
+            view.screenStatus(screenSharing)
+            return
         }
         navigator.mediaDevices.getDisplayMedia({ video: true }).then((stream) => {
             screenStream = stream;
+            localVideo.srcObject = screenStream;
             let videoTrack = screenStream.getVideoTracks()[0];
             videoTrack.onended = () => {
-                stopScreenSharing()
+                controller.stopScreenSharing()
             }
             if (peer) {
                 let sender = currentPeer.peerConnection.getSenders().find(function (s) {
                     return s.track.kind == videoTrack.kind;
                 })
-                sender.replaceTrack(videoTrack)
-                screenSharing = true
+                sender.replaceTrack(videoTrack);
+                screenSharing = true;
+                view.screenStatus();
             }
-            console.log(screenStream)
         })    
     },
     stopScreenSharing: function(){
         if (!screenSharing) return;
-        let videoTrack = local_stream.getVideoTracks()[0];
+        let videoTrack = localStream.getVideoTracks()[0];
+        localVideo.srcObject = localStream;
         if (peer) {
             let sender = currentPeer.peerConnection.getSenders().find(function (s) {
                 return s.track.kind == videoTrack.kind;
@@ -129,7 +144,6 @@ let controller = {
             track.stop();
         });
         screenSharing = false
-    
     }
 }
 controller.init();

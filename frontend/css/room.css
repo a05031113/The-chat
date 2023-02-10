@@ -40,6 +40,7 @@ body{
     border: none;
     margin: 5px;
     cursor: pointer;
+    background-color: #ffffff4d;
 }
 .call-img{
     height: 45px;
@@ -47,7 +48,13 @@ body{
     object-fit: cover;
 }
 .call-button:hover{
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: #bcbcbc;
+}
+#camera{
+    background-color: #d1d1d1;
+}
+#microphone{
+    background-color: #d1d1d1;
 }
 #cancel{
     background-color: rgba(255, 0, 0, 0.3);

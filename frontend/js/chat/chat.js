@@ -297,7 +297,7 @@ let controller = {
                 let config;
                 window.open(notification.url, "call", config="height=900, width=1200");
                 view.leavePopup();
-                call = false;
+                calling = false;
             }else if(notification.type === "dropCall"){
                 if(!calling){
                     return 
