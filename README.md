@@ -12,6 +12,14 @@
 
 ![](/frontend/img/Add%20friend.gif)
 
+### Send message and notify with real-time
+
+![](/frontend/img/message.gif)
+
+### Video call
+
+![](/frontend/img/video%20chat.gif)
+
 ## Project Architecture
 
 ![](/frontend/img/project_structure.png)
