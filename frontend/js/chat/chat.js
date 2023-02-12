@@ -163,8 +163,8 @@ let controller = {
         let UnReadCount = model.totalUnRead();
         view.chatRedTag(UnReadCount);
 
-        // controller.getUserMedia();
-
+        Notification.requestPermission();
+        
         notifyConn = new WebSocket("wss://" + document.location.host + "/ws/notify");
 
         notifyConn.onopen = function (){
@@ -219,6 +219,8 @@ let controller = {
                         view.friendMessages(time, messages);
                     }
                     chatRoom.scrollTop = chatRoom.scrollHeight;        
+                }else{
+                    controller.notification("New message", notification.content)
                 }
             }else if(notification.type === "added"){
                 if (!addedData){
@@ -231,7 +233,12 @@ let controller = {
                 }
                 addTag.innerHTML = "";
                 let addedCount = model.totalAdded();
-                view.addRedTag(addedCount);                          
+                view.addRedTag(addedCount);   
+                const found = allUserData.data.findIndex(item => item._id === notification.who)
+                if (found !== -1){
+                    const username = allUserData.data[found].username
+                    controller.notification("Friend added request", username + "send friend request to you")                       
+                }
             }else if(notification.type === "add"){
                 if (!userData.Friend){
                     userData.Friend = [notification.who];
@@ -241,6 +248,10 @@ let controller = {
                 if (friendMode){
                     view.showFriend(userData.Friend, allUserData);
                     controller.friendClick(allUserData.data, userData);                
+                }
+                if (found !== -1){
+                    const username = allUserData.data[found].username
+                    controller.notification("Your request was accepted", "New friend" + username)                       
                 }
             }else if(notification.type === "call"){
                 calling = true;
@@ -292,7 +303,8 @@ let controller = {
                             calling = false;    
                         }
                     });      
-                }              
+                    controller.notification("Call", username + "is calling you")     
+                }         
             }else if(notification.type === "callCatch"){
                 let config;
                 window.open(notification.url, "call", config="height=900, width=1200");
@@ -539,6 +551,23 @@ let controller = {
                 view.callNoResponse();
             }
         }, 30000)
+    },
+    turnOnNotification: function(){
+
+    }, 
+    notification: function(webNotificationTitle, webNotificationContent){
+        Notification.requestPermission().then(perm => {
+            if (perm === "granted"){
+                new Notification(
+                    webNotificationTitle,
+                    {
+                        body: webNotificationContent,
+                        tag: "notification"
+                    }
+                )
+                console.log("good!")
+            }
+        })
     }
 };
 controller.init();
