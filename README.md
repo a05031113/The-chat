@@ -6,6 +6,12 @@
 
 ---
 
+## feature
+
+### Add friend
+
+![](/frontend/img/Add%20friend.gif)
+
 ## Project Architecture
 
 ![](/frontend/img/project_structure.png)
@@ -28,6 +34,10 @@
 #### realtime message
 
 - WebSocket
+
+#### video chat
+
+- webRTC
 
 #### Database
 
