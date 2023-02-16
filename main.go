@@ -27,8 +27,9 @@ func main() {
 	api.DELETE("/logout", middleware.RequireRefresh, controllers.Logout)
 
 	api.GET("/user/data", middleware.Require, controllers.GetUserData)
-	api.GET("/user/presigned", middleware.Require, controllers.Presigned)
-	api.GET("/user/allUser", middleware.Require, controllers.AllUser)
+	api.GET("/user/headPhoto", middleware.Require, controllers.GetHeadPhoto)
+	api.GET("/user/allUser", middleware.Require, controllers.GetAllUser)
+	api.POST("/user/search", middleware.Require, controllers.PostSearch)
 
 	api.POST("/chat/addFriend", middleware.Require, controllers.AddFriend)
 	api.GET("/chat/addData", middleware.Require, controllers.AddData)
@@ -38,6 +39,7 @@ func main() {
 	api.POST("/messages/room", middleware.Require, controllers.Room)
 	api.GET("/messages/room", middleware.Require, controllers.GetRoom)
 	api.PATCH("/messages/resetUnRead", middleware.Require, controllers.ResetUnRead)
+	api.POST("messages/file", middleware.Require, controllers.PostFile)
 
 	var hub = ws.NewHub()
 	go hub.Run()

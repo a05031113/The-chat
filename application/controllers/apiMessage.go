@@ -7,7 +7,7 @@ import (
 	"strings"
 	"the-chat/application/database"
 	"the-chat/application/models"
-	"time"
+	"the-chat/application/storage"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,7 +20,7 @@ import (
 var messagesCollection *mongo.Collection = database.OpenCollection(database.Client, "messages")
 
 func Send(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx = context.Background()
 	userID, _ := c.Get("id")
 	userIDString := userID.(string)
 	var message models.SendMessage
@@ -70,15 +70,13 @@ func Send(c *gin.Context) {
 		return
 	}
 
-	defer cancel()
-
 	fmt.Println(userUpdateResult, updateUnReadResult)
 
 	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }
 
 func Room(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx = context.Background()
 	var room models.Room
 
 	if err := c.BindJSON(&room); err != nil {
@@ -92,14 +90,13 @@ func Room(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"data": nil})
 		return
 	}
-	defer cancel()
 
 	c.JSON(http.StatusOK, gin.H{"data": roomResult})
 }
 
 func GetRoom(c *gin.Context) {
 	userId, _ := c.Get("id")
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx = context.Background()
 
 	index := mongo.IndexModel{
 		Keys: bsonx.Doc{
@@ -118,7 +115,6 @@ func GetRoom(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	defer cancel()
 
 	var roomList []bson.M
 	if err = roomResult.All(context.TODO(), &roomList); err != nil {
@@ -128,7 +124,7 @@ func GetRoom(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": roomList})
 }
 func ResetUnRead(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx = context.Background()
 	userId, _ := c.Get("id")
 	var roomId models.Room
 
@@ -146,9 +142,26 @@ func ResetUnRead(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	defer cancel()
 
 	fmt.Println(result)
 
 	c.JSON(http.StatusOK, gin.H{"status": "success"})
+}
+
+func PostFile(c *gin.Context) {
+	var fileName models.File
+
+	if err := c.BindJSON(&fileName); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	photoUrl := "https://pub-6cd56288498e4af5b3650c296ca21e82.r2.dev/" + fileName.FileName
+
+	var url models.Url
+	url.PresignedUrl = storage.PresignedUrl(fileName.FileName)
+	url.PhotoUrl = photoUrl
+
+	c.JSON(http.StatusOK, url)
+	database.AllUserData()
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"os"
-	"time"
 
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/bson"
@@ -28,11 +27,10 @@ func RedisClient() *redis.Client {
 var userCollection *mongo.Collection = OpenCollection(Client, "users")
 
 func AllUserData() error {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx = context.Background()
 
 	opts := options.Find().SetProjection(bson.D{{"username", 1}, {"headPhoto", 1}})
 	cursor, err := userCollection.Find(ctx, bson.M{}, opts)
-	defer cancel()
 	if err != nil {
 		return err
 	}

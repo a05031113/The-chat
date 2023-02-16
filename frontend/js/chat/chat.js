@@ -6,10 +6,29 @@ logout.addEventListener("click", ()=>{
     model.logout();
 });
 
-photoIcon.addEventListener("click", view.enterProfile);
+photoIcon.addEventListener("click", ()=>{
+    view.enterProfile();
+});
+
 window.addEventListener("click", (event)=>{
     if (event.target === backBlock){
         view.leaveCorner();
+    }
+    if (emojiState){
+        if (event.target === backBlock){
+            emojiDiv.style.display = "none"
+            emojiDiv.innerHTML = ""
+            emojiState = false;
+            messageInput.style.zIndex = "1";
+        }
+    }
+    if (DemoInput){
+        if (event.target === backBlock){
+            recordDiv.style.display = "none";
+            recordDiv.innerHTML = "";
+            DemoInput = false;
+            messageInput.style.zIndex = "1";
+        }
     }
 });
 
@@ -46,39 +65,31 @@ friendBtn.addEventListener("click", async ()=>{
     friendMode = true;
     chatMode = false;
     addMode = false;
-    const allUserData = await model.allUser();
-    view.showFriend(userData.Friend, allUserData);
-    controller.friendClick(allUserData.data, userData);
+    view.showFriend(userData.Friend);
+    controller.friendClick();
 });
 
 chatBtn.addEventListener("click", async ()=>{
     friendMode = false;
     chatMode = true;
     addMode = false;
-    const allUserData = await model.allUser();
-    view.showChat(userData, allUserData, roomList);
-    controller.chatClick(allUserData, userData);
+    view.showChat(userData, roomList);
+    controller.chatClick();
 });
 
 addBtn.addEventListener("click", async ()=>{
     friendMode = false;
     chatMode = false;
     addMode = true;
-    const allUserData = await model.allUser();
-    view.showAdd(allUserData, addedData);
-    controller.addClick(userData, allUserData, addedData)
+    view.showAdd(addedData);
+    controller.addClick(userData, addedData)
 });
 
 searchInput.addEventListener("change", async ()=>{
-    let auth = await model.refresh();
-    if (!auth){
-        return false;
-    }
-    const allUserData = await model.allUser();
     if (friendMode){
-        const found = allUserData.data.findIndex(item => item.username === searchInput.value)
+        const found = userData.Friend.findIndex(item => item.username === searchInput.value)
         if (found !== -1){
-            view.searchFriend(allUserData.data[found]);
+            view.searchFriend(userData.Friend[found]);
             controller.friendClick();
         }
     }else if(chatMode){
@@ -103,11 +114,20 @@ searchInput.addEventListener("change", async ()=>{
         if (searchInput.value === userData.Username){
             return false;
         }
-        let searchResult = model.addMode(allUserData, userData, addData);
+        const data = {
+            "searchId": searchInput.value
+        }
+        const found = userData.Friend.findIndex(item => item.username === searchInput.value)
+        if (found !== -1){
+            view.showPopup();
+            view.friendAlready(userData.Friend[found]);
+            return false;
+        }
+        let searchResult = await model.addMode(data);
         if (searchResult){
             addFriendBtn = document.getElementById("addFriendBtn");
             addFriendBtn.addEventListener("click", async ()=>{
-                const data = {"id": searchResult};
+                const data = {"id": searchResult._id};
                 let result = await model.addFriend(data);
                 if (result){
                     view.addSent();
@@ -116,11 +136,23 @@ searchInput.addEventListener("change", async ()=>{
                     }
                     addData.push(searchResult);
                 }
-                
+
+                let headPhoto;
+                if (!userData.HeadPhoto){
+                    headPhoto = null;
+                }else{
+                    headPhoto = userData.HeadPhoto
+                }
+                const myData = {
+                    "_id": userData.ID,
+                    "username": userData.Username,
+                    "headPhoto": headPhoto
+                }
                 const notification = {
-                    "to": searchResult,
+                    "to": searchResult._id,
                     "type": "added",
-                    "who": userData.ID
+                    "who": userData.ID,
+                    "data": myData
                 }
                 notifyConn.send(JSON.stringify(notification));
             });
@@ -128,22 +160,23 @@ searchInput.addEventListener("change", async ()=>{
     }
     searchInput.value = "";
 });
-window.addEventListener("click", ()=>{
+window.addEventListener("click", (event)=>{
     if (notifyConn.readyState === 3){
         notifyConn = new WebSocket("wss://" + document.location.host + "/ws/notify");
-        console.log("connect")
     }
 })
 
 let controller = {
     init: async function(){
         await model.refresh();
-        const allUserData = await model.allUser();
         userData = await model.getUserData();
         model.loadHeadPhoto(userData.HeadPhoto);
-        view.showFriend(userData.Friend, allUserData);
-        controller.friendClick(allUserData.data, userData);
+        view.showFriend(userData.Friend);
+        controller.friendClick();
         loading.style.display = "none";
+        if (!userData.Friend){
+            userData.Friend = []
+        }
         const addResponse = await model.addData();
         const roomResponse = await model.getRooms();
         roomList = roomResponse.data;
@@ -173,7 +206,6 @@ let controller = {
             return {"connection": false}
         }
         notifyConn.addEventListener("message", async(event)=>{
-            const allUserData = await model.allUser();
             const notification = JSON.parse(event.data);
             if (notification.to !== userData.ID){
                 return false;
@@ -196,9 +228,13 @@ let controller = {
                         model.resetUnRead(data)
                     }, 3500)
                 }
-                controller.updateRoomList(notification.roomId, notification.content, notification.who, notification.sendTime, "string", unRead)
+                if (notification.messageType === "string"){
+                    controller.updateRoomList(notification.roomId, notification.content, notification.who, notification.sendTime, "string", unRead)
+                } else {
+                    controller.updateRoomList(notification.roomId, notification.messageType, notification.who, notification.sendTime, notification.messageType, unRead)
+                }
                 if (chatMode){
-                    view.showChat(userData, allUserData, roomList);
+                    view.showChat(userData, roomList);
                     controller.chatClick();
                 }
                 chatTag.innerHTML = "";
@@ -214,7 +250,7 @@ let controller = {
                     let time = dateTime.getHours() + ":" + timeMinutes; 
                     
                     if (userData.Username !== username){
-                        view.friendMessages(time, messages);
+                        view.friendMessages(time, messages, notification.messageType);
                     }
                     chatRoom.scrollTop = chatRoom.scrollHeight;        
                 }
@@ -222,34 +258,34 @@ let controller = {
                 if (!addedData){
                     addedData = []
                 }
-                addedData.push(notification.who)
+                addedData.push(notification.data)
                 if (addMode){
-                    view.showAdd(allUserData, addedData);
-                    controller.addClick(userData, allUserData, addedData)  
+                    view.showAdd(addedData);
+                    controller.addClick()  
                 }
                 addTag.innerHTML = "";
                 let addedCount = model.totalAdded();
                 view.addRedTag(addedCount);   
             }else if(notification.type === "add"){
                 if (!userData.Friend){
-                    userData.Friend = [notification.who];
+                    userData.Friend = [notification.data];
                 }else{
-                    userData.Friend.push(notification.who);
+                    userData.Friend.push(notification.data);
                 }
                 if (friendMode){
-                    view.showFriend(userData.Friend, allUserData);
-                    controller.friendClick(allUserData.data, userData);                
+                    view.showFriend(userData.Friend);
+                    controller.friendClick();                
                 }
             }else if(notification.type === "call"){
                 calling = true;
-                const found = allUserData.data.findIndex(item => item._id === notification.who)
+                const found = userData.Friend.findIndex(item => item._id === notification.who)
                 if (found !== -1){
                     let src;
-                    let username = allUserData.data[found].username
-                    if (!allUserData.data[found].headPhoto){
+                    let username = userData.Friend[found].username
+                    if (!userData.Friend[found].headPhoto){
                         src = "/static/img/default_photo.png";
                     }else{
-                        src = allUserData.data[found].headPhoto;
+                        src = userData.Friend[found].headPhoto;
                     }
                     view.showPopup();
                     view.friendCall(src, username)  
@@ -309,16 +345,28 @@ let controller = {
         });
     },
     friendClick: async function friendClick (){
-        const allUserData = await model.allUser();
+        const service = document.getElementById("service");
+        service.addEventListener("click", ()=>{
+            view.showPopup();
+            view.serviceChat();
+            const startServiceChat = document.getElementById("startServiceChat");
+            startServiceChat.addEventListener("click", ()=>{
+                view.serviceChatBox();
+                view.leavePopup();
+                view.showChat(userData, roomList);
+                controller.chatClick();
+                controller.enterDemoRoom();
+            })
+        })
         let friendList= document.querySelectorAll(".friend-list");
         for (let i=0; i<friendList.length; i++){
             friendList[i].addEventListener("click", (event)=>{
                 let friendId;
                 let src = event.currentTarget.firstElementChild.src;
                 let username = event.currentTarget.lastElementChild.textContent;
-                const found = allUserData.data.findIndex(item => item.username === username)
+                const found = userData.Friend.findIndex(item => item.username === username)
                 if (found !== -1){
-                    friendId = allUserData.data[found]._id
+                    friendId = userData.Friend[found]._id
                 }
                 view.showPopup();
                 view.friendChat(src, username);
@@ -327,7 +375,7 @@ let controller = {
                 friendStartChat.addEventListener("click", ()=>{
                     view.chatBox(src, username);
                     view.leavePopup();
-                    view.showChat(userData, allUserData, roomList);
+                    view.showChat(userData, roomList);
                     controller.enterChatRoom(username);
                     controller.chatClick();
                 });
@@ -338,6 +386,14 @@ let controller = {
         }
     },
     chatClick: function chatClick(){
+        const service = document.getElementById("service");
+        service.addEventListener("click", ()=>{
+            view.serviceChatBox();
+            view.leavePopup();
+            view.showChat(userData, roomList);
+            controller.chatClick();
+            controller.enterDemoRoom();
+        })
         let chatList = document.querySelectorAll(".chat-list");
         for (let i=0; i<chatList.length; i++){
             chatList[i].addEventListener("click", (event)=>{
@@ -349,7 +405,6 @@ let controller = {
         }
     },
     addClick: async function addClick(){
-        const allUserData = await model.allUser();
         let addFriendList = document.querySelectorAll(".add-added-friend");
         for (let i=0; i<addFriendList.length; i++){
             addFriendList[i].addEventListener("click", async (event)=>{
@@ -357,7 +412,7 @@ let controller = {
                 view.checkAdd(event.currentTarget.firstElementChild.src, event.currentTarget.lastElementChild.textContent);
                 const checkAddedBtn = document.getElementById("checkAddedBtn");
                 const data = {
-                    "id": addedData[addFriendList.length - i - 1]
+                    "id": addedData[i]._id
                 }
                 checkAddedBtn.addEventListener("click", async ()=>{
                     let addStatus = await model.checkAdded(data)
@@ -365,24 +420,34 @@ let controller = {
                         return false;
                     }
                     if (!userData.Friend){
-                        userData.Friend = [addedData[addFriendList.length - i - 1]];
+                        userData.Friend = [addedData[i]];
                     }else{
-                        userData.Friend.push(addedData[addFriendList.length - i - 1]);
+                        userData.Friend.push(addedData[i]);
+                    }
+                    let headPhoto;
+                    if (!userData.HeadPhoto){
+                        headPhoto = null;
+                    }else{
+                        headPhoto = userData.HeadPhoto
+                    }
+                    const myData = {
+                        "_id": userData.ID,
+                        "username": userData.Username,
+                        "headPhoto": headPhoto
                     }
                     const notification = {
-                        "to": addedData[addFriendList.length - i - 1],
+                        "to": addedData[i]._id,
                         "type": "add",
-                        "who": userData.ID
+                        "who": userData.ID,
+                        "data": myData
                     }
                     notifyConn.send(JSON.stringify(notification));
 
-                    const index = addedData.indexOf(addedData[addFriendList.length - i - 1]);
-                    if (index > -1){
-                        addedData.splice(index, 1);
-                    }
+                    addedData.splice(i, 1);
+                    
                     view.leavePopup();
-                    view.showAdd(allUserData, addedData);
-                    controller.addClick(userData, allUserData, addedData);
+                    view.showAdd(addedData);
+                    controller.addClick(userData, addedData);
                     addTag.innerHTML = "";
                     let addedCount = model.totalAdded();
                     view.addRedTag(addedCount);            
@@ -390,72 +455,218 @@ let controller = {
             });
         };
     },
-
     enterChatRoom: async function enterChatRoom(username){
-        const allUserData = await model.allUser();
         const messageInput = document.getElementById("messageInput");
         const messageSend = document.getElementById("messageSend");
         const chatRoom = document.getElementById("chatRoom");
         const chatBoxCall = document.getElementById("chatBoxCall");
-        const friendId = model.makeRoomId(username, userData, allUserData.data)["friendId"];
-        roomId = model.makeRoomId(username, userData, allUserData.data)["roomId"]; 
+        const friendId = model.makeRoomId(username, userData)["friendId"];
+        const fileInput = document.getElementById("fileInput");
+        const sendPhotoOrFile = document.getElementById("sendPhotoOrFile");
+        const photoPreview = document.getElementById("photoPreview");
+        const filePreview = document.getElementById("filePreview");
+        const previewDiv = document.getElementById("previewDiv");
+        const cancelPreview = document.getElementById("cancelPreview");
+        const emoji = document.getElementById("emoji");
+        const emojiDiv = document.getElementById("emojiDiv");
+        const audioRecord = document.getElementById("audioRecord");
+        const recordDiv = document.getElementById("recordDiv");
+        roomId = model.makeRoomId(username, userData)["roomId"]; 
+
         await model.showMessage(roomId);
         chatRoom.scrollTop = chatRoom.scrollHeight;
         
         controller.resetUnRead(roomId);
-        view.showChat(userData, allUserData, roomList);
+        view.showChat(userData, roomList);
         let unReadCount = model.totalUnRead();
         chatTag.innerHTML = "";
         view.chatRedTag(unReadCount);
-        controller.chatClick(allUserData, userData); 
+        controller.chatClick(); 
         const data = {
             "roomId": roomId
         } 
         model.resetUnRead(data)  
     
-        messageInput.addEventListener("change", ()=>{
-            if (messageInput.value.trim() === ""){
-                return false;
+        messageInput.addEventListener("keypress", async (event)=>{
+            if (event.key !== "Enter"){
+                return
             }
-            let timeNow = new Date();
-            let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
-            const sendTime = timeNow.getHours() + ":" + timeMinutes; 
-
-            const data = {
-                "roomId": roomId,
-                "content": messageInput.value,
-                "sendTime": timeNow,
-                "type": "string",
-            }
-            const notification = {
-                "to": friendId,
-                "type": "message",
-                "who": userData.ID,
-                "roomId": roomId,
-                "content": messageInput.value,
-                "sendTime": timeNow,
-            }
-            controller.updateRoomList(roomId, messageInput.value, userData.ID, timeNow, "string", 0)
-            view.showChat(userData, allUserData, roomList);
-            controller.chatClick();
-            model.sendMessage(data);
-            view.myMessages(sendTime, messageInput.value);
-            notifyConn.send(JSON.stringify(notification));
-            messageInput.value = "";   
-            chatRoom.scrollTop = chatRoom.scrollHeight;
+            controller.message(messageInput, roomId, friendId, fileInput, blob);
         });
+        messageSend.addEventListener("click", ()=>{
+            controller.message(messageInput, roomId, friendId, fileInput, blob);
+        })
         chatBoxCall.addEventListener("click", ()=>{
-            const found = allUserData.data.findIndex(item => item._id === friendId)
+            const found = userData.Friend.findIndex(item => item._id === friendId)
             let src;
             let username;
             if (found !== -1){
-                src = allUserData.data[found].headPhoto;
-                username = allUserData.data[found].username;
+                src = userData.Friend[found].headPhoto;
+                username = userData.Friend[found].username;
             }
             view.showPopup();
             view.friendChat(src, username);
             controller.Call(friendId);
         });
+        sendPhotoOrFile.addEventListener("click", ()=>{
+            fileInput.click();
+        });
+        fileInput.addEventListener("change", (event)=>{
+            const file = event.target.files[0];
+            if (file.size > 10000000){
+                fileInput.value = "";
+                return
+            }
+            if (file.type.split("/")[0] === "application"){
+                previewDiv.style.display = "flex";
+                let fileName = file.name;
+                filePreview.textContent = fileName;
+            }else if (file.type.split("/")[0] === "image"){
+                previewDiv.style.display = "flex";
+                let src = URL.createObjectURL(file);
+                photoPreview.src = src;
+            }else{
+                fileInput.value = "";
+            }
+        });
+        cancelPreview.addEventListener("click", ()=>{
+            previewDiv.style.display = "none";
+            photoPreview.src = "";
+            fileInput.value = "";
+            filePreview.textContent = "";
+        });
+        emoji.addEventListener("click", ()=>{
+            backBlock.style.display = "block";
+            emojiDiv.style.display = "flex";
+            messageInput.style.zIndex = "10";
+            view.emoji();
+            emojiState = true;
+
+            let emojis = document.querySelectorAll(".emojis");
+            for (let i=0; i<emojis.length; i++){
+                emojis[i].addEventListener("click", async ()=>{
+                    messageInput.value += emojis[i].textContent
+                });
+            }
+        });
+        audioRecord.addEventListener("click", ()=>{
+            view.recordBox();
+            recordDiv.style.display = "flex";
+            const record = document.getElementById("record");
+            const recordImg = document.getElementById("recordImg");
+            const cancelRecord = document.getElementById("cancelRecord");
+            const recordBar = document.getElementById("recordBar");
+            let recording = false;
+            let count;
+            let mediaRecorder, chunks = [], audioURL = ''
+            if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){            
+                navigator.mediaDevices.getUserMedia({
+                    audio: true
+                }).then(stream => {
+                    audioStream = stream
+                    mediaRecorder = new MediaRecorder(stream)
+            
+                    mediaRecorder.ondataavailable = (e) => {
+                        chunks.push(e.data)
+                    }
+
+                    mediaRecorder.onstop = () => {
+                        blob = new Blob(chunks, {'type': 'audio/webm'})
+                        chunks = []
+                        audioURL = window.URL.createObjectURL(blob)
+                        document.getElementById("audioResult").src = audioURL
+                    }
+                }).catch(error => {
+                    console.log(error)
+                })
+            }else{
+                recordBar = ""
+                recordBar = "No audio device"
+            }
+            record.addEventListener("click", ()=>{
+                if (!recording){
+                    view.recordCount();
+                    const recordTime = document.getElementById("recordTime");
+                    recording = true;
+                    recordImg.src = "/static/img/icon_pause.png";
+                    mediaRecorder.start()
+                    count = setInterval(()=>{
+                        let second = parseInt(recordTime.textContent);
+                        second --;
+                        recordTime.textContent = second;
+                        if (second === 0){
+                            clearInterval(count)
+                            recording = false;
+                            recordImg.src = "/static/img/icon_play.png";        
+                            recordTime.textContent = 30;
+                            view.audio();
+                            mediaRecorder.stop()
+                        }
+                    }, 1000)
+                }else{
+                    recording = false;
+                    mediaRecorder.stop()
+                    recordImg.src = "/static/img/icon_play.png";
+                    clearInterval(count)
+                    view.audio();
+                }
+            });
+            cancelRecord.addEventListener("click", ()=>{
+                recordDiv.style.display = "none";
+                recordDiv.innerHTML = ""
+                recording = false;
+                audioStream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+            });
+        });
+    },
+    message: function(messageInput, roomId, friendId, fileInput, audioFile){
+        if (messageInput.value.trim() === "" && !fileInput.value && !audioFile){
+            return
+        }
+        let timeNow = new Date();
+        if (messageInput.value.trim() !== ""){
+            controller.updateRoomList(roomId, messageInput.value, userData.ID, timeNow, "string", 0)
+            model.messageFileSend(messageInput.value, "message", "string", friendId);
+            chatRoom.scrollTop = chatRoom.scrollHeight;    
+        }
+        if (fileInput.value){
+            const fileName = controller.createUUID();
+            const file = fileInput.files[0];
+            if (fileInput.files[0].type.split("/")[0] === "image"){
+                model.messageFileSend(file, fileName, "image", friendId);
+                controller.updateRoomList(roomId, "image", userData.ID, timeNow, "image", 0)
+            }else if(fileInput.files[0].type.split("/")[0] === "application"){
+                model.messageFileSend(file, fileName, "file", friendId);
+                controller.updateRoomList(roomId, "file", userData.ID, timeNow, "file", 0)
+            }
+            previewDiv.style.display = "none";
+            photoPreview.src = "";
+            fileInput.value = "";
+            filePreview.textContent = "";
+        }
+        if (audioFile) {
+            const fileName = controller.createUUID();
+            const file = audioFile;
+            model.messageFileSend(file, fileName, "audio", friendId);
+            controller.updateRoomList(roomId, "audio", userData.ID, timeNow, "audio", 0)
+            blob = null;
+            recordDiv.style.display = "none";
+            recordDiv.innerHTML = ""
+            if (audioStream){
+                audioStream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+            }
+        }
+        if (emojiState){
+            emojiDiv.style.display = "none"
+            emojiDiv.innerHTML = ""
+            emojiState = false;
+        }
+        view.showChat(userData, roomList);
+        controller.chatClick();
     },
     updateRoomList: function updateRoomList(roomId, content, sendId, time, type, unRead){
         if (!roomList){
@@ -551,6 +762,221 @@ let controller = {
                 console.log("good!")
             }
         })
-    }
+    },
+    enterDemoRoom: async function enterChatRoom(username){
+        const messageInput = document.getElementById("messageInput");
+        const messageSend = document.getElementById("messageSend");
+        const fileInput = document.getElementById("fileInput");
+        const sendPhotoOrFile = document.getElementById("sendPhotoOrFile");
+        const photoPreview = document.getElementById("photoPreview");
+        const filePreview = document.getElementById("filePreview");
+        const previewDiv = document.getElementById("previewDiv");
+        const cancelPreview = document.getElementById("cancelPreview");
+        const emoji = document.getElementById("emoji");
+        const emojiDiv = document.getElementById("emojiDiv");
+        const audioRecord = document.getElementById("audioRecord");
+        const recordDiv = document.getElementById("recordDiv");
+        const chatRoom = document.getElementById("chatRoom");
+        roomId = userData.ID + ",Demo"
+
+        await model.showMessage(roomId);
+        chatRoom.scrollTop = chatRoom.scrollHeight;
+
+        messageInput.addEventListener("click", ()=>{
+            backBlock.style.display = "block";
+            recordDiv.style.display = "flex";
+            messageInput.style.zIndex = "10";
+            view.showSelection();
+            DemoInput = true
+
+            let selections = document.querySelectorAll(".selection");
+            for (let i=0; i<selections.length; i++){
+                selections[i].addEventListener("click",()=>{
+                    messageInput.value = selections[i].textContent;
+                    controller.DemoMessage(roomId, messageInput, fileInput, blob);    
+                });
+            }
+        });
+        messageInput.addEventListener("keypress", async (event)=>{
+            if (event.key !== "Enter"){
+                return
+            }
+            controller.DemoMessage(roomId, messageInput, fileInput, blob);
+        });
+        messageSend.addEventListener("click", ()=>{
+            controller.DemoMessage(roomId, messageInput, fileInput, blob);
+        })
+        sendPhotoOrFile.addEventListener("click", ()=>{
+            fileInput.click();
+        });
+        fileInput.addEventListener("change", (event)=>{
+            const file = event.target.files[0];
+            if (file.size > 10000000){
+                fileInput.value = "";
+                return
+            }
+            if (file.type.split("/")[0] === "application"){
+                previewDiv.style.display = "flex";
+                let fileName = file.name;
+                filePreview.textContent = fileName;
+            }else if (file.type.split("/")[0] === "image"){
+                previewDiv.style.display = "flex";
+                let src = URL.createObjectURL(file);
+                photoPreview.src = src;
+            }else{
+                fileInput.value = "";
+            }
+        });
+        cancelPreview.addEventListener("click", ()=>{
+            previewDiv.style.display = "none";
+            photoPreview.src = "";
+            fileInput.value = "";
+            filePreview.textContent = "";
+        });
+        emoji.addEventListener("click", ()=>{
+            backBlock.style.display = "block";
+            emojiDiv.style.display = "flex";
+            messageInput.style.zIndex = "10";
+            view.emoji();
+            emojiState = true;
+
+            let emojis = document.querySelectorAll(".emojis");
+            for (let i=0; i<emojis.length; i++){
+                emojis[i].addEventListener("click", async ()=>{
+                    messageInput.value += emojis[i].textContent
+                });
+            }
+        });
+        audioRecord.addEventListener("click", ()=>{
+            view.recordBox();
+            recordDiv.style.display = "flex";
+            const record = document.getElementById("record");
+            const recordImg = document.getElementById("recordImg");
+            const cancelRecord = document.getElementById("cancelRecord");
+            const recordBar = document.getElementById("recordBar");
+            let recording = false;
+            let count;
+            let mediaRecorder, chunks = [], audioURL = ''
+            if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){            
+                navigator.mediaDevices.getUserMedia({
+                    audio: true
+                }).then(stream => {
+                    audioStream = stream
+                    mediaRecorder = new MediaRecorder(stream)
+            
+                    mediaRecorder.ondataavailable = (e) => {
+                        chunks.push(e.data)
+                    }
+
+                    mediaRecorder.onstop = () => {
+                        blob = new Blob(chunks, {'type': 'audio/webm'})
+                        chunks = []
+                        audioURL = window.URL.createObjectURL(blob)
+                        document.getElementById("audioResult").src = audioURL
+                    }
+                }).catch(error => {
+                    console.log(error)
+                })
+            }else{
+                recordBar = ""
+                recordBar = "No audio device"
+            }
+            record.addEventListener("click", ()=>{
+                if (!recording){
+                    view.recordCount();
+                    const recordTime = document.getElementById("recordTime");
+                    recording = true;
+                    recordImg.src = "/static/img/icon_pause.png";
+                    mediaRecorder.start()
+                    count = setInterval(()=>{
+                        let second = parseInt(recordTime.textContent);
+                        second --;
+                        recordTime.textContent = second;
+                        if (second === 0){
+                            clearInterval(count)
+                            recording = false;
+                            recordImg.src = "/static/img/icon_play.png";        
+                            recordTime.textContent = 30;
+                            view.audio();
+                            mediaRecorder.stop()
+                        }
+                    }, 1000)
+                }else{
+                    recording = false;
+                    mediaRecorder.stop()
+                    recordImg.src = "/static/img/icon_play.png";
+                    clearInterval(count)
+                    view.audio();
+                }
+            });
+            cancelRecord.addEventListener("click", ()=>{
+                recordDiv.style.display = "none";
+                recordDiv.innerHTML = ""
+                recording = false;
+                audioStream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+            });
+        });
+    },
+    DemoMessage: function(roomId, messageInput, fileInput, audioFile){
+        if (messageInput.value.trim() === "" && !fileInput.value && !audioFile){
+            return
+        }
+        if (messageInput.value.trim() !== ""){
+            model.demoMessageFileSend(roomId, messageInput.value, "string", "string");
+            let timeNow = new Date();
+            let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
+            const sendTime = timeNow.getHours() + ":" + timeMinutes;     
+            if (messageInput.value === "Q1: How to start?"){
+                view.friendMessages(sendTime, "/static/img/AddFriend.gif", "image")
+            }else if(messageInput.value === "Q2: How to call"){
+                view.friendMessages(sendTime, "/static/img/video_chat.gif", "image")
+            }    
+            messageInput.value = "";   
+            chatRoom.scrollTop = chatRoom.scrollHeight;    
+        }
+        if (fileInput.value){
+            const fileName = controller.createUUID();
+            const file = fileInput.files[0];
+            if (fileInput.files[0].type.split("/")[0] === "image"){
+                model.demoMessageFileSend(roomId, file, fileName, "image");
+            }else if(fileInput.files[0].type.split("/")[0] === "application"){
+                model.demoMessageFileSend(roomId, file, fileName, "file");
+            }
+            previewDiv.style.display = "none";
+            photoPreview.src = "";
+            fileInput.value = "";
+            filePreview.textContent = "";
+        }
+        if (audioFile) {
+            const fileName = controller.createUUID();
+            const file = audioFile;
+            model.demoMessageFileSend(roomId, file, fileName, "audio");
+            blob = null;
+            recordDiv.style.display = "none";
+            recordDiv.innerHTML = ""
+            if (audioStream){
+                audioStream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+            }
+        }
+        if (emojiState){
+            emojiDiv.style.display = "none";
+            emojiDiv.innerHTML = "";
+            emojiState = false;
+            messageInput.style.zIndex = "1";
+            backBlock.style.display = "none";
+        }
+        if (DemoInput){
+            recordDiv.style.display = "none";
+            recordDiv.innerHTML = "";
+            DemoInput = false;
+            messageInput.style.zIndex = "1";
+            backBlock.style.display = "none";
+        }
+    },
+
 };
 controller.init();

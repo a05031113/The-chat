@@ -1,7 +1,6 @@
 package ws
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -49,7 +48,7 @@ func ServeWs(c *gin.Context) {
 	h.register <- subscript
 	go subscript.writePump()
 	go subscript.readPump()
-	fmt.Println(h)
+	// fmt.Println(h)
 }
 
 func (s subscription) readPump() {

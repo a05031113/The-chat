@@ -47,3 +47,11 @@ let roomId;
 let calling = false;
 
 let peer;
+
+let emojiState = false;
+
+let blob;
+
+let audioStream;
+
+let DemoInput = false;

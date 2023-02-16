@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"the-chat/application/database"
 	"the-chat/application/models"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -18,7 +18,7 @@ import (
 var addFriendCollection *mongo.Collection = database.OpenCollection(database.Client, "addFriend")
 
 func AddFriend(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx = context.Background()
 	var addFriendData models.AddFriendData
 	userID, _ := c.Get("id")
 
@@ -51,17 +51,28 @@ func AddFriend(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	defer cancel()
 	fmt.Println(result)
 
 	c.JSON(http.StatusOK, gin.H{"add": "success"})
 }
 
 func AddData(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx = context.Background()
 	userID, _ := c.Get("id")
 
 	primitiveId, _ := primitive.ObjectIDFromHex(userID.(string))
+
+	rdb := database.RedisClient()
+	val, err := rdb.Get(ctx, "allUserData").Bytes()
+	if err != nil {
+		panic(err)
+	}
+	var data []primitive.M
+	err = json.Unmarshal(val, &data)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
 	addOpts := options.Find().SetProjection(bson.D{{"_id", 0}})
 	addResult, err := addFriendCollection.Find(ctx, bson.M{"addid": primitiveId}, addOpts)
@@ -75,33 +86,46 @@ func AddData(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	defer cancel()
 
 	var addResults []bson.M
 	if err = addResult.All(context.TODO(), &addResults); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-
-	var addOutput []primitive.ObjectID
+	var addConvert []primitive.ObjectID
 	for _, result := range addResults {
-		addOutput = append(addOutput, result["addedid"].(primitive.ObjectID))
+		addConvert = append(addConvert, result["addedid"].(primitive.ObjectID))
+	}
+	var addOutput []primitive.M
+	for i := 0; i < len(addConvert); i++ {
+		for j, user := range data {
+			if addConvert[i].Hex() == user["_id"] {
+				addOutput = append(addOutput, data[j])
+			}
+		}
 	}
 
 	var addedResults []bson.M
 	if err = addedResult.All(context.TODO(), &addedResults); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-
-	var addedOutput []primitive.ObjectID
+	var addedConvert []primitive.ObjectID
 	for _, result := range addedResults {
-		addedOutput = append(addedOutput, result["addid"].(primitive.ObjectID))
+		addedConvert = append(addedConvert, result["addid"].(primitive.ObjectID))
+	}
+	var addedOutput []primitive.M
+	for i := 0; i < len(addedConvert); i++ {
+		for j, user := range data {
+			if addedConvert[i].Hex() == user["_id"] {
+				addedOutput = append(addedOutput, data[j])
+			}
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"add": addOutput, "added": addedOutput})
 }
 
 func CheckAdded(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx = context.Background()
 	var checkAddedData models.AddFriendData
 	userID, _ := c.Get("id")
 
@@ -139,7 +163,6 @@ func CheckAdded(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	defer cancel()
 	fmt.Println(deleteResult, userUpdateResult, addedUpdateResult)
 
 	c.JSON(http.StatusOK, gin.H{"add": "success"})

@@ -66,7 +66,7 @@ let model = {
             if (!auth){
                 return false;
             }        
-            const response = await fetch("/api/user/presigned", {
+            const response = await fetch("/api/user/headPhoto", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -106,32 +106,45 @@ let model = {
             console.log({"error": error})
         }
     },
-    addMode: function addMode(allUserData, userData, addData){
-        if (!userData.Friend){
-            userData.Friend = [];
-        }
-        let addSent;
-        const found = allUserData.data.findIndex(item => item.username === searchInput.value)
-        if (found !== -1){
-            if (userData.Friend.includes(allUserData.data[found]._id)){
-                view.showPopup();
-                view.friendAlready(allUserData.data[found]);
+    addMode: async function addMode(data){
+        try{
+            let auth = await model.refresh();
+            if (!auth){
                 return false;
-            }else if (addData){
-                if (addData.includes(allUserData.data[found]._id)){
-                    addSent = true;
-                    view.showPopup();
-                    view.searchUser(allUserData.data[found], addSent)
-                    return false;
-                }else{
-                    addSent = false;
+            }        
+            const response = await fetch("/api/user/search", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    "Content-type": "application/json",
                 }
+            });
+            const result = await response.json()
+            if (result.data){
+                if (!userData.Friend){
+                    userData.Friend = [];
+                }
+                let addSent;
+                if (addData){
+                    const found = addData.findIndex(item => item.username === searchInput.value)
+                    if (found !== -1){
+                        addSent = true;
+                        view.showPopup();
+                        view.searchUser(addData[found], addSent)
+                        return false;
+                    }else{
+                        addSent = false;     
+                    }
+                }
+                view.showPopup();
+                view.searchUser(result.data[0], addSent);
+                return result.data[0];   
+            } else{
+                return false;
             }
-            view.showPopup();
-            view.searchUser(allUserData.data[found], addSent);
-            return allUserData.data[found]._id;
+        }catch(error){
+            console.log({"error": error})
         }
-        return false;
     },
     addFriend: async function addFriend(data){
         try{
@@ -195,13 +208,13 @@ let model = {
             console.log({"error": error})
         }
     },
-    makeRoomId: function makeRoomId(username, userData, allUserData){
+    makeRoomId: function makeRoomId(username, userData){
         let idList = [userData.ID];
         let friendId;
-        for (let i=0; i<allUserData.length; i++){
-            if (username === allUserData[i].username){
-                idList.push(allUserData[i]._id);
-                friendId = allUserData[i]._id;
+        for (let i=0; i<userData.Friend.length; i++){
+            if (username === userData.Friend[i].username){
+                idList.push(userData.Friend[i]._id);
+                friendId = userData.Friend[i]._id;
             }
         }
         idList.sort();
@@ -278,25 +291,51 @@ let model = {
     showMessage: async function showMessage(roomId){
         const roomData = {"roomId": roomId}
         const roomResult = await model.getMessage(roomData)
+        if (roomId.split(",")[1] === "Demo"){
+            if (roomResult.data){
+                const messages = roomResult.data.message
+    
+                for (let i=0; i<messages.length; i++){
+                    let message = messages[i].content;
+                    let messageType = messages[i].type;
+                    let timeNow = new Date(messages[i].time);
+                    let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
+                    let dateTime = timeNow.getHours() + ":" + timeMinutes; 
+                    if (messages[i].content === "Q1: How to start?"){
+                        view.myMessages(dateTime, message, messageType);
+                        view.friendMessages(dateTime, "/static/img/AddFriend.gif", "image")
+                    }else if (messages[i].content === "Q2: How to call?"){
+                        view.myMessages(dateTime, message, messageType);
+                        view.friendMessages(dateTime, "/static/img/video_chat.gif", "image")
+                    }else{
+                        view.myMessages(dateTime, message, messageType);
+                    }
+                }    
+            }   
+            setTimeout(()=>{
+                chatRoom.scrollTop = chatRoom.scrollHeight;
+            }, 1000)    
+            return 
+        }        
         if (roomResult.data){
             const messages = roomResult.data.message
 
             for (let i=0; i<messages.length; i++){
+                let message = messages[i].content;
+                let messageType = messages[i].type;
+                let timeNow = new Date(messages[i].time);
+                let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
+                let dateTime = timeNow.getHours() + ":" + timeMinutes; 
                 if (messages[i].sendId === userData.ID){
-                    let message = messages[i].content
-                    let timeNow = new Date(messages[i].time)
-                    let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
-                    let dateTime = timeNow.getHours() + ":" + timeMinutes; 
-                    view.myMessages(dateTime, message)
+                    view.myMessages(dateTime, message, messageType);
                 }else{
-                    let message = messages[i].content
-                    let timeNow = new Date(messages[i].time)
-                    let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
-                    let dateTime = timeNow.getHours() + ":" + timeMinutes; 
-                    view.friendMessages(dateTime, message)
+                    view.friendMessages(dateTime, message, messageType)
                 }
             }    
         }
+        setTimeout(()=>{
+            chatRoom.scrollTop = chatRoom.scrollHeight;
+        }, 1000)
     },
     resetUnRead: async function resetUnRead(data){
         try{
@@ -318,6 +357,92 @@ let model = {
             }
         }catch(error){
             console.log(error)
+        }
+    },
+    messageFileSend: async function(file, fileName, fileType, friendId){
+        let content;
+        let timeNow = new Date();
+        let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
+        const sendTime = timeNow.getHours() + ":" + timeMinutes; 
+
+        if (fileType === "string"){
+            content = file; 
+        }else{
+            const fileNameData = {
+                "fileName": fileName
+            }
+            content = await model.R2FileSend(file, fileNameData);
+        }
+        const data = {
+            "roomId": roomId,
+            "content": content,
+            "sendTime": timeNow,
+            "type": fileType,
+        }
+        const notification = {
+            "to": friendId,
+            "type": "message",
+            "messageType": fileType,
+            "who": userData.ID,
+            "roomId": roomId,
+            "content": content,
+            "sendTime": timeNow,
+        }
+        model.sendMessage(data);
+        view.myMessages(sendTime, content, fileType);
+        notifyConn.send(JSON.stringify(notification));
+        messageInput.value = "";   
+        chatRoom.scrollTop = chatRoom.scrollHeight;
+    },
+    demoMessageFileSend: async function(roomId, file, fileName, fileType){
+        let content;
+        let timeNow = new Date();
+        let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
+        const sendTime = timeNow.getHours() + ":" + timeMinutes; 
+
+        if (fileType === "string"){
+            content = file; 
+        }else{
+            const fileNameData = {
+                "fileName": fileName
+            }
+            content = await model.R2FileSend(file, fileNameData);
+        }
+        const data = {
+            "roomId": roomId,
+            "content": content,
+            "sendTime": timeNow,
+            "type": fileType,
+        }
+        model.sendMessage(data);
+        view.myMessages(sendTime, content, fileType);
+    },
+    R2FileSend: async function (file, fileNameData){
+        try{
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }        
+            const response = await fetch("/api/messages/file", {
+                method: "POST",
+                body: JSON.stringify(fileNameData),
+                headers: {
+                    "Content-type": "application/json",
+                }
+            });
+            const result = await response.json();
+            const url = result.PresignedUrl;
+            const photoUrl = result.PhotoUrl;
+            await fetch( url, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                },
+                body: file
+            })
+            return photoUrl;
+        }catch(error){
+            console.log({"error": error})
         }
     },
     totalUnRead: function totalUnRead(){

@@ -11,7 +11,6 @@ type Room struct {
 	RoomID string `json: "roomId"`
 }
 
-// type UnRead struct {
-// 	RoomID string `json: "roomId"`
-// 	UnRead string `json: "unRead"`
-// }
+type File struct {
+	FileName string `json: "fileName"`
+}

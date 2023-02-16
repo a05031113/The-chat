@@ -19,7 +19,7 @@ var userCollection *mongo.Collection = database.OpenCollection(database.Client, 
 var validate = validator.New()
 
 func Register(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx = context.Background()
 	var register models.Register
 
 	if err := c.BindJSON(&register); err != nil {
@@ -51,7 +51,6 @@ func Register(c *gin.Context) {
 	}
 
 	count, err := userCollection.CountDocuments(ctx, bson.M{"email": register.Email})
-	defer cancel()
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error while checking email"})
@@ -74,14 +73,13 @@ func Register(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error while insert data"})
 		return
 	}
-	defer cancel()
 
 	c.JSON(http.StatusOK, gin.H{"register": "success"})
 	database.AllUserData()
 }
 
 func Login(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx = context.Background()
 	var login models.Login
 	var foundUser models.FoundUser
 
@@ -91,7 +89,6 @@ func Login(c *gin.Context) {
 	}
 
 	err := userCollection.FindOne(ctx, bson.M{"email": login.Email}).Decode(&foundUser)
-	defer cancel()
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "email or password is incorrect"})
