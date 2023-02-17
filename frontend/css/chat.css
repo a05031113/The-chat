@@ -689,6 +689,24 @@ body{
     padding-right: 12px;
     border-radius: 10px;
 }
+.PhotoDiv{
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background-color: #676767af;
+    z-index: 12;
+}
+.Photo{
+    max-width: 1000px;
+    max-height: 700px;
+    z-index: 5px;
+    border-radius: 5px;
+    object-fit: cover;
+}
 
 .messages-time{
     font-size: 14px;
@@ -698,6 +716,8 @@ body{
     max-height: 300px;
     max-width: 350px;
     object-fit: cover;
+    cursor: pointer;
+    border-radius: 5px;
 }
 .file-download{
     color: white;

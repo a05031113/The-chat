@@ -50,3 +50,8 @@ let recordState = false;
 let blob;
 let audioStream;
 let DemoInput = false;
+
+const PhotoDiv = document.getElementById("PhotoDiv");
+const Photo = document.getElementById("Photo");
+
+let photoReview;

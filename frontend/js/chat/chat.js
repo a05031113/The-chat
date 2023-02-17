@@ -14,6 +14,10 @@ window.addEventListener("click", (event)=>{
     if (event.target === backBlock){
         view.leaveCorner();
     }
+    if (event.target === PhotoDiv){
+        PhotoDiv.style.display = "none";
+        Photo.src = "";
+    }
     if (emojiState){
         if (event.target === backBlock){
             emojiDiv.style.display = "none"
@@ -253,6 +257,10 @@ let controller = {
                     
                     if (userData.Username !== username){
                         view.friendMessages(time, messages, notification.messageType);
+                        controller.ViewPhoto();
+                        setTimeout(()=>{
+                            chatRoom.scrollTop = chatRoom.scrollHeight;
+                        }, 1000)                
                     }
                     chatRoom.scrollTop = chatRoom.scrollHeight;        
                 }
@@ -477,6 +485,8 @@ let controller = {
 
         await model.showMessage(roomId);
         chatRoom.scrollTop = chatRoom.scrollHeight;
+
+        controller.ViewPhoto();
         
         controller.resetUnRead(roomId);
         view.showChat(userData, roomList);
@@ -494,9 +504,11 @@ let controller = {
                 return
             }
             controller.message(messageInput, roomId, friendId, fileInput, blob);
+            controller.ViewPhoto();
         });
         messageSend.addEventListener("click", ()=>{
             controller.message(messageInput, roomId, friendId, fileInput, blob);
+            controller.ViewPhoto();
         })
         chatBoxCall.addEventListener("click", ()=>{
             const found = userData.Friend.findIndex(item => item._id === friendId)
@@ -638,7 +650,10 @@ let controller = {
             const file = fileInput.files[0];
             if (fileInput.files[0].type.split("/")[0] === "image"){
                 model.messageFileSend(file, fileName, "image", friendId);
-                controller.updateRoomList(roomId, "image", userData.ID, timeNow, "image", 0)
+                controller.updateRoomList(roomId, "image", userData.ID, timeNow, "image", 0);
+                setTimeout(()=>{
+                    controller.ViewPhoto();
+                }, 1000)
             }else if(fileInput.files[0].type.split("/")[0] === "application"){
                 model.messageFileSend(file, fileName, "file", friendId);
                 controller.updateRoomList(roomId, "file", userData.ID, timeNow, "file", 0)
@@ -766,8 +781,6 @@ let controller = {
         })
     },
     enterDemoRoom: async function enterChatRoom(){
-        let friendRecommend = await model.friendRecommend();
-        console.log(friendRecommend)
         const messageInput = document.getElementById("messageInput");
         const messageSend = document.getElementById("messageSend");
         const fileInput = document.getElementById("fileInput");
@@ -785,6 +798,8 @@ let controller = {
 
         await model.showMessage(roomId);
         chatRoom.scrollTop = chatRoom.scrollHeight;
+
+        controller.ViewPhoto();
 
         messageInput.addEventListener("click", ()=>{
             if (!recordState){
@@ -808,9 +823,13 @@ let controller = {
                 return
             }
             controller.DemoMessage(roomId, messageInput, fileInput, blob);
+            controller.ViewPhoto();
+            messageInput.style.zIndex = "1";
         });
         messageSend.addEventListener("click", ()=>{
             controller.DemoMessage(roomId, messageInput, fileInput, blob);
+            controller.ViewPhoto();
+            messageInput.style.zIndex = "1";
         })
         sendPhotoOrFile.addEventListener("click", ()=>{
             fileInput.click();
@@ -941,13 +960,14 @@ let controller = {
                 view.friendMessages(sendTime, "Search user ID at add page and click add button", "string")
                 view.friendMessages(sendTime, "Don't forget to introduce yourself", "string")
                 const friendRecommend = await model.friendRecommend();
-                view.friendMessages(sendTime, "Did they your friend?", "string")
+                view.friendMessages(sendTime, "Did you recognize them?", "string")
                 for (let i=0; i<3; i++){
                     view.friendMessages(sendTime, friendRecommend.data[i], "recommend")
                 }
             }else if(messageInput.value === "How to call"){
                 view.friendMessages(sendTime, "/static/img/video_chat.gif", "image")
             }    
+            controller.ViewPhoto();
             messageInput.value = "";   
             chatRoom.scrollTop = chatRoom.scrollHeight;    
         }
@@ -963,6 +983,9 @@ let controller = {
             photoPreview.src = "";
             fileInput.value = "";
             filePreview.textContent = "";
+            setTimeout(()=>{
+                controller.ViewPhoto();
+            }, 1000)
         }
         if (audioFile) {
             const fileName = controller.createUUID();
@@ -981,17 +1004,24 @@ let controller = {
             emojiDiv.style.display = "none";
             emojiDiv.innerHTML = "";
             emojiState = false;
-            messageInput.style.zIndex = "1";
             backBlock.style.display = "none";
         }
         if (DemoInput){
             recordDiv.style.display = "none";
             recordDiv.innerHTML = "";
             DemoInput = false;
-            messageInput.style.zIndex = "1";
             backBlock.style.display = "none";
         }
     },
-
+    ViewPhoto: function(){
+        photoReview = document.querySelectorAll(".messages-myPhoto");
+        for (let i=0; i<photoReview.length; i++){
+            photoReview[i].addEventListener("click", ()=>{
+                PhotoDiv.style.display = "flex";
+                Photo.src = photoReview[i].currentSrc;
+                console.log("test")
+            })
+        }
+    }
 };
 controller.init();

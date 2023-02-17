@@ -303,9 +303,9 @@ let model = {
                     let dateTime = timeNow.getHours() + ":" + timeMinutes; 
                     if (messages[i].content === "How to start?"){
                         view.myMessages(dateTime, message, messageType);
-                        view.friendMessages(dateTime, "/static/img/AddFriend.gif", "image")
+                        view.friendMessages(dateTime, "/static/img/Demo-Add.gif", "image")
                         const friendRecommend = await model.friendRecommend();
-                        view.friendMessages(dateTime, "Did they your friend?", "string")
+                        view.friendMessages(dateTime, "Did you recognize them?", "string")
                         for (let i=0; i<3; i++){
                             view.friendMessages(dateTime, friendRecommend.data[i], "recommend")
                         }        
@@ -397,7 +397,9 @@ let model = {
         view.myMessages(sendTime, content, fileType);
         notifyConn.send(JSON.stringify(notification));
         messageInput.value = "";   
-        chatRoom.scrollTop = chatRoom.scrollHeight;
+        setTimeout(()=>{
+            chatRoom.scrollTop = chatRoom.scrollHeight;
+        }, 1500)
     },
     demoMessageFileSend: async function(roomId, file, fileName, fileType){
         let content;
