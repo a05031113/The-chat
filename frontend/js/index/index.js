@@ -54,6 +54,8 @@ let controller = {
     init: async function(){
         await model.refresh();
         loading.style.display = "none";
+        loginEmail.value = "demo@demo.com";
+        loginPassword.value = "Demo1234";
     }
 };
 controller.init();

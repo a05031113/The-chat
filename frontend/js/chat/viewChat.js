@@ -174,10 +174,14 @@ let view = {
         for (let i=0; i<addedData.length; i++){
             let src = view.headPhotoSrc(addedData[i].headPhoto);
             let username = addedData[i].username;
+            let introduction = addedData[i].introduction;
             let addedHtml =`
                 <div class="add-added-friend">
                     <img class="add-added-img" src="${src}" alt=""/>
-                    <div class="add-added-username" >${username}</div>
+                    <div>
+                        <div class="add-added-username">${username}</div>
+                        <div class="added-introduction">${introduction}</div>
+                    </div>
                 </div>
             `  
             showAddHtml = showAddHtml + addedHtml
@@ -229,7 +233,10 @@ let view = {
             showUserHtml = showUserHtml + isTrue;
         }else{
             let isFalse = `
-                <button id="addFriendBtn" class="add-friend"><img class="addImg" src="/static/img/icon_add.png" alt=""/></button>
+                <div id="addZone" class="addZone">
+                    <input id="introduction" class="introduction" type="textarea" placeholder="introduce..."/>
+                    <button id="addFriendBtn" class="add-friend"><img class="addImg" src="/static/img/icon_add.png" alt=""/></button>
+                </div>
             `
             showUserHtml = showUserHtml + isFalse;
         }
@@ -254,18 +261,19 @@ let view = {
     },
 
     addSent: function addSent(){
-        addFriendBtn.style.display = "none";
+        addZone.style.display = "none";
         const addSendedHtml = `
             <div class="search-message">Add sent. Wait for check</div>
         `
         popupContent.insertAdjacentHTML("beforeend", addSendedHtml);
     },
-    checkAdd: function checkAdd(src, username){
+    checkAdd: function checkAdd(src, username, introduction){
         let showUserHtml = `
             <div id="userPhoto" class="photo-div">
                 <img id="userImg" class="edit-profile-photo" src=${src} alt=""/>
             </div>
             <div class="search-username" >${username}</div>
+            <div class="check-added-introduction">${introduction}</div>
             <button id="checkAddedBtn" class="add-friend"><img class="addImg" src="/static/img/icon_add.png" alt=""/></button>
         `
         popupContent.insertAdjacentHTML("afterbegin", showUserHtml);
@@ -432,6 +440,15 @@ let view = {
                 return `<div class="messages-friendMessage"><a class="file-download" href="${messages}">file download</a></div>`
             }else if (type === "audio"){
                 return `<audio controls class="audio-box" src="${messages}"></audio>`
+            }else if (type === "recommend"){
+                let src = view.headPhotoSrc(messages.headPhoto);
+                let username = messages.username;
+                return `
+                    <div class="recommend-friend">
+                        <img class="recommend-img" src="${src}" alt=""/>
+                        <div class="recommend-username" >${username}</div>
+                    </div>
+                `
             }
         }
         const messageHtml = `
@@ -501,8 +518,7 @@ let view = {
     showSelection: function(){
         recordDiv.innerHTML = "";
         const selectionHtml = `
-            <div class="selection">Q1: How to start?</div>
-            <div class="selection">Q2: How to call?</div>
+            <div class="selection">How to start?</div>
         `
         recordDiv.insertAdjacentHTML("beforeend", selectionHtml)
     }

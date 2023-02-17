@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"the-chat/application/database"
 	"the-chat/application/models"
@@ -128,4 +129,41 @@ func PostSearch(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": result})
+}
+
+func GetRecommend(c *gin.Context) {
+	var ctx = context.Background()
+	rdb := database.RedisClient()
+	val, err := rdb.Get(ctx, "allUserData").Bytes()
+	if err != nil {
+		panic(err)
+	}
+	var data []primitive.M
+	err = json.Unmarshal(val, &data)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	var nums [3]int
+	for i := 0; i < 3; i++ {
+		num := rand.Intn(len(data))
+		for contains(nums, num) {
+			num = rand.Intn(len(data))
+		}
+		nums[i] = num
+	}
+	var output [3]primitive.M
+	for i := 0; i < len(nums); i++ {
+		output[i] = data[nums[i]]
+	}
+	c.JSON(http.StatusOK, gin.H{"data": output})
+}
+
+func contains(nums [3]int, num int) bool {
+	for _, n := range nums {
+		if n == num {
+			return true
+		}
+	}
+	return false
 }

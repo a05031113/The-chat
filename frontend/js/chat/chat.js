@@ -125,9 +125,11 @@ searchInput.addEventListener("change", async ()=>{
         }
         let searchResult = await model.addMode(data);
         if (searchResult){
-            addFriendBtn = document.getElementById("addFriendBtn");
+            addZone = document.getElementById("addZone");
+            const introduction = document.getElementById("introduction");
+            const addFriendBtn = document.getElementById("addFriendBtn");
             addFriendBtn.addEventListener("click", async ()=>{
-                const data = {"id": searchResult._id};
+                const data = {"id": searchResult._id, "introduction": introduction.value};
                 let result = await model.addFriend(data);
                 if (result){
                     view.addSent();
@@ -136,7 +138,6 @@ searchInput.addEventListener("change", async ()=>{
                     }
                     addData.push(searchResult);
                 }
-
                 let headPhoto;
                 if (!userData.HeadPhoto){
                     headPhoto = null;
@@ -146,7 +147,8 @@ searchInput.addEventListener("change", async ()=>{
                 const myData = {
                     "_id": userData.ID,
                     "username": userData.Username,
-                    "headPhoto": headPhoto
+                    "headPhoto": headPhoto,
+                    "introduction": introduction.value
                 }
                 const notification = {
                     "to": searchResult._id,
@@ -171,12 +173,11 @@ let controller = {
         await model.refresh();
         userData = await model.getUserData();
         model.loadHeadPhoto(userData.HeadPhoto);
-        view.showFriend(userData.Friend);
-        controller.friendClick();
-        loading.style.display = "none";
         if (!userData.Friend){
             userData.Friend = []
         }
+        view.showFriend(userData.Friend);
+        controller.friendClick();
         const addResponse = await model.addData();
         const roomResponse = await model.getRooms();
         roomList = roomResponse.data;
@@ -189,6 +190,7 @@ let controller = {
         if (!addedData){
             addedData = [];
         }
+        loading.style.display = "none";
 
         let addedCount = model.totalAdded();
         view.addRedTag(addedCount);
@@ -409,7 +411,7 @@ let controller = {
         for (let i=0; i<addFriendList.length; i++){
             addFriendList[i].addEventListener("click", async (event)=>{
                 view.showPopup();
-                view.checkAdd(event.currentTarget.firstElementChild.src, event.currentTarget.lastElementChild.textContent);
+                view.checkAdd(addedData[i].headPhoto, addedData[i].username, addedData[i].introduction);
                 const checkAddedBtn = document.getElementById("checkAddedBtn");
                 const data = {
                     "id": addedData[i]._id
@@ -763,7 +765,9 @@ let controller = {
             }
         })
     },
-    enterDemoRoom: async function enterChatRoom(username){
+    enterDemoRoom: async function enterChatRoom(){
+        let friendRecommend = await model.friendRecommend();
+        console.log(friendRecommend)
         const messageInput = document.getElementById("messageInput");
         const messageSend = document.getElementById("messageSend");
         const fileInput = document.getElementById("fileInput");
@@ -783,18 +787,20 @@ let controller = {
         chatRoom.scrollTop = chatRoom.scrollHeight;
 
         messageInput.addEventListener("click", ()=>{
-            backBlock.style.display = "block";
-            recordDiv.style.display = "flex";
-            messageInput.style.zIndex = "10";
-            view.showSelection();
-            DemoInput = true
-
-            let selections = document.querySelectorAll(".selection");
-            for (let i=0; i<selections.length; i++){
-                selections[i].addEventListener("click",()=>{
-                    messageInput.value = selections[i].textContent;
-                    controller.DemoMessage(roomId, messageInput, fileInput, blob);    
-                });
+            if (!recordState){
+                backBlock.style.display = "block";
+                recordDiv.style.display = "flex";
+                messageInput.style.zIndex = "10";
+                view.showSelection();
+                DemoInput = true
+    
+                let selections = document.querySelectorAll(".selection");
+                for (let i=0; i<selections.length; i++){
+                    selections[i].addEventListener("click",()=>{
+                        messageInput.value = selections[i].textContent;
+                        controller.DemoMessage(roomId, messageInput, fileInput, blob);    
+                    });
+                }
             }
         });
         messageInput.addEventListener("keypress", async (event)=>{
@@ -848,6 +854,7 @@ let controller = {
             }
         });
         audioRecord.addEventListener("click", ()=>{
+            recordState = true;
             view.recordBox();
             recordDiv.style.display = "flex";
             const record = document.getElementById("record");
@@ -913,13 +920,14 @@ let controller = {
                 recordDiv.style.display = "none";
                 recordDiv.innerHTML = ""
                 recording = false;
+                recordState = false;
                 audioStream.getTracks().forEach(function(track) {
                     track.stop();
                 });
             });
         });
     },
-    DemoMessage: function(roomId, messageInput, fileInput, audioFile){
+    DemoMessage: async function(roomId, messageInput, fileInput, audioFile){
         if (messageInput.value.trim() === "" && !fileInput.value && !audioFile){
             return
         }
@@ -928,9 +936,16 @@ let controller = {
             let timeNow = new Date();
             let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
             const sendTime = timeNow.getHours() + ":" + timeMinutes;     
-            if (messageInput.value === "Q1: How to start?"){
-                view.friendMessages(sendTime, "/static/img/AddFriend.gif", "image")
-            }else if(messageInput.value === "Q2: How to call"){
+            if (messageInput.value === "How to start?"){
+                view.friendMessages(sendTime, "/static/img/Demo-Add.gif", "image")
+                view.friendMessages(sendTime, "Search user ID at add page and click add button", "string")
+                view.friendMessages(sendTime, "Don't forget to introduce yourself", "string")
+                const friendRecommend = await model.friendRecommend();
+                view.friendMessages(sendTime, "Did they your friend?", "string")
+                for (let i=0; i<3; i++){
+                    view.friendMessages(sendTime, friendRecommend.data[i], "recommend")
+                }
+            }else if(messageInput.value === "How to call"){
                 view.friendMessages(sendTime, "/static/img/video_chat.gif", "image")
             }    
             messageInput.value = "";   

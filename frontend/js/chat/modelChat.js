@@ -152,7 +152,7 @@ let model = {
             if (!auth){
                 return false;
             }        
-            const response = await fetch("/api/chat/addFriend", {
+            const response = await fetch("/api/chat/add/friend", {
                 method: "POST",
                 body: JSON.stringify(data),
                 headers: {
@@ -174,7 +174,7 @@ let model = {
             if (!auth){
                 return false;
             }        
-            const response = await fetch("/api/chat/addData", {
+            const response = await fetch("/api/chat/add/data", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -192,7 +192,7 @@ let model = {
             if (!auth){
                 return false;
             }        
-            const response = await fetch("/api/chat/checkAdded", {
+            const response = await fetch("/api/chat/add/check", {
                 method: "POST",
                 body: JSON.stringify(data),
                 headers: {
@@ -301,10 +301,15 @@ let model = {
                     let timeNow = new Date(messages[i].time);
                     let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
                     let dateTime = timeNow.getHours() + ":" + timeMinutes; 
-                    if (messages[i].content === "Q1: How to start?"){
+                    if (messages[i].content === "How to start?"){
                         view.myMessages(dateTime, message, messageType);
                         view.friendMessages(dateTime, "/static/img/AddFriend.gif", "image")
-                    }else if (messages[i].content === "Q2: How to call?"){
+                        const friendRecommend = await model.friendRecommend();
+                        view.friendMessages(dateTime, "Did they your friend?", "string")
+                        for (let i=0; i<3; i++){
+                            view.friendMessages(dateTime, friendRecommend.data[i], "recommend")
+                        }        
+                    }else if (messages[i].content === "How to call?"){
                         view.myMessages(dateTime, message, messageType);
                         view.friendMessages(dateTime, "/static/img/video_chat.gif", "image")
                     }else{
@@ -467,6 +472,24 @@ let model = {
             count = 99
         }
         return count
+    },
+    friendRecommend: async function(){
+        try{
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }        
+            const response = await fetch("/api/user/recommend", {
+                method: "GET",
+                headers: {
+                    "Content-type": "application/json",
+                }
+            });
+            const result = await response.json();
+            return result;
+        }catch(error){
+            console.log({"error": error})
+        }
     }
 }
 

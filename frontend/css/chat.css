@@ -246,6 +246,7 @@ body{
     border-radius: 50%;
     border: none;
     cursor: pointer;
+    margin-top: 5px;
 }
 .add-friend:hover{
     background-color: #d7dbeb;
@@ -257,6 +258,12 @@ body{
 .search-message{
     text-align: center;
     font-size: 16px;
+}
+.addZone{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 .add-added-friend{
     display: flex;
@@ -279,6 +286,25 @@ body{
 }
 .add-added-username{
     color: white;
+}
+.added-introduction{
+    color: #bebebe;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow:hidden;
+}
+.introduction{
+    width: 150px;
+    height: 30px;
+    font-size: 14px;
+}
+.introduction:focus{
+    outline: none;
+}
+.check-added-introduction{
+    text-align: center;
+    font-size: 14px;
 }
 .friend-list{
     display: flex;
@@ -675,4 +701,23 @@ body{
 }
 .file-download{
     color: white;
+}
+.recommend-friend{
+    display: flex;
+    height: 70px;
+    align-items: center;
+    border-radius: 5px;
+    background-color: rgb(63, 63, 63)
+}
+.recommend-img{
+    width: 50px;
+    height: 50px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.recommend-username{
+    color: white;
+    margin-right: 10px;
 }

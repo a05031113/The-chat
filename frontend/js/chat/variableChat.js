@@ -12,7 +12,7 @@ let uploadPhoto;
 let saveProfile;
 let changedImg;
 
-let addFriendBtn;
+let addZone;
 
 const popup = document.getElementById("popup");
 const popupContent = document.getElementById("popupContent");
@@ -43,15 +43,10 @@ const chatTag = document.getElementById("chatTag");
 const addTag = document.getElementById("addTag");
 
 let roomId;
-
 let calling = false;
-
 let peer;
-
 let emojiState = false;
-
+let recordState = false;
 let blob;
-
 let audioStream;
-
 let DemoInput = false;

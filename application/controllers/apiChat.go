@@ -45,6 +45,7 @@ func AddFriend(c *gin.Context) {
 
 	insertID.AddId = primitiveAddId
 	insertID.AddedId = primitiveAddedId
+	insertID.Introduction = addFriendData.Introduction
 
 	result, err := addFriendCollection.InsertOne(ctx, insertID)
 	if err != nil {
@@ -108,14 +109,22 @@ func AddData(c *gin.Context) {
 	if err = addedResult.All(context.TODO(), &addedResults); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-	var addedConvert []primitive.ObjectID
+	var addedConvert []map[string]interface{}
 	for _, result := range addedResults {
-		addedConvert = append(addedConvert, result["addid"].(primitive.ObjectID))
+		addMap := map[string]interface{}{
+			"addid":        result["addid"].(primitive.ObjectID),
+			"introduction": result["introduction"],
+		}
+		addedConvert = append(addedConvert, addMap)
 	}
 	var addedOutput []primitive.M
 	for i := 0; i < len(addedConvert); i++ {
+		checkId := addedConvert[i]["addid"]
+		fmt.Println(checkId)
 		for j, user := range data {
-			if addedConvert[i].Hex() == user["_id"] {
+			primitiveId, _ := primitive.ObjectIDFromHex(user["_id"].(string))
+			if checkId == primitiveId {
+				data[j]["introduction"] = addedConvert[i]["introduction"]
 				addedOutput = append(addedOutput, data[j])
 			}
 		}

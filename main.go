@@ -30,10 +30,11 @@ func main() {
 	api.GET("/user/headPhoto", middleware.Require, controllers.GetHeadPhoto)
 	api.GET("/user/allUser", middleware.Require, controllers.GetAllUser)
 	api.POST("/user/search", middleware.Require, controllers.PostSearch)
+	api.GET("/user/recommend", middleware.Require, controllers.GetRecommend)
 
-	api.POST("/chat/addFriend", middleware.Require, controllers.AddFriend)
-	api.GET("/chat/addData", middleware.Require, controllers.AddData)
-	api.POST("/chat/checkAdded", middleware.Require, controllers.CheckAdded)
+	api.POST("/chat/add/friend", middleware.Require, controllers.AddFriend)
+	api.GET("/chat/add/data", middleware.Require, controllers.AddData)
+	api.POST("/chat/add/check", middleware.Require, controllers.CheckAdded)
 
 	api.POST("/messages/send", middleware.Require, controllers.Send)
 	api.POST("/messages/room", middleware.Require, controllers.Room)
