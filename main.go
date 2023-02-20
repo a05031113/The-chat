@@ -31,6 +31,8 @@ func main() {
 	api.GET("/user/allUser", middleware.Require, controllers.GetAllUser)
 	api.POST("/user/search", middleware.Require, controllers.PostSearch)
 	api.GET("/user/recommend", middleware.Require, controllers.GetRecommend)
+	api.POST("/user/update/username", middleware.Require, controllers.PostUpdateUsername)
+	api.POST("/user/update/password", middleware.Require, controllers.PostUpdatePassword)
 
 	api.POST("/chat/add/friend", middleware.Require, controllers.AddFriend)
 	api.GET("/chat/add/data", middleware.Require, controllers.AddData)
@@ -53,4 +55,5 @@ func main() {
 
 func init() {
 	database.AllUserData()
+	// database.LoginList()
 }

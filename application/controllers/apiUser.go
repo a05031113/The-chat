@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"the-chat/application/database"
+	"the-chat/application/helper"
 	"the-chat/application/models"
 	"the-chat/application/storage"
 
@@ -157,6 +159,162 @@ func GetRecommend(c *gin.Context) {
 		output[i] = data[nums[i]]
 	}
 	c.JSON(http.StatusOK, gin.H{"data": output})
+}
+
+func PostUpdateUsername(c *gin.Context) {
+	var ctx = context.Background()
+	id, _ := c.Get("id")
+	var updateData models.UpdateData
+
+	if err := c.BindJSON(&updateData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if updateData.Email == "" && updateData.Username == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "no input"})
+		return
+	}
+
+	primitiveId, _ := primitive.ObjectIDFromHex(id.(string))
+
+	filter := bson.M{"_id": primitiveId}
+	if updateData.Email == "" {
+		countUsername, err := userCollection.CountDocuments(ctx, bson.M{"username": updateData.Username})
+		if err != nil {
+			log.Panic(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "error while checking email"})
+			return
+		}
+		if countUsername > 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Username already been used"})
+			return
+		}
+
+		updateUsername := bson.M{
+			"$set": bson.M{"username": updateData.Username},
+		}
+		_, errUpdate := userCollection.UpdateOne(ctx, filter, updateUsername)
+		if errUpdate != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"update": true, "username": true})
+	} else if updateData.Username == "" {
+		emailValid := helper.EmailValid(updateData.Email)
+		if !emailValid {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Wrong email format"})
+			return
+		}
+		countEmail, err := userCollection.CountDocuments(ctx, bson.M{"email": updateData.Email})
+		if err != nil {
+			log.Panic(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "error while checking email"})
+			return
+		}
+		if countEmail > 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Email already exist"})
+			return
+		}
+		updateEmail := bson.M{
+			"$set": bson.M{"email": updateData.Email},
+		}
+		_, errUpdate := userCollection.UpdateOne(ctx, filter, updateEmail)
+		if errUpdate != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"update": true, "email": true})
+	} else {
+		emailValid := helper.EmailValid(updateData.Email)
+		if !emailValid {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Wrong email format"})
+			return
+		}
+		countUsername, err := userCollection.CountDocuments(ctx, bson.M{"username": updateData.Username})
+		if err != nil {
+			log.Panic(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "error while checking email"})
+			return
+		}
+		if countUsername > 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Username already been used"})
+			return
+		}
+		countEmail, err := userCollection.CountDocuments(ctx, bson.M{"email": updateData.Email})
+		if err != nil {
+			log.Panic(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "error while checking email"})
+			return
+		}
+		if countEmail > 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Email already exist"})
+			return
+		}
+
+		updateAll := bson.M{
+			"$set": bson.M{"username": updateData.Username, "email": updateData.Email},
+		}
+		_, updateErr := userCollection.UpdateOne(ctx, filter, updateAll)
+		if updateErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"update": true, "username": true, "email": true})
+	}
+}
+
+func PostUpdatePassword(c *gin.Context) {
+	var ctx = context.Background()
+	id, _ := c.Get("id")
+	var passwordData models.PasswordData
+	var foundUser models.FoundUser
+
+	if err := c.BindJSON(&passwordData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if passwordData.Current == "" || passwordData.New == "" || passwordData.Confirmation == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No input"})
+	}
+	fmt.Println(id)
+	fmt.Println(passwordData)
+	primitiveId, _ := primitive.ObjectIDFromHex(id.(string))
+
+	err := userCollection.FindOne(ctx, bson.M{"_id": primitiveId}).Decode(&foundUser)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Please login again"})
+		return
+	}
+
+	match := helper.CheckPasswordHash(passwordData.Current, foundUser.Password)
+	if !match {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Current password is incorrect"})
+		return
+	}
+
+	if passwordData.New != passwordData.Confirmation {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "New passwords are different"})
+		return
+	}
+
+	passwordValid := helper.PasswordValid(passwordData.New)
+	if !passwordValid {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Wrong password format"})
+		return
+	}
+
+	hashPass, _ := helper.HashPassword(passwordData.New)
+
+	filter := bson.M{"_id": primitiveId}
+	updatePassword := bson.M{
+		"$set": bson.M{"password": hashPass},
+	}
+	_, updateErr := userCollection.UpdateOne(ctx, filter, updatePassword)
+	if updateErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"update": true})
 }
 
 func contains(nums [3]int, num int) bool {

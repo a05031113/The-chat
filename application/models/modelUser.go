@@ -26,3 +26,14 @@ type UserData struct {
 type Search struct {
 	SearchId string `json: "searchId"`
 }
+
+type UpdateData struct {
+	Username string `json: "username"`
+	Email    string `json: "email"`
+}
+
+type PasswordData struct {
+	Current      string `json: "current"`
+	New          string `json: "new"`
+	Confirmation string `json: "confirmation"`
+}

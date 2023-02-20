@@ -82,8 +82,49 @@ let model = {
                 },
                 body: file
             })
-            localStorage.setItem("headPhoto", photoUrl);
-            location.reload();
+            if (!userData.HeadPhoto){
+                userData.HeadPhoto = photoUrl;
+            }
+        }catch(error){
+            console.log({"error": error})
+        }
+    },
+    updateUserInformation: async function(data){
+        try{
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }  
+            const response = await fetch("/api/user/update/username", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    "Content-type": "application/json",
+                }
+            });
+            const result = await response.json();
+            return result;
+        }catch(error){
+            console.log({"error": error})
+        }
+    },
+    changePassword: async function(data){
+        try{
+            let auth = await model.refresh();
+            if (!auth){
+                return false;
+            }  
+            const response = await fetch("/api/user/update/password", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    "Content-type": "application/json",
+                }
+            });
+            const result = await response.json();
+            return result;
+            // const result = await response.json();
+            // return result;
         }catch(error){
             console.log({"error": error})
         }

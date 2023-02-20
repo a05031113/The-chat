@@ -16,6 +16,7 @@ let addZone;
 
 const popup = document.getElementById("popup");
 const popupContent = document.getElementById("popupContent");
+const popupInside = document.querySelector(".popup-inside");
 const leaveBtn = document.getElementById("leaveBtn");
 const profileSetup = document.getElementById("profileSetup");
 

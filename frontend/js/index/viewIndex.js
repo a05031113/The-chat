@@ -10,18 +10,6 @@ let view = {
     },
     registerErrorMessage: function registerErrorMessage(msg){
         registerErrorMsg.textContent = msg;
-    },
-    showLoginLoading: function showLoginLoading(){
-        loginLoading.style.display = "flex";
-    },
-    hideLoginLoading: function hideLoginLoading(){
-        loginLoading.style.display = "none";
-    },
-    showRegisterLoading: function showRegisterLoading(){
-        registerLoading.style.display = "flex";
-    },
-    hideRegisterLoading: function hideRegisterLoading(){
-        registerLoading.style.display = "none";
     }
 }
 

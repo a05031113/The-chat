@@ -56,3 +56,17 @@ func AllUserData() error {
 	}
 	return nil
 }
+
+// func LoginList() error {
+// 	var ctx = context.Background()
+
+// 	var output []map[string]interface{}
+// 	jsonOutput, _ := json.Marshal(output)
+
+// 	rdb := RedisClient()
+// 	err := rdb.Set(ctx, "loginList", jsonOutput, 0).Err()
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	return nil
+// }

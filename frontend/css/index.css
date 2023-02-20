@@ -1,3 +1,7 @@
+*{
+    color: #DEDEDE;
+    font-family: "Gill Sans", sans-serif;
+}
 body{
     margin: 0;
 }
@@ -11,21 +15,22 @@ body{
     padding-right: 14px;
     width: 100%;
     align-items: center;
-    background-color: #374151;
+    background-color: #000000;
     z-index: 10;
 }
 .header-title-content{
     width: 100%;
     font-size: 32px;
-    color: white;
 }
 .header-title-link{
-    color: white;
     text-decoration: none;
 }
 .header-space{
     height: 54px;
     width: 100%;
+}
+main{
+    background-color: #00000096;
 }
 .main-inside{
     display: flex;
@@ -62,6 +67,8 @@ body{
     height: fit-content;
     padding-top: 40px;
     padding-bottom: 40px;
+    background-color: #000000;
+    border-radius: 5px;
 }
 .main-right-title{
     padding: 8px;
@@ -76,19 +83,20 @@ body{
     border-width: 1px;
     padding: 8px;
     border-radius: 5px;
-    border: 1px solid #CCCCCC;
+    border: none;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 5px;
     width: 75%;
     height: 30px;
     font-size: 16px;
+    background-color: #3a3a3aa0;
 }
 .main-input:focus{
     outline: none;
 }
 .main-right-button{
-    background-color: #d1d5db;
+    background-color: #5e5e5e;
     padding: 8px;
     border-radius: 5px;
     border-width: 0px;
@@ -100,7 +108,7 @@ body{
     font-size: 16px;
 }
 .main-right-button:hover{
-    background-color: #374151;
+    background-color: #4a4a4a;
 }
 .main-right-forgot{
     text-align: center;
@@ -118,7 +126,7 @@ body{
     width: 75%;
 }
 .main-right-create-button{
-    background-color: #86efac;
+    background-color: #404040;
     padding: 8px;
     margin-left: auto;
     margin-right: auto;
@@ -130,7 +138,7 @@ body{
     cursor: pointer;
 }
 .main-right-create-button:hover{
-    background-color: #15803d;
+    background-color: #4a4a4a;
 }
 .main-right-error{
     color: #b91c1c;
@@ -164,7 +172,7 @@ body{
     padding-top: 20px;
     padding-bottom: 20px;
     top: 90px;
-    background-color: white;
+    background-color: rgb(24, 24, 24);
 }
 .main-popup-content{
     display: flex;
@@ -182,6 +190,8 @@ body{
     position: absolute;
     right: 16px;
     top: 16px;
+    width: 30px;
+    height: 30px;
     cursor: pointer;
 }
 .loading-div{

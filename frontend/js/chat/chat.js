@@ -48,6 +48,15 @@ profileSetup.addEventListener("click", ()=>{
     saveProfile = document.getElementById("saveProfile");
     uploadPhoto = document.getElementById("uploadPhoto");
     changedImg = document.getElementById("changedImg");
+    const editUsername = document.getElementById("editUsername");
+    const editEmail = document.getElementById("editEmail");
+    const editInputUsername = document.getElementById("editInputUsername");
+    const editInputEmail = document.getElementById("editInputEmail");
+    const changeError = document.getElementById("changeError");
+    const changePassword = document.getElementById("changePassword");
+    let usernameEdit = false;
+    let emailEdit = false;
+    let passwordState = false;
     changePhoto.addEventListener("click", ()=>{
         uploadPhoto.click();
     });
@@ -59,9 +68,109 @@ profileSetup.addEventListener("click", ()=>{
         }
     });
     saveProfile.addEventListener("click", async ()=>{
+        saveProfile.disabled = true;
         const file = uploadPhoto.files[0]
-        await model.refresh;
-        await model.updateProfilePhoto(file);
+        let usernameChanged;
+        let emailChanged;
+        if (!file && !usernameEdit && !emailEdit){
+            saveProfile.disabled = false;
+            return false;
+        }
+        if (file){
+            await model.updateProfilePhoto(file);
+            model.loadHeadPhoto(userData.HeadPhoto);
+        }
+        if (!usernameEdit && !emailEdit){
+            saveProfile.disabled = false;
+            return false;
+        }
+        if (usernameEdit){
+            const inputUsername = document.getElementById("inputUsername");
+            if (!inputUsername.value){
+                usernameChanged = null;
+            }else{
+                usernameChanged = inputUsername.value;
+            }
+        }else{
+            usernameChanged = null;
+        }
+        if (emailEdit){
+            const inputEmail = document.getElementById("inputEmail");
+            if (!inputEmail.value){
+                emailChanged = null;
+            }else{
+                emailChanged = inputEmail.value
+            }
+        }else{
+            emailChanged = null;
+        }
+        const data = {
+            "username": usernameChanged,
+            "email": emailChanged
+        }
+        const result = await model.updateUserInformation(data)
+        if (result){
+            if (result.email){
+                popupInside.innerHTML = "";
+                view.changeLogout();
+                document.getElementById("changeLogout").addEventListener("click", ()=>{
+                    model.logout();
+                });
+                saveProfile.disabled = false;
+                return
+            }else if(result.username){
+                userData.Username = usernameChanged;
+                editInputUsername.innerHTML = "";
+                editInputUsername.textContent = usernameChanged;
+                usernameEdit = false;
+            }else if(result.error){
+                changeError.textContent = result.error;
+                saveProfile.disabled = false;
+                return
+            }
+        }
+    });
+    editUsername.addEventListener("click", ()=>{
+        usernameEdit = true;
+        editInputUsername.innerHTML = `<input id="inputUsername" class="UsernameInput" placeholder=${userData.Username} type="text"/>`
+    });
+    editEmail.addEventListener("click", ()=>{
+        emailEdit = true;
+        editInputEmail.innerHTML = `<input id="inputEmail" class="EmailInput" placeholder=${userData.Email} type="text"/>`
+    });
+    changePassword.addEventListener("click", async()=>{
+        if (!passwordState){
+            view.changePasswordZone();
+            changePassword.textContent = "Confirm"
+            passwordState = true;
+        }else{
+            changePassword.disabled = true;
+            const currentPassword = document.getElementById("currentPassword");
+            const newPassword = document.getElementById("newPassword");
+            const confirmation = document.getElementById("confirmation");
+            const data = {
+                "current": currentPassword.value,
+                "new": newPassword.value,
+                "confirmation": confirmation.value
+            }
+            if (currentPassword.value && newPassword.value && confirmation.value){
+                const result = await model.changePassword(data)
+                if (result.update){
+                    popupInside.innerHTML = "";
+                    view.changeLogout();
+                    document.getElementById("changeLogout").addEventListener("click", ()=>{
+                        model.logout();
+                    });
+                    changePassword.disabled = false;
+                    return    
+                }else{
+                    changeError.textContent = result.error;
+                }
+            }else{
+                changeError.textContent = "Please fill in the blank";
+                changePassword.disabled = false;
+            }
+        }
     });
 });
 
@@ -89,7 +198,10 @@ addBtn.addEventListener("click", async ()=>{
     controller.addClick(userData, addedData)
 });
 
-searchInput.addEventListener("change", async ()=>{
+searchInput.addEventListener("keypress", async (event)=>{
+    if (event.key !== "Enter"){
+        return
+    }
     if (friendMode){
         const found = userData.Friend.findIndex(item => item.username === searchInput.value)
         if (found !== -1){
@@ -133,6 +245,7 @@ searchInput.addEventListener("change", async ()=>{
             const introduction = document.getElementById("introduction");
             const addFriendBtn = document.getElementById("addFriendBtn");
             addFriendBtn.addEventListener("click", async ()=>{
+                addFriendBtn.disabled = true;
                 const data = {"id": searchResult._id, "introduction": introduction.value};
                 let result = await model.addFriend(data);
                 if (result){
@@ -171,7 +284,6 @@ window.addEventListener("click", (event)=>{
         notifyConn = new WebSocket("wss://" + document.location.host + "/ws/notify");
     }
 })
-
 let controller = {
     init: async function(){
         await model.refresh();
@@ -195,19 +307,15 @@ let controller = {
             addedData = [];
         }
         loading.style.display = "none";
-
         let addedCount = model.totalAdded();
         view.addRedTag(addedCount);
-
         let UnReadCount = model.totalUnRead();
         view.chatRedTag(UnReadCount);
         
         notifyConn = new WebSocket("wss://" + document.location.host + "/ws/notify");
-
         notifyConn.onopen = function (){
             return {"connection": true}
         }
-
         notifyConn.onclose = function () {
             return {"connection": false}
         }
@@ -355,19 +463,19 @@ let controller = {
         });
     },
     friendClick: async function friendClick (){
-        const service = document.getElementById("service");
-        service.addEventListener("click", ()=>{
-            view.showPopup();
-            view.serviceChat();
-            const startServiceChat = document.getElementById("startServiceChat");
-            startServiceChat.addEventListener("click", ()=>{
-                view.serviceChatBox();
-                view.leavePopup();
-                view.showChat(userData, roomList);
-                controller.chatClick();
-                controller.enterDemoRoom();
-            })
-        })
+        // const service = document.getElementById("service");
+        // service.addEventListener("click", ()=>{
+        //     view.showPopup();
+        //     view.serviceChat();
+        //     const startServiceChat = document.getElementById("startServiceChat");
+        //     startServiceChat.addEventListener("click", ()=>{
+        //         view.serviceChatBox();
+        //         view.leavePopup();
+        //         view.showChat(userData, roomList);
+        //         controller.chatClick();
+        //         controller.enterDemoRoom();
+        //     })
+        // })
         let friendList= document.querySelectorAll(".friend-list");
         for (let i=0; i<friendList.length; i++){
             friendList[i].addEventListener("click", (event)=>{
@@ -396,14 +504,14 @@ let controller = {
         }
     },
     chatClick: function chatClick(){
-        const service = document.getElementById("service");
-        service.addEventListener("click", ()=>{
-            view.serviceChatBox();
-            view.leavePopup();
-            view.showChat(userData, roomList);
-            controller.chatClick();
-            controller.enterDemoRoom();
-        })
+        // const service = document.getElementById("service");
+        // service.addEventListener("click", ()=>{
+        //     view.serviceChatBox();
+        //     view.leavePopup();
+        //     view.showChat(userData, roomList);
+        //     controller.chatClick();
+        //     controller.enterDemoRoom();
+        // })
         let chatList = document.querySelectorAll(".chat-list");
         for (let i=0; i<chatList.length; i++){
             chatList[i].addEventListener("click", (event)=>{
@@ -452,7 +560,6 @@ let controller = {
                         "data": myData
                     }
                     notifyConn.send(JSON.stringify(notification));
-
                     addedData.splice(i, 1);
                     
                     view.leavePopup();
@@ -482,10 +589,8 @@ let controller = {
         const audioRecord = document.getElementById("audioRecord");
         const recordDiv = document.getElementById("recordDiv");
         roomId = model.makeRoomId(username, userData)["roomId"]; 
-
         await model.showMessage(roomId);
         chatRoom.scrollTop = chatRoom.scrollHeight;
-
         controller.ViewPhoto();
         
         controller.resetUnRead(roomId);
@@ -555,7 +660,6 @@ let controller = {
             messageInput.style.zIndex = "10";
             view.emoji();
             emojiState = true;
-
             let emojis = document.querySelectorAll(".emojis");
             for (let i=0; i<emojis.length; i++){
                 emojis[i].addEventListener("click", async ()=>{
@@ -579,11 +683,9 @@ let controller = {
                 }).then(stream => {
                     audioStream = stream
                     mediaRecorder = new MediaRecorder(stream)
-            
                     mediaRecorder.ondataavailable = (e) => {
                         chunks.push(e.data)
                     }
-
                     mediaRecorder.onstop = () => {
                         blob = new Blob(chunks, {'type': 'audio/webm'})
                         chunks = []
@@ -646,14 +748,15 @@ let controller = {
             chatRoom.scrollTop = chatRoom.scrollHeight;    
         }
         if (fileInput.value){
-            const fileName = controller.createUUID();
+            const fileType = fileInput.files[0].name.split(".").at(-1);
+            const fileName = controller.createUUID() + "." + fileType;
             const file = fileInput.files[0];
             if (fileInput.files[0].type.split("/")[0] === "image"){
                 model.messageFileSend(file, fileName, "image", friendId);
                 controller.updateRoomList(roomId, "image", userData.ID, timeNow, "image", 0);
                 setTimeout(()=>{
                     controller.ViewPhoto();
-                }, 1000)
+                }, 2000)
             }else if(fileInput.files[0].type.split("/")[0] === "application"){
                 model.messageFileSend(file, fileName, "file", friendId);
                 controller.updateRoomList(roomId, "file", userData.ID, timeNow, "file", 0)
@@ -741,7 +844,6 @@ let controller = {
         notifyConn.send(JSON.stringify(notification))
         calling = true
         view.callWait();
-
         leaveBtn.addEventListener("click", ()=>{
             if (calling){
                 const cancel = {
@@ -780,239 +882,6 @@ let controller = {
             }
         })
     },
-    enterDemoRoom: async function enterChatRoom(){
-        const messageInput = document.getElementById("messageInput");
-        const messageSend = document.getElementById("messageSend");
-        const fileInput = document.getElementById("fileInput");
-        const sendPhotoOrFile = document.getElementById("sendPhotoOrFile");
-        const photoPreview = document.getElementById("photoPreview");
-        const filePreview = document.getElementById("filePreview");
-        const previewDiv = document.getElementById("previewDiv");
-        const cancelPreview = document.getElementById("cancelPreview");
-        const emoji = document.getElementById("emoji");
-        const emojiDiv = document.getElementById("emojiDiv");
-        const audioRecord = document.getElementById("audioRecord");
-        const recordDiv = document.getElementById("recordDiv");
-        const chatRoom = document.getElementById("chatRoom");
-        roomId = userData.ID + ",Demo"
-
-        await model.showMessage(roomId);
-        chatRoom.scrollTop = chatRoom.scrollHeight;
-
-        controller.ViewPhoto();
-
-        messageInput.addEventListener("click", ()=>{
-            if (!recordState){
-                backBlock.style.display = "block";
-                recordDiv.style.display = "flex";
-                messageInput.style.zIndex = "10";
-                view.showSelection();
-                DemoInput = true
-    
-                let selections = document.querySelectorAll(".selection");
-                for (let i=0; i<selections.length; i++){
-                    selections[i].addEventListener("click",()=>{
-                        messageInput.value = selections[i].textContent;
-                        controller.DemoMessage(roomId, messageInput, fileInput, blob);    
-                    });
-                }
-            }
-        });
-        messageInput.addEventListener("keypress", async (event)=>{
-            if (event.key !== "Enter"){
-                return
-            }
-            controller.DemoMessage(roomId, messageInput, fileInput, blob);
-            controller.ViewPhoto();
-            messageInput.style.zIndex = "1";
-        });
-        messageSend.addEventListener("click", ()=>{
-            controller.DemoMessage(roomId, messageInput, fileInput, blob);
-            controller.ViewPhoto();
-            messageInput.style.zIndex = "1";
-        })
-        sendPhotoOrFile.addEventListener("click", ()=>{
-            fileInput.click();
-        });
-        fileInput.addEventListener("change", (event)=>{
-            const file = event.target.files[0];
-            if (file.size > 10000000){
-                fileInput.value = "";
-                return
-            }
-            if (file.type.split("/")[0] === "application"){
-                previewDiv.style.display = "flex";
-                let fileName = file.name;
-                filePreview.textContent = fileName;
-            }else if (file.type.split("/")[0] === "image"){
-                previewDiv.style.display = "flex";
-                let src = URL.createObjectURL(file);
-                photoPreview.src = src;
-            }else{
-                fileInput.value = "";
-            }
-        });
-        cancelPreview.addEventListener("click", ()=>{
-            previewDiv.style.display = "none";
-            photoPreview.src = "";
-            fileInput.value = "";
-            filePreview.textContent = "";
-        });
-        emoji.addEventListener("click", ()=>{
-            backBlock.style.display = "block";
-            emojiDiv.style.display = "flex";
-            messageInput.style.zIndex = "10";
-            view.emoji();
-            emojiState = true;
-
-            let emojis = document.querySelectorAll(".emojis");
-            for (let i=0; i<emojis.length; i++){
-                emojis[i].addEventListener("click", async ()=>{
-                    messageInput.value += emojis[i].textContent
-                });
-            }
-        });
-        audioRecord.addEventListener("click", ()=>{
-            recordState = true;
-            view.recordBox();
-            recordDiv.style.display = "flex";
-            const record = document.getElementById("record");
-            const recordImg = document.getElementById("recordImg");
-            const cancelRecord = document.getElementById("cancelRecord");
-            const recordBar = document.getElementById("recordBar");
-            let recording = false;
-            let count;
-            let mediaRecorder, chunks = [], audioURL = ''
-            if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){            
-                navigator.mediaDevices.getUserMedia({
-                    audio: true
-                }).then(stream => {
-                    audioStream = stream
-                    mediaRecorder = new MediaRecorder(stream)
-            
-                    mediaRecorder.ondataavailable = (e) => {
-                        chunks.push(e.data)
-                    }
-
-                    mediaRecorder.onstop = () => {
-                        blob = new Blob(chunks, {'type': 'audio/webm'})
-                        chunks = []
-                        audioURL = window.URL.createObjectURL(blob)
-                        document.getElementById("audioResult").src = audioURL
-                    }
-                }).catch(error => {
-                    console.log(error)
-                })
-            }else{
-                recordBar = ""
-                recordBar = "No audio device"
-            }
-            record.addEventListener("click", ()=>{
-                if (!recording){
-                    view.recordCount();
-                    const recordTime = document.getElementById("recordTime");
-                    recording = true;
-                    recordImg.src = "/static/img/icon_pause.png";
-                    mediaRecorder.start()
-                    count = setInterval(()=>{
-                        let second = parseInt(recordTime.textContent);
-                        second --;
-                        recordTime.textContent = second;
-                        if (second === 0){
-                            clearInterval(count)
-                            recording = false;
-                            recordImg.src = "/static/img/icon_play.png";        
-                            recordTime.textContent = 30;
-                            view.audio();
-                            mediaRecorder.stop()
-                        }
-                    }, 1000)
-                }else{
-                    recording = false;
-                    mediaRecorder.stop()
-                    recordImg.src = "/static/img/icon_play.png";
-                    clearInterval(count)
-                    view.audio();
-                }
-            });
-            cancelRecord.addEventListener("click", ()=>{
-                recordDiv.style.display = "none";
-                recordDiv.innerHTML = ""
-                recording = false;
-                recordState = false;
-                audioStream.getTracks().forEach(function(track) {
-                    track.stop();
-                });
-            });
-        });
-    },
-    DemoMessage: async function(roomId, messageInput, fileInput, audioFile){
-        if (messageInput.value.trim() === "" && !fileInput.value && !audioFile){
-            return
-        }
-        if (messageInput.value.trim() !== ""){
-            model.demoMessageFileSend(roomId, messageInput.value, "string", "string");
-            let timeNow = new Date();
-            let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
-            const sendTime = timeNow.getHours() + ":" + timeMinutes;     
-            if (messageInput.value === "How to start?"){
-                view.friendMessages(sendTime, "/static/img/Demo-Add.gif", "image")
-                view.friendMessages(sendTime, "Search user ID at add page and click add button", "string")
-                view.friendMessages(sendTime, "Don't forget to introduce yourself", "string")
-                const friendRecommend = await model.friendRecommend();
-                view.friendMessages(sendTime, "Did you recognize them?", "string")
-                for (let i=0; i<3; i++){
-                    view.friendMessages(sendTime, friendRecommend.data[i], "recommend")
-                }
-            }else if(messageInput.value === "How to call"){
-                view.friendMessages(sendTime, "/static/img/video_chat.gif", "image")
-            }    
-            controller.ViewPhoto();
-            messageInput.value = "";   
-            chatRoom.scrollTop = chatRoom.scrollHeight;    
-        }
-        if (fileInput.value){
-            const fileName = controller.createUUID();
-            const file = fileInput.files[0];
-            if (fileInput.files[0].type.split("/")[0] === "image"){
-                model.demoMessageFileSend(roomId, file, fileName, "image");
-            }else if(fileInput.files[0].type.split("/")[0] === "application"){
-                model.demoMessageFileSend(roomId, file, fileName, "file");
-            }
-            previewDiv.style.display = "none";
-            photoPreview.src = "";
-            fileInput.value = "";
-            filePreview.textContent = "";
-            setTimeout(()=>{
-                controller.ViewPhoto();
-            }, 1000)
-        }
-        if (audioFile) {
-            const fileName = controller.createUUID();
-            const file = audioFile;
-            model.demoMessageFileSend(roomId, file, fileName, "audio");
-            blob = null;
-            recordDiv.style.display = "none";
-            recordDiv.innerHTML = ""
-            if (audioStream){
-                audioStream.getTracks().forEach(function(track) {
-                    track.stop();
-                });
-            }
-        }
-        if (emojiState){
-            emojiDiv.style.display = "none";
-            emojiDiv.innerHTML = "";
-            emojiState = false;
-            backBlock.style.display = "none";
-        }
-        if (DemoInput){
-            recordDiv.style.display = "none";
-            recordDiv.innerHTML = "";
-            DemoInput = false;
-            backBlock.style.display = "none";
-        }
-    },
     ViewPhoto: function(){
         photoReview = document.querySelectorAll(".messages-myPhoto");
         for (let i=0; i<photoReview.length; i++){
@@ -1023,5 +892,231 @@ let controller = {
             })
         }
     }
+    // enterDemoRoom: async function enterChatRoom(){
+    //     const messageInput = document.getElementById("messageInput");
+    //     const messageSend = document.getElementById("messageSend");
+    //     const fileInput = document.getElementById("fileInput");
+    //     const sendPhotoOrFile = document.getElementById("sendPhotoOrFile");
+    //     const photoPreview = document.getElementById("photoPreview");
+    //     const filePreview = document.getElementById("filePreview");
+    //     const previewDiv = document.getElementById("previewDiv");
+    //     const cancelPreview = document.getElementById("cancelPreview");
+    //     const emoji = document.getElementById("emoji");
+    //     const emojiDiv = document.getElementById("emojiDiv");
+    //     const audioRecord = document.getElementById("audioRecord");
+    //     const recordDiv = document.getElementById("recordDiv");
+    //     const chatRoom = document.getElementById("chatRoom");
+    //     roomId = userData.ID + ",Demo"
+    //     await model.showMessage(roomId);
+    //     chatRoom.scrollTop = chatRoom.scrollHeight;
+    //     controller.ViewPhoto();
+    //     messageInput.addEventListener("click", ()=>{
+    //         if (!recordState){
+    //             backBlock.style.display = "block";
+    //             recordDiv.style.display = "flex";
+    //             messageInput.style.zIndex = "10";
+    //             view.showSelection();
+    //             DemoInput = true
+    //             let selections = document.querySelectorAll(".selection");
+    //             for (let i=0; i<selections.length; i++){
+    //                 selections[i].addEventListener("click",()=>{
+    //                     messageInput.value = selections[i].textContent;
+    //                     controller.DemoMessage(roomId, messageInput, fileInput, blob);    
+    //                 });
+    //             }
+    //         }
+    //     });
+    //     messageInput.addEventListener("keypress", async (event)=>{
+    //         if (event.key !== "Enter"){
+    //             return
+    //         }
+    //         controller.DemoMessage(roomId, messageInput, fileInput, blob);
+    //         controller.ViewPhoto();
+    //         messageInput.style.zIndex = "1";
+    //     });
+    //     messageSend.addEventListener("click", ()=>{
+    //         controller.DemoMessage(roomId, messageInput, fileInput, blob);
+    //         controller.ViewPhoto();
+    //         messageInput.style.zIndex = "1";
+    //     })
+    //     sendPhotoOrFile.addEventListener("click", ()=>{
+    //         fileInput.click();
+    //     });
+    //     fileInput.addEventListener("change", (event)=>{
+    //         const file = event.target.files[0];
+    //         if (file.size > 10000000){
+    //             fileInput.value = "";
+    //             return
+    //         }
+    //         if (file.type.split("/")[0] === "application"){
+    //             previewDiv.style.display = "flex";
+    //             let fileName = file.name;
+    //             filePreview.textContent = fileName;
+    //         }else if (file.type.split("/")[0] === "image"){
+    //             previewDiv.style.display = "flex";
+    //             let src = URL.createObjectURL(file);
+    //             photoPreview.src = src;
+    //         }else{
+    //             fileInput.value = "";
+    //         }
+    //     });
+    //     cancelPreview.addEventListener("click", ()=>{
+    //         previewDiv.style.display = "none";
+    //         photoPreview.src = "";
+    //         fileInput.value = "";
+    //         filePreview.textContent = "";
+    //     });
+    //     emoji.addEventListener("click", ()=>{
+    //         backBlock.style.display = "block";
+    //         emojiDiv.style.display = "flex";
+    //         messageInput.style.zIndex = "10";
+    //         view.emoji();
+    //         emojiState = true;
+    //         let emojis = document.querySelectorAll(".emojis");
+    //         for (let i=0; i<emojis.length; i++){
+    //             emojis[i].addEventListener("click", async ()=>{
+    //                 messageInput.value += emojis[i].textContent
+    //             });
+    //         }
+    //     });
+    //     audioRecord.addEventListener("click", ()=>{
+    //         recordState = true;
+    //         view.recordBox();
+    //         recordDiv.style.display = "flex";
+    //         const record = document.getElementById("record");
+    //         const recordImg = document.getElementById("recordImg");
+    //         const cancelRecord = document.getElementById("cancelRecord");
+    //         const recordBar = document.getElementById("recordBar");
+    //         let recording = false;
+    //         let count;
+    //         let mediaRecorder, chunks = [], audioURL = ''
+    //         if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){            
+    //             navigator.mediaDevices.getUserMedia({
+    //                 audio: true
+    //             }).then(stream => {
+    //                 audioStream = stream
+    //                 mediaRecorder = new MediaRecorder(stream)
+    //                 mediaRecorder.ondataavailable = (e) => {
+    //                     chunks.push(e.data)
+    //                 }
+    //                 mediaRecorder.onstop = () => {
+    //                     blob = new Blob(chunks, {'type': 'audio/webm'})
+    //                     chunks = []
+    //                     audioURL = window.URL.createObjectURL(blob)
+    //                     document.getElementById("audioResult").src = audioURL
+    //                 }
+    //             }).catch(error => {
+    //                 console.log(error)
+    //             })
+    //         }else{
+    //             recordBar = ""
+    //             recordBar = "No audio device"
+    //         }
+    //         record.addEventListener("click", ()=>{
+    //             if (!recording){
+    //                 view.recordCount();
+    //                 const recordTime = document.getElementById("recordTime");
+    //                 recording = true;
+    //                 recordImg.src = "/static/img/icon_pause.png";
+    //                 mediaRecorder.start()
+    //                 count = setInterval(()=>{
+    //                     let second = parseInt(recordTime.textContent);
+    //                     second --;
+    //                     recordTime.textContent = second;
+    //                     if (second === 0){
+    //                         clearInterval(count)
+    //                         recording = false;
+    //                         recordImg.src = "/static/img/icon_play.png";        
+    //                         recordTime.textContent = 30;
+    //                         view.audio();
+    //                         mediaRecorder.stop()
+    //                     }
+    //                 }, 1000)
+    //             }else{
+    //                 recording = false;
+    //                 mediaRecorder.stop()
+    //                 recordImg.src = "/static/img/icon_play.png";
+    //                 clearInterval(count)
+    //                 view.audio();
+    //             }
+    //         });
+    //         cancelRecord.addEventListener("click", ()=>{
+    //             recordDiv.style.display = "none";
+    //             recordDiv.innerHTML = ""
+    //             recording = false;
+    //             recordState = false;
+    //             audioStream.getTracks().forEach(function(track) {
+    //                 track.stop();
+    //             });
+    //         });
+    //     });
+    // },
+    // DemoMessage: async function(roomId, messageInput, fileInput, audioFile){
+    //     if (messageInput.value.trim() === "" && !fileInput.value && !audioFile){
+    //         return
+    //     }
+    //     if (messageInput.value.trim() !== ""){
+    //         model.demoMessageFileSend(roomId, messageInput.value, "string", "string");
+    //         let timeNow = new Date();
+    //         let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
+    //         const sendTime = timeNow.getHours() + ":" + timeMinutes;     
+    //         if (messageInput.value === "How to start?"){
+    //             view.friendMessages(sendTime, "/static/img/Demo-Add.gif", "image")
+    //             view.friendMessages(sendTime, "Search user ID at add page and click add button", "string")
+    //             view.friendMessages(sendTime, "Don't forget to introduce yourself", "string")
+    //             const friendRecommend = await model.friendRecommend();
+    //             view.friendMessages(sendTime, "Did you recognize them?", "string")
+    //             for (let i=0; i<3; i++){
+    //                 view.friendMessages(sendTime, friendRecommend.data[i], "recommend")
+    //             }
+    //         }else if(messageInput.value === "How to call"){
+    //             view.friendMessages(sendTime, "/static/img/video_chat.gif", "image")
+    //         }    
+    //         controller.ViewPhoto();
+    //         messageInput.value = "";   
+    //         chatRoom.scrollTop = chatRoom.scrollHeight;    
+    //     }
+    //     if (fileInput.value){
+    //         const fileName = controller.createUUID();
+    //         const file = fileInput.files[0];
+    //         if (fileInput.files[0].type.split("/")[0] === "image"){
+    //             model.demoMessageFileSend(roomId, file, fileName, "image");
+    //         }else if(fileInput.files[0].type.split("/")[0] === "application"){
+    //             model.demoMessageFileSend(roomId, file, fileName, "file");
+    //         }
+    //         previewDiv.style.display = "none";
+    //         photoPreview.src = "";
+    //         fileInput.value = "";
+    //         filePreview.textContent = "";
+    //         setTimeout(()=>{
+    //             controller.ViewPhoto();
+    //         }, 1000)
+    //     }
+    //     if (audioFile) {
+    //         const fileName = controller.createUUID();
+    //         const file = audioFile;
+    //         model.demoMessageFileSend(roomId, file, fileName, "audio");
+    //         blob = null;
+    //         recordDiv.style.display = "none";
+    //         recordDiv.innerHTML = ""
+    //         if (audioStream){
+    //             audioStream.getTracks().forEach(function(track) {
+    //                 track.stop();
+    //             });
+    //         }
+    //     }
+    //     if (emojiState){
+    //         emojiDiv.style.display = "none";
+    //         emojiDiv.innerHTML = "";
+    //         emojiState = false;
+    //         backBlock.style.display = "none";
+    //     }
+    //     if (DemoInput){
+    //         recordDiv.style.display = "none";
+    //         recordDiv.innerHTML = "";
+    //         DemoInput = false;
+    //         backBlock.style.display = "none";
+    //     }
+    // },
 };
 controller.init();

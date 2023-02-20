@@ -38,13 +38,13 @@ let view = {
             `  
             friendHtml = friendHtml + addedHtml
         }
-        let serviceHtml = `
-            <div id="service" class="service">
-                <img class="friend-img" src="/static/img/logo.png" alt=""/>
-                <div class="friend-username" >Demo</div>
-            </div>
-        `
-        friendHtml = friendHtml + serviceHtml
+        // let serviceHtml = `
+        //     <div id="service" class="service">
+        //         <img class="friend-img" src="/static/img/logo.png" alt=""/>
+        //         <div class="friend-username" >Demo</div>
+        //     </div>
+        // `
+        // friendHtml = friendHtml + serviceHtml
         listContent.insertAdjacentHTML("afterbegin", friendHtml)
     },
     searchFriend: function searchFriend(data){
@@ -128,13 +128,13 @@ let view = {
                 listContent.insertAdjacentHTML("afterbegin", chatHtml)
             }
         }
-        let serviceHtml = `
-            <div id="service" class="service">
-                <img class="friend-img" src="/static/img/logo.png" alt=""/>
-                <div class="friend-username" >Demo</div>
-            </div>
-        `
-        listContent.insertAdjacentHTML("beforeend", serviceHtml)
+        // let serviceHtml = `
+        //     <div id="service" class="service">
+        //         <img class="friend-img" src="/static/img/logo.png" alt=""/>
+        //         <div class="friend-username" >Demo</div>
+        //     </div>
+        // `
+        // listContent.insertAdjacentHTML("beforeend", serviceHtml)
     },
     searchChat: function searchChat(src, username, messageContent, unRead, dateTime){
         listContent.innerHTML = "";
@@ -175,6 +175,9 @@ let view = {
             let src = view.headPhotoSrc(addedData[i].headPhoto);
             let username = addedData[i].username;
             let introduction = addedData[i].introduction;
+            if (!introduction){
+                introduction = ""
+            }
             let addedHtml =`
                 <div class="add-added-friend">
                     <img class="add-added-img" src="${src}" alt=""/>
@@ -204,13 +207,48 @@ let view = {
                 <img id="changedImg" class="edit-profile-photo" src="/static/img/default_photo.png" alt=""/>
                 <div class="change-photo-title">change photo</div>
             </div>
-            <button id="saveProfile">save</button>
+            <div class="profileItems">
+                <div class="profileItem">
+                    <div class="itemTitle">username: </div>
+                    <div id="editInputUsername" class="itemContent">${userData.Username}</div>
+                    <div id="editUsername" class="edit">edit</div>
+                </div>
+                <div class="profileItem">
+                    <div class="itemTitle">email: </div>
+                    <div id="editInputEmail" class="itemContent">${userData.Email}</div>
+                    <div id="editEmail" class="edit">edit</div>
+                </div>
+                <div class="profile-button-zone">
+                    <div class="profile-button-div">
+                        <button class="profile-button" id="saveProfile">save</button>
+                    </div >
+                    <div class="profile-button-div">
+                        <button class="profile-button" id="changePassword">Change Password</button>
+                    </div>
+                </div>
+            </div>
+            <div id="changeError" class="changeError"></div>
         `
         popupContent.insertAdjacentHTML("afterbegin", profileHtml);
         const changedImg = document.getElementById("changedImg");
         if (url.length > 10){
             changedImg.src = url;
         }
+    },
+    changePasswordZone: function(){
+        const passwordHtml = `
+            <div class="profileItem">
+                <input id="currentPassword" class="UsernameInput" placeholder="current password" type="password"/>            
+            </div>
+            <div class="profileItem">
+                <input id="newPassword" class="UsernameInput" placeholder="new password" type="password"/>            
+            </div>
+            <div class="profileItem">
+                <input id="confirmation" class="UsernameInput" placeholder="confirmation" type="password"/>            
+            </div>
+            <div class="password-notice">Password needs at least 8 items with numbers, upper and lower case</div>
+        `
+        document.querySelectorAll(".profile-button-div")[1].insertAdjacentHTML("afterbegin", passwordHtml);
     },
     searchUser: function searchUser(data, addSent){
         let src;
@@ -291,18 +329,18 @@ let view = {
         `
         popupContent.insertAdjacentHTML("afterbegin", showFriendHtml);
     },
-    serviceChat: function (){
-        let showFriendHtml = `
-            <div id="userPhoto" class="photo-div">
-                <img id="userImg" class="edit-profile-photo" src="/static/img/logo.png" alt=""/>
-            </div>
-            <div class="search-username" >Demo</div>
-            <div id="friendCallDiv" class="friend-chat-btn-list">
-                <button id="startServiceChat" class="add-friend"><img class="addImg" src="/static/img/icon_start_chat.png" alt=""/></button>
-            </div>
-        `
-        popupContent.insertAdjacentHTML("afterbegin", showFriendHtml);
-    },
+    // serviceChat: function (){
+    //     let showFriendHtml = `
+    //         <div id="userPhoto" class="photo-div">
+    //             <img id="userImg" class="edit-profile-photo" src="/static/img/logo.png" alt=""/>
+    //         </div>
+    //         <div class="search-username" >Demo</div>
+    //         <div id="friendCallDiv" class="friend-chat-btn-list">
+    //             <button id="startServiceChat" class="add-friend"><img class="addImg" src="/static/img/icon_start_chat.png" alt=""/></button>
+    //         </div>
+    //     `
+    //     popupContent.insertAdjacentHTML("afterbegin", showFriendHtml);
+    // },
     friendCall: function(src, username){
         let friendCallHtml = `
             <div id="userPhoto" class="photo-div">
@@ -354,17 +392,19 @@ let view = {
             </div>
             <div id="chatRoom" class="chat-right-middle"></div>
             <div class="chat-right-bottom">
-                <input id="messageInput" class="chat-right-bottom-input" placeholder="..." type="text"/>
-                <input id="fileInput" type="file" hidden/>
                 <div id="audioRecord" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon-microphone.png" alt=""></div>
-                <div id="emoji" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon_smile.png" alt=""></div>
-                <div id="sendPhotoOrFile" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon_add.png" alt=""></div>
+                <div class="input-zone">
+                    <input id="messageInput" class="chat-right-bottom-input" placeholder="..." type="text"/>
+                    <input id="fileInput" type="file" hidden/>
+                    <div id="emoji" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon_smile.png" alt=""></div>
+                    <div id="sendPhotoOrFile" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon_add.png" alt=""></div>                
+                </div>
                 <div id="messageSend" class="chat-right-bottom-btn" ><img class="chat-right-bottom-btn-img" src="/static/img/icon_send.png" alt=""></div>
             </div>
             <div id="previewDiv" class="previewDiv">
                 <div id="filePreview" class="filePreview"></div>
                 <img id="photoPreview" class="photoPreview" src"" alt="">
-                <div id="cancelPreview" class="cancel-preview"><img class="cancel-preview-img" src="/static/img/icon_cross.png"></div>
+                <div id="cancelPreview" class="cancel-preview"><img class="cancel-preview-img" src="/static/img/icon_close.png"></div>
             </div>
             <div id="emojiDiv" class="emojiDiv"></div>
             <div id="recordDiv" class="recordDiv">
@@ -372,39 +412,39 @@ let view = {
                     <div id="recordTime" class="recordTime">30</div>
                 </div>
                 <div id="record" class="recordBtn"><img id="recordImg" class="recordImg" src="/static/img/icon_play.png"/></div>
-                <div id="cancelRecord" class="cancel-preview"><img class="cancel-preview-img" src="/static/img/icon_cross.png"></div>
+                <div id="cancelRecord" class="cancel-preview"><img class="cancel-preview-img" src="/static/img/icon_close.png"></div>
             </div>
         `
         chatBoxContent.insertAdjacentHTML("afterbegin", chatBoxHtml);
     },
-    serviceChatBox: function(){
-        chatBoxContent.innerHTML = "";
-        let chatBoxHtml = `
-            <div class="chat-right-top">
-                <div class="chat-right-top-left">
-                    <img class="friend-img" src="/static/img/logo.png" alt=""/>
-                    <div class="chat-right-top-username">Demo</div>
-                </div>
-            </div>
-            <div id="chatRoom" class="chat-right-middle"></div>
-            <div class="chat-right-bottom">
-                <input id="messageInput" class="chat-right-bottom-input" placeholder="..." type="text"/>
-                <input id="fileInput" type="file" hidden/>
-                <div id="audioRecord" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon-microphone.png" alt=""></div>
-                <div id="emoji" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon_smile.png" alt=""></div>
-                <div id="sendPhotoOrFile" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon_add.png" alt=""></div>
-                <div id="messageSend" class="chat-right-bottom-btn" ><img class="chat-right-bottom-btn-img" src="/static/img/icon_send.png" alt=""></div>
-            </div>
-            <div id="previewDiv" class="previewDiv">
-                <div id="filePreview" class="filePreview"></div>
-                <img id="photoPreview" class="photoPreview" src"" alt="">
-                <div id="cancelPreview" class="cancel-preview"><img class="cancel-preview-img" src="/static/img/icon_cross.png"></div>
-            </div>
-            <div id="emojiDiv" class="emojiDiv"></div>
-            <div id="recordDiv" class="recordDiv"></div>
-        `
-        chatBoxContent.insertAdjacentHTML("afterbegin", chatBoxHtml);
-    },
+    // serviceChatBox: function(){
+    //     chatBoxContent.innerHTML = "";
+    //     let chatBoxHtml = `
+    //         <div class="chat-right-top">
+    //             <div class="chat-right-top-left">
+    //                 <img class="friend-img" src="/static/img/logo.png" alt=""/>
+    //                 <div class="chat-right-top-username">Demo</div>
+    //             </div>
+    //         </div>
+    //         <div id="chatRoom" class="chat-right-middle"></div>
+    //         <div class="chat-right-bottom">
+    //             <input id="messageInput" class="chat-right-bottom-input" placeholder="..." type="text"/>
+    //             <input id="fileInput" type="file" hidden/>
+    //             <div id="audioRecord" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon-microphone.png" alt=""></div>
+    //             <div id="emoji" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon_smile.png" alt=""></div>
+    //             <div id="sendPhotoOrFile" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon_add.png" alt=""></div>
+    //             <div id="messageSend" class="chat-right-bottom-btn" ><img class="chat-right-bottom-btn-img" src="/static/img/icon_send.png" alt=""></div>
+    //         </div>
+    //         <div id="previewDiv" class="previewDiv">
+    //             <div id="filePreview" class="filePreview"></div>
+    //             <img id="photoPreview" class="photoPreview" src"" alt="">
+    //             <div id="cancelPreview" class="cancel-preview"><img class="cancel-preview-img" src="/static/img/icon_cross.png"></div>
+    //         </div>
+    //         <div id="emojiDiv" class="emojiDiv"></div>
+    //         <div id="recordDiv" class="recordDiv"></div>
+    //     `
+    //     chatBoxContent.insertAdjacentHTML("afterbegin", chatBoxHtml);
+    // },
     myMessages: function myMessages(time, messages, type){
         function fileType(type){
             if (type === "string"){
@@ -480,7 +520,7 @@ let view = {
     },
     emoji: function (){
         let emojiHtml = ``
-        for (let i=0; i<70; i++){
+        for (let i=0; i<84; i++){
             function number(){
                 const no = 128512 + i
                 const stringNo = "&#" + no.toString();
@@ -497,7 +537,7 @@ let view = {
                 <div id="recordTime" class="recordTime">30</div>
             </div>
             <div id="record" class="recordBtn"><img id="recordImg" class="recordImg" src="/static/img/icon_play.png"/></div>
-            <div id="cancelRecord" class="cancel-preview"><img class="cancel-preview-img" src="/static/img/icon_cross.png"></div>
+            <div id="cancelRecord" class="cancel-preview"><img class="cancel-preview-img" src="/static/img/icon_close.png"></div>
         `
         recordDiv.insertAdjacentHTML("beforeend", recordHtml)
     },
@@ -521,6 +561,13 @@ let view = {
             <div class="selection">How to start?</div>
         `
         recordDiv.insertAdjacentHTML("beforeend", selectionHtml)
+    },
+    changeLogout: function(){
+        const successHtml = `
+            <div>Email or Password are changed, please login again</div>
+            <button id="changeLogout" class="changeLogout">logout</button>
+        `
+        popupInside.insertAdjacentHTML("beforeend", successHtml)
     }
 }
 

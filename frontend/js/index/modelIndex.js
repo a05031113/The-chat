@@ -14,7 +14,7 @@ let model = {
             if (response.status === 200){
                 window.location.href = "/chat";
             }else{
-                view.hideLoginLoading();
+                loginBtn.disabled = false;
                 view.loginErrorMessage(result.error);
             }
         }catch(error){
@@ -39,7 +39,7 @@ let model = {
                 }
                 model.login(loginData)
             }else{
-                view.hideRegisterLoading();
+                registerBtn.disabled = false;
                 view.registerErrorMessage(result.error)
             }
         }catch(error){

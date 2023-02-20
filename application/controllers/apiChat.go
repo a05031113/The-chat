@@ -120,7 +120,6 @@ func AddData(c *gin.Context) {
 	var addedOutput []primitive.M
 	for i := 0; i < len(addedConvert); i++ {
 		checkId := addedConvert[i]["addid"]
-		fmt.Println(checkId)
 		for j, user := range data {
 			primitiveId, _ := primitive.ObjectIDFromHex(user["_id"].(string))
 			if checkId == primitiveId {

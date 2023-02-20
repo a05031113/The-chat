@@ -46,7 +46,7 @@ func Register(c *gin.Context) {
 
 	confirmValid := helper.ConfirmValid(register.Password, register.Confirm)
 	if !confirmValid {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Wrong password format"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Passwords are different"})
 		return
 	}
 
@@ -56,9 +56,19 @@ func Register(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error while checking email"})
 		return
 	}
-
 	if count > 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Account already exist"})
+		return
+	}
+
+	countUsername, err := userCollection.CountDocuments(ctx, bson.M{"username": register.Username})
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error while checking email"})
+		return
+	}
+	if countUsername > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already been used"})
 		return
 	}
 
@@ -84,14 +94,14 @@ func Login(c *gin.Context) {
 	var foundUser models.FoundUser
 
 	if err := c.BindJSON(&login); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	err := userCollection.FindOne(ctx, bson.M{"email": login.Email}).Decode(&foundUser)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "email or password is incorrect"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email or password is incorrect"})
 		return
 	}
 
@@ -101,7 +111,10 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	helper.GenerateJWT(c, foundUser.ID.Hex(), foundUser.Username, foundUser.Email)
+	JWTStatus := helper.GenerateJWT(c, foundUser.ID.Hex(), foundUser.Username, foundUser.Email)
+	if !JWTStatus {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
 
 	c.JSON(http.StatusOK, gin.H{"headPhoto": foundUser.HeadPhoto})
 }

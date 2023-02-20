@@ -41,7 +41,7 @@ func CheckPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
-func GenerateJWT(c *gin.Context, id string, username string, email string) {
+func GenerateJWT(c *gin.Context, id string, username string, email string) bool {
 
 	var jwtKey = []byte(os.Getenv("SECRET_KEY"))
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -53,7 +53,7 @@ func GenerateJWT(c *gin.Context, id string, username string, email string) {
 	accessTokenString, err := accessToken.SignedString(jwtKey)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		return false
 	}
 	AccessExpirationTime := time.Now().Add(1 * time.Minute)
 	http.SetCookie(c.Writer, &http.Cookie{
@@ -73,7 +73,7 @@ func GenerateJWT(c *gin.Context, id string, username string, email string) {
 	refreshTokenString, err := refreshToken.SignedString(jwtKey)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		return false
 	}
 
 	http.SetCookie(c.Writer, &http.Cookie{
@@ -82,6 +82,8 @@ func GenerateJWT(c *gin.Context, id string, username string, email string) {
 		Expires:  refreshExpireTime,
 		HttpOnly: true,
 	})
+
+	return true
 }
 
 func SetAccessToken(c *gin.Context, id string, username string, email string) {

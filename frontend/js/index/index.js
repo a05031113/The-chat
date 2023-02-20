@@ -3,9 +3,9 @@ import view from "./viewIndex.js";
 
 
 loginBtn.addEventListener("click", ()=>{
-    view.showLoginLoading();
+    loginBtn.disabled = true;
     if (!loginEmail.value | !loginPassword){
-        view.hideLoginLoading();
+        loginBtn.disabled = false;
         view.loginErrorMessage("Please fill up the blank");
         return false;
     }
@@ -17,24 +17,24 @@ loginBtn.addEventListener("click", ()=>{
 });
 
 registerBtn.addEventListener("click", ()=>{
-    view.showRegisterLoading();
+    registerBtn.disabled = true;
     if (!registerEmail.value | !registerPassword.value | !registerName.value){
-        view.hideRegisterLoading();
+        registerBtn.disabled = false;
         view.registerErrorMessage("Please fill up the blank");
         return false;
     }
     if (!model.validateEmail(registerEmail)){
-        view.hideRegisterLoading();
+        registerBtn.disabled = false;
         view.registerErrorMessage("Wrong email format");
         return false;
     }
     if (!model.validatePassword(registerPassword)){
-        view.hideRegisterLoading();
+        registerBtn.disabled = false;
         view.registerErrorMessage("Wrong password format");
         return false;
     }
     if (!model.confirmation(registerPassword, registerConfirm)){
-        view.hideRegisterLoading();
+        registerBtn.disabled = false;
         view.registerErrorMessage("Passwords are different");
         return false
     }

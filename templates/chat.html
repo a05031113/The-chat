@@ -22,10 +22,10 @@
                         <img id="profileIcon" class="header-end-photo" src="/static/img/default_photo.png" alt=""/>
                         profile
                     </button>
-                    <button class="header-end-personal-button">
+                    <!-- <button class="header-end-personal-button">
                         <img class="header-end-photo" src="/static/img/icon_setting.png" alt=""/>
                         setting
-                    </button>
+                    </button> -->
                     <hr class="header-end-personal-hr">
                     <button id="logout" class="header-end-personal-button">
                         <img class="header-end-photo" src="/static/img/icon_logout.png" alt=""/>    
@@ -39,18 +39,20 @@
     <main>
         <div class="chat-box">
             <div class="chat-inside">
+                <div class="chat-left-top">
+                    <div class="chat-top-btn-zone">
+                        <div id="friendBtn" class="chat-left-top-btn"><img class="chat-left-top-img" src="/static/img/icon_friend.png" alt=""/></div>
+                        <hr class="btn-split">
+                        <div id="chatBtn" class="chat-left-top-btn"><img class="chat-left-top-img" src="/static/img/icon_chat.png" alt=""/><div id="chatTag" class="chat-tag-div"></div></div>
+                        <hr class="btn-split">
+                        <div id="addBtn" class="chat-left-top-btn"><img class="chat-left-top-img" src="/static/img/icon_add_BCBCBC.png" alt=""/><div id="addTag" class="chat-tag-div"></div></div>    
+                    </div>
+                </div>
                 <div class="chat-left">
                     <div class="chat-left-inside">
-                        <div class="chat-left-top">
-                            <div id="friendBtn" class="chat-left-top-btn"><img class="chat-left-top-img" src="/static/img/icon_friend.png" alt=""/></div>
-                            <hr class="btn-split">
-                            <div id="chatBtn" class="chat-left-top-btn"><img class="chat-left-top-img" src="/static/img/icon_chat.png" alt=""/><div id="chatTag" class="chat-tag-div"></div></div>
-                            <hr class="btn-split">
-                            <div id="addBtn" class="chat-left-top-btn"><img class="chat-left-top-img" src="/static/img/icon_add_BCBCBC.png" alt=""/><div id="addTag" class="chat-tag-div"></div></div>
-                        </div>
                         <div class="userSearch">
-                            <input id="searchInput" class="searchInput" placeholder="search" type="search"/>
                             <div id="searchBtn" class="searchBtn"><img class="searchImg" src="/static/img/search_icon.png" alt=""/></div>
+                            <input id="searchInput" class="searchInput" placeholder="search" type="search"/>
                         </div>
                         <div id="listContent" class="listContent"></div>
                     </div>
