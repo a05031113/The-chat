@@ -25,7 +25,7 @@ function urlBase64ToUint8Array(base64String) {
 
 
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/static/js/chat/service-worker.js', {scope: "/"});
+    navigator.serviceWorker.register('/static/js/chat/service-worker.js', {scope: "/static/js/chat/"});
     navigator.serviceWorker.ready.then(function(registration) {
         return registration.pushManager.getSubscription();
     }).then(function(subscription) {
