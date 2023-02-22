@@ -37,3 +37,9 @@ type PasswordData struct {
 	New          string `json: "new"`
 	Confirmation string `json: "confirmation"`
 }
+
+type SearchResult struct {
+	ID        primitive.ObjectID `bson:"_id" json: "id"`
+	Username  string             `json: "username"`
+	HeadPhoto string             `json: "headPhoto"`
+}

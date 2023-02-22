@@ -281,7 +281,7 @@ searchInput.addEventListener("keypress", async (event)=>{
 });
 window.addEventListener("click", (event)=>{
     if (notifyConn.readyState === 3){
-        notifyConn = new WebSocket("wss://" + document.location.host + "/ws/notify");
+        location.reload();
     }
 })
 let controller = {
@@ -317,10 +317,19 @@ let controller = {
             return {"connection": true}
         }
         notifyConn.onclose = function () {
+            const pending = {
+                "type": "status",
+                "who": userData.ID,
+            }
+            const data = JSON.stringify(pending)
+            notifyConn.send(data)
             return {"connection": false}
         }
         notifyConn.addEventListener("message", async(event)=>{
             const notification = JSON.parse(event.data);
+            if (notification.type === "status"){
+                console.log(notification)
+            }
             if (notification.to !== userData.ID){
                 return false;
             }
@@ -888,7 +897,6 @@ let controller = {
             photoReview[i].addEventListener("click", ()=>{
                 PhotoDiv.style.display = "flex";
                 Photo.src = photoReview[i].currentSrc;
-                console.log("test")
             })
         }
     }

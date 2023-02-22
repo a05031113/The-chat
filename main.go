@@ -55,5 +55,4 @@ func main() {
 
 func init() {
 	database.AllUserData()
-	// database.LoginList()
 }

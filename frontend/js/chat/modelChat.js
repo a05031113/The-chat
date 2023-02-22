@@ -161,6 +161,7 @@ let model = {
                 }
             });
             const result = await response.json()
+            console.log(result)
             if (result.data){
                 if (!userData.Friend){
                     userData.Friend = [];
@@ -178,8 +179,8 @@ let model = {
                     }
                 }
                 view.showPopup();
-                view.searchUser(result.data[0], addSent);
-                return result.data[0];   
+                view.searchUser(result.data, addSent);
+                return result.data;   
             } else{
                 return false;
             }

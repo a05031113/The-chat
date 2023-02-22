@@ -252,7 +252,7 @@ let view = {
     },
     searchUser: function searchUser(data, addSent){
         let src;
-        if (data.headPhoto === undefined){
+        if (data.headPhoto === undefined || data.headPhoto === ""){
             src = "/static/img/default_photo.png"
         }else{
             src = data.headPhoto
@@ -520,7 +520,7 @@ let view = {
     },
     emoji: function (){
         let emojiHtml = ``
-        for (let i=0; i<84; i++){
+        for (let i=0; i<80; i++){
             function number(){
                 const no = 128512 + i
                 const stringNo = "&#" + no.toString();

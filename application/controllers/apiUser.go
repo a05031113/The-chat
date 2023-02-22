@@ -123,11 +123,28 @@ func PostSearch(c *gin.Context) {
 		return
 	}
 
-	var result []primitive.M
+	var result primitive.M
 	for i, user := range data {
 		if user["username"] == searchId.SearchId {
-			result = append(result, data[i])
+			result = data[i]
 		}
+	}
+
+	if result == nil {
+		var searchResult models.SearchResult
+		err := userCollection.FindOne(ctx, bson.M{"username": searchId.SearchId}).Decode(&searchResult)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "No this user"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"data": map[string]any{
+				"_id":       searchResult.ID,
+				"username":  searchResult.Username,
+				"headPhoto": searchResult.HeadPhoto,
+			},
+		})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": result})

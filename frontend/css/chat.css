@@ -233,7 +233,7 @@ body{
     border-bottom-right-radius: 5px;
 }
 .chat-left-inside{
-    height: calc(100%);
+    height: calc(100% - 40px);
     margin: 20px;
 }
 
@@ -255,7 +255,7 @@ body{
 }
 .listContent{
     position: relative;
-    height: calc(100% - 162px);
+    height: calc(100% - 60px);
     overflow: auto;
 }
 .btn-split{
