@@ -161,7 +161,6 @@ let model = {
                 }
             });
             const result = await response.json()
-            console.log(result)
             if (result.data){
                 if (!userData.Friend){
                     userData.Friend = [];

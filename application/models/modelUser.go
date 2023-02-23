@@ -39,7 +39,8 @@ type PasswordData struct {
 }
 
 type SearchResult struct {
-	ID        primitive.ObjectID `bson:"_id" json: "id"`
-	Username  string             `json: "username"`
-	HeadPhoto string             `json: "headPhoto"`
+	ID           primitive.ObjectID `bson:"_id" json: "id"`
+	Username     string             `json: "username"`
+	HeadPhoto    string             `json: "headPhoto"`
+	Subscription string             `json: "subscription"`
 }

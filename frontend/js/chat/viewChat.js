@@ -305,7 +305,8 @@ let view = {
         `
         popupContent.insertAdjacentHTML("beforeend", addSendedHtml);
     },
-    checkAdd: function checkAdd(src, username, introduction){
+    checkAdd: function checkAdd(headPhoto, username, introduction){
+        const src = view.headPhotoSrc(headPhoto);
         let showUserHtml = `
             <div id="userPhoto" class="photo-div">
                 <img id="userImg" class="edit-profile-photo" src=${src} alt=""/>

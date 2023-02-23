@@ -29,7 +29,7 @@ var userCollection *mongo.Collection = OpenCollection(Client, "users")
 func AllUserData() error {
 	var ctx = context.Background()
 
-	opts := options.Find().SetProjection(bson.D{{"username", 1}, {"headPhoto", 1}})
+	opts := options.Find().SetProjection(bson.D{{"username", 1}, {"headPhoto", 1}, {"subscription", 1}})
 	cursor, err := userCollection.Find(ctx, bson.M{}, opts)
 	if err != nil {
 		return err

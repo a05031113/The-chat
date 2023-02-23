@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"the-chat/application/database"
 	"the-chat/application/models"
+	"the-chat/application/notification"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -21,6 +22,7 @@ func AddFriend(c *gin.Context) {
 	var ctx = context.Background()
 	var addFriendData models.AddFriendData
 	userID, _ := c.Get("id")
+	username, _ := c.Get("username")
 
 	if err := c.BindJSON(&addFriendData); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -53,6 +55,41 @@ func AddFriend(c *gin.Context) {
 		return
 	}
 	fmt.Println(result)
+
+	rdb := database.RedisClient()
+	val, err := rdb.Get(ctx, "allUserData").Bytes()
+	if err != nil {
+		panic(err)
+	}
+	var data []primitive.M
+	err = json.Unmarshal(val, &data)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+
+	for i := 0; i < len(data); i++ {
+		if addFriendData.ID == data[i]["_id"] {
+			if data[i]["subscription"] == nil {
+				return
+			}
+			notifyMessage := "Friend request from " + username.(string)
+			notification.Push(data[i]["subscription"].(string), notifyMessage)
+			c.JSON(http.StatusOK, gin.H{"add": "success"})
+			return
+		}
+	}
+	var searchResult models.SearchResult
+	errFind := userCollection.FindOne(ctx, bson.M{"_id": userID}).Decode(&searchResult)
+	if errFind != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No this user"})
+		return
+	}
+	if searchResult.Subscription == "" {
+		return
+	}
+	notifyMessage := "Friend request from " + username.(string)
+	notification.Push(searchResult.Subscription, notifyMessage)
 
 	c.JSON(http.StatusOK, gin.H{"add": "success"})
 }
@@ -136,6 +173,7 @@ func CheckAdded(c *gin.Context) {
 	var ctx = context.Background()
 	var checkAddedData models.AddFriendData
 	userID, _ := c.Get("id")
+	username, _ := c.Get("username")
 
 	if err := c.BindJSON(&checkAddedData); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -172,6 +210,40 @@ func CheckAdded(c *gin.Context) {
 		return
 	}
 	fmt.Println(deleteResult, userUpdateResult, addedUpdateResult)
+
+	rdb := database.RedisClient()
+	val, err := rdb.Get(ctx, "allUserData").Bytes()
+	if err != nil {
+		panic(err)
+	}
+	var data []primitive.M
+	err = json.Unmarshal(val, &data)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	for i := 0; i < len(data); i++ {
+		if checkAddedData.ID == data[i]["_id"] {
+			if data[i]["subscription"] == nil {
+				return
+			}
+			notifyMessage := username.(string) + " accepted your request"
+			notification.Push(data[i]["subscription"].(string), notifyMessage)
+			c.JSON(http.StatusOK, gin.H{"add": "success"})
+			return
+		}
+	}
+	var searchResult models.SearchResult
+	errFind := userCollection.FindOne(ctx, bson.M{"_id": userID}).Decode(&searchResult)
+	if errFind != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No this user"})
+		return
+	}
+	if searchResult.Subscription == "" {
+		return
+	}
+	notifyMessage := username.(string) + " accepted your request"
+	notification.Push(searchResult.Subscription, notifyMessage)
 
 	c.JSON(http.StatusOK, gin.H{"add": "success"})
 }

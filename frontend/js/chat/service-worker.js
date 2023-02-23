@@ -1,12 +1,14 @@
 self.addEventListener('push', event => {
-    // console.log('[Service Worker] Push Received.');
-    // console.log(`[Service Worker] Push had this data: "${event.data.text()}"`);
-
-    const title = 'test';
+    console.log("receive", event.data.text())
+    const title = "The Chat";
     const options = {
         body: event.data.text(),
+        tag: "the-chat"
     };
-    console.log(event.data.text())
-
     event.waitUntil(self.registration.showNotification(title, options));
 });
+
+self.addEventListener("notificationclick", event => {
+    console.log(event.notification.body)
+    console.log(userData)
+})

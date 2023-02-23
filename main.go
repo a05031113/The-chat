@@ -44,6 +44,8 @@ func main() {
 	api.PATCH("/messages/resetUnRead", middleware.Require, controllers.ResetUnRead)
 	api.POST("messages/file", middleware.Require, controllers.PostFile)
 
+	api.POST("/notification/subscribe", middleware.Require, controllers.PostSubscribe)
+
 	var hub = ws.NewHub()
 	go hub.Run()
 

@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 	"the-chat/application/database"
 	"the-chat/application/models"
+	"the-chat/application/notification"
 	"the-chat/application/storage"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +24,7 @@ var messagesCollection *mongo.Collection = database.OpenCollection(database.Clie
 func Send(c *gin.Context) {
 	var ctx = context.Background()
 	userID, _ := c.Get("id")
+	username, _ := c.Get("username")
 	userIDString := userID.(string)
 	var message models.SendMessage
 
@@ -71,6 +74,40 @@ func Send(c *gin.Context) {
 	}
 
 	fmt.Println(userUpdateResult, updateUnReadResult)
+
+	rdb := database.RedisClient()
+	val, err := rdb.Get(ctx, "allUserData").Bytes()
+	if err != nil {
+		panic(err)
+	}
+	var data []primitive.M
+	err = json.Unmarshal(val, &data)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	for i := 0; i < len(data); i++ {
+		if friendId == data[i]["_id"] {
+			if data[i]["subscription"] == nil {
+				return
+			}
+			notifyMessage := username.(string) + ": " + message.Content
+			notification.Push(data[i]["subscription"].(string), notifyMessage)
+			c.JSON(http.StatusOK, gin.H{"message": "success"})
+			return
+		}
+	}
+	var searchResult models.SearchResult
+	errFind := userCollection.FindOne(ctx, bson.M{"_id": userID}).Decode(&searchResult)
+	if errFind != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No this user"})
+		return
+	}
+	if searchResult.Subscription == "" {
+		return
+	}
+	notifyMessage := "Friend request from " + username.(string)
+	notification.Push(searchResult.Subscription, notifyMessage)
 
 	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }
