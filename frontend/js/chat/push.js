@@ -30,7 +30,6 @@ let controller = {
                 }
             });
             const result = await response.json();
-            console.log(result);
         }catch(err){
             console.log(err)
         }    
@@ -49,11 +48,10 @@ let controller = {
                 "subscription": JSON.stringify(subscription),
             }
             controller.postSubscription(data);
-            console.log(
-            JSON.stringify({
-                subscription: subscription,
-            })
-            );
+            // console.log(
+            // JSON.stringify({
+            //     subscription: subscription,
+            // }));
         }).catch(err => console.error(err));    
     },
     urlBase64ToUint8Array: function(base64String){
@@ -76,17 +74,17 @@ if ('serviceWorker' in navigator) {
                 if (!subscription) {
                     controller.subscribe();
                 } else {
-                    console.log("else")
                     const data = {
                         "subscription": JSON.stringify(subscription),
                     }
                     controller.postSubscription(data)
-                    console.log(
-                    JSON.stringify({
-                        subscription: subscription,
-                    }));
+                    // console.log(
+                    // JSON.stringify({
+                    //     subscription: subscription,
+                    // }));
                 }
             });
         }
     })
 }
+

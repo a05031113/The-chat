@@ -13,7 +13,7 @@ const (
 )
 
 func Push(subscription string, message string) {
-	fmt.Println(subscription)
+	// fmt.Println(subscription)
 	// Decode subscription
 	s := &webpush.Subscription{}
 	json.Unmarshal([]byte(subscription), s)

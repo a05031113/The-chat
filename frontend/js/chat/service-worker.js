@@ -1,3 +1,5 @@
+// importScripts("/js/chat/variableChat.js")
+
 self.addEventListener('push', event => {
     console.log("receive", event.data.text())
     const title = "The Chat";
@@ -9,6 +11,15 @@ self.addEventListener('push', event => {
 });
 
 self.addEventListener("notificationclick", event => {
-    console.log(event.notification.body)
-    console.log(userData)
+    event.waitUntil(clients.matchAll({
+        type: "window"
+    }).then((clientList) => {
+        console.log(clientList)
+        for (const client of clientList) {
+            if (client.url === '/chat' && 'focus' in client)
+                return client.focus();
+        }
+        if (clients.openWindow)
+            return clients.openWindow('/');
+    }));
 })

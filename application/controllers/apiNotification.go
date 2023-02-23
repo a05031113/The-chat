@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"the-chat/application/database"
 	"the-chat/application/models"
@@ -28,7 +27,4 @@ func PostSubscribe(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"update": true})
 	database.AllUserData()
-
-	fmt.Println(userID)
-	fmt.Println(subscription)
 }
