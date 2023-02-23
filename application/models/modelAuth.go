@@ -13,9 +13,10 @@ type Register struct {
 }
 
 type SignUp struct {
-	Username string `json: "username"`
-	Email    string `json: "email"`
-	Password string `json: "password"`
+	Username string               `json: "username"`
+	Email    string               `json: "email"`
+	Password string               `json: "password"`
+	Friend   []primitive.ObjectID `bson:"friend"`
 }
 
 type Login struct {

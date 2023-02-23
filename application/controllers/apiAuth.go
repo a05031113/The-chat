@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -72,16 +73,40 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	IDs := []string{
+		"63ef1bc69eb0f2e1b9625c71",
+		"63e8f050aa2a9e7e77bfdeba",
+		"63e8f0aeaa2a9e7e77bfdebb",
+	}
+
+	var objectIDs []primitive.ObjectID
+
+	for i := 0; i < len(IDs); i++ {
+		primitiveId, _ := primitive.ObjectIDFromHex(IDs[i])
+		objectIDs = append(objectIDs, primitiveId)
+	}
+
 	hashPass, _ := helper.HashPassword(register.Password)
 	var signUp models.SignUp
 	signUp.Username = register.Username
 	signUp.Email = register.Email
 	signUp.Password = hashPass
+	signUp.Friend = objectIDs
 
-	_, insertErr := userCollection.InsertOne(ctx, signUp)
+	Id, insertErr := userCollection.InsertOne(ctx, signUp)
 	if insertErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error while insert data"})
 		return
+	}
+
+	for i := 0; i < len(IDs); i++ {
+		primitiveId, _ := primitive.ObjectIDFromHex(IDs[i])
+		userUpdate := bson.M{"$push": bson.M{"friend": Id.InsertedID}}
+		_, err := userCollection.UpdateOne(ctx, bson.M{"_id": primitiveId}, userUpdate)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"register": "success"})

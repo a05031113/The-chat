@@ -330,18 +330,6 @@ let view = {
         `
         popupContent.insertAdjacentHTML("afterbegin", showFriendHtml);
     },
-    // serviceChat: function (){
-    //     let showFriendHtml = `
-    //         <div id="userPhoto" class="photo-div">
-    //             <img id="userImg" class="edit-profile-photo" src="/static/img/logo.png" alt=""/>
-    //         </div>
-    //         <div class="search-username" >Demo</div>
-    //         <div id="friendCallDiv" class="friend-chat-btn-list">
-    //             <button id="startServiceChat" class="add-friend"><img class="addImg" src="/static/img/icon_start_chat.png" alt=""/></button>
-    //         </div>
-    //     `
-    //     popupContent.insertAdjacentHTML("afterbegin", showFriendHtml);
-    // },
     friendCall: function(src, username){
         let friendCallHtml = `
             <div id="userPhoto" class="photo-div">
@@ -418,34 +406,6 @@ let view = {
         `
         chatBoxContent.insertAdjacentHTML("afterbegin", chatBoxHtml);
     },
-    // serviceChatBox: function(){
-    //     chatBoxContent.innerHTML = "";
-    //     let chatBoxHtml = `
-    //         <div class="chat-right-top">
-    //             <div class="chat-right-top-left">
-    //                 <img class="friend-img" src="/static/img/logo.png" alt=""/>
-    //                 <div class="chat-right-top-username">Demo</div>
-    //             </div>
-    //         </div>
-    //         <div id="chatRoom" class="chat-right-middle"></div>
-    //         <div class="chat-right-bottom">
-    //             <input id="messageInput" class="chat-right-bottom-input" placeholder="..." type="text"/>
-    //             <input id="fileInput" type="file" hidden/>
-    //             <div id="audioRecord" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon-microphone.png" alt=""></div>
-    //             <div id="emoji" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon_smile.png" alt=""></div>
-    //             <div id="sendPhotoOrFile" class="chat-right-bottom-btn"><img class="chat-right-bottom-btn-img" src="/static/img/icon_add.png" alt=""></div>
-    //             <div id="messageSend" class="chat-right-bottom-btn" ><img class="chat-right-bottom-btn-img" src="/static/img/icon_send.png" alt=""></div>
-    //         </div>
-    //         <div id="previewDiv" class="previewDiv">
-    //             <div id="filePreview" class="filePreview"></div>
-    //             <img id="photoPreview" class="photoPreview" src"" alt="">
-    //             <div id="cancelPreview" class="cancel-preview"><img class="cancel-preview-img" src="/static/img/icon_cross.png"></div>
-    //         </div>
-    //         <div id="emojiDiv" class="emojiDiv"></div>
-    //         <div id="recordDiv" class="recordDiv"></div>
-    //     `
-    //     chatBoxContent.insertAdjacentHTML("afterbegin", chatBoxHtml);
-    // },
     myMessages: function myMessages(time, messages, type){
         function fileType(type){
             if (type === "string"){
@@ -569,7 +529,7 @@ let view = {
             <button id="changeLogout" class="changeLogout">logout</button>
         `
         popupInside.insertAdjacentHTML("beforeend", successHtml)
-    }
+    },
 }
 
 export default view;

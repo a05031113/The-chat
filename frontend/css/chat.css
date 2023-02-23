@@ -222,12 +222,12 @@ body{
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 .chat-left{
-    width: 27%;
+    width: 30%;
     background-color: #000000e4;
 }
 .chat-right{
     position: relative;
-    width: 67%;
+    width: 62%;
     background-color: #000000b8;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
@@ -242,7 +242,7 @@ body{
     flex-direction: column;    
     align-items: center;
     height: 100%;
-    width: 6%;
+    width: 8%;
     background-color: #6A6C75;
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
@@ -271,26 +271,31 @@ body{
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    width: 30px;
-    height: 30px;
+    width: 50px;
+    height: 50px;
 }
 .chat-left-top-img{
-    height: 20px;
-    width: 20px;
+    height: 40px;
+    width: 40px;
 }
 #friendBtn{
     background-color: #8d909d;
 }
 .chat-tag-div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: absolute;
     top: -2px;
     right: -5px;
-}
-.chat-tag{
-    background-color: rgba(255, 84, 84, 0.835);
-    font-size: 3px;
     min-width: 18px;
     border-radius: 50%;
+    background-color: rgba(255, 84, 84, 0.835);
+}
+.chat-tag{
+    padding-bottom: 2px;
+    font-size: 8px;
+    min-width: 18px;
     text-align: center;
 }
 
@@ -466,10 +471,12 @@ body{
 .unRead{
     border-radius: 50%;
     min-width: 20px;
-    background-color: #374151;
+    background-color: #6989bd;
     font-size: 12px;
     text-align: center;
     margin-bottom: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 .last-message-time{
     color: #bebebe;
