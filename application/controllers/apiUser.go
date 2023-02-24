@@ -293,8 +293,6 @@ func PostUpdatePassword(c *gin.Context) {
 	if passwordData.Current == "" || passwordData.New == "" || passwordData.Confirmation == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No input"})
 	}
-	fmt.Println(id)
-	fmt.Println(passwordData)
 	primitiveId, _ := primitive.ObjectIDFromHex(id.(string))
 
 	err := userCollection.FindOne(ctx, bson.M{"_id": primitiveId}).Decode(&foundUser)

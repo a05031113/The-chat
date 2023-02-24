@@ -72,6 +72,9 @@ let view = {
         if (!roomList){
             return false;
         }
+        roomList = roomList.sort(function(a,b){
+            return a.message[0].time > b.message[0].time ? 1:-1;
+        });
         for (let j=0; j<roomList.length; j++){
             let friendId;
             const idList = roomList[j].roomid.split(",")
@@ -87,7 +90,7 @@ let view = {
                 let messageContent;
                 let time = new Date(roomList[j].message[0].time);
                 let timeMinutes = ("0" + time.getMinutes()).slice(-2);
-                let dateTime = time.getHours() + ":" + timeMinutes; 
+                let dateTime = time.getMonth() + "/" + time.getDate() + " " + time.getHours() + ":" + timeMinutes; 
                 let unRead = roomList[j].unRead[userData.ID]
                 if (roomList[j].message[0].sendId === userData.ID){
                     messageContent = "You: ";
@@ -128,13 +131,6 @@ let view = {
                 listContent.insertAdjacentHTML("afterbegin", chatHtml)
             }
         }
-        // let serviceHtml = `
-        //     <div id="service" class="service">
-        //         <img class="friend-img" src="/static/img/logo.png" alt=""/>
-        //         <div class="friend-username" >Demo</div>
-        //     </div>
-        // `
-        // listContent.insertAdjacentHTML("beforeend", serviceHtml)
     },
     searchChat: function searchChat(src, username, messageContent, unRead, dateTime){
         listContent.innerHTML = "";
@@ -372,7 +368,7 @@ let view = {
         let chatBoxHtml = `
             <div class="chat-right-top">
                 <div class="chat-right-top-left">
-                    <img class="friend-img" src="${src}" alt=""/>
+                    <img id="friendHeadPhoto" class="friend-img" src="${src}" alt=""/>
                     <div class="chat-right-top-username">${username}</div>
                 </div>
                 <div class="chat-right-top-right">

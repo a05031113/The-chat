@@ -450,7 +450,7 @@ body{
     background-color: #8d909d;
 }
 .last-message-box{
-    width: calc(100% - 100px);
+    width: calc(100% - 170px);
 }
 .last-message{
     color: #bebebe;
@@ -466,7 +466,7 @@ body{
     justify-content: end;
     align-items: flex-end;
     margin-right: 10px;
-    width: 30px;
+    width: 70px;
 }
 .unRead{
     border-radius: 50%;
@@ -654,7 +654,7 @@ body{
     align-items: center;
     background-color: #85858566;
     width: 100%;
-    bottom: 52px;
+    bottom: 65px;
     z-index: 3;
 }
 .recordBtn{
@@ -839,6 +839,9 @@ body{
     object-fit: cover;
     cursor: pointer;
     border-radius: 5px;
+}
+#friendHeadPhoto{
+    cursor: pointer;
 }
 .recommend-friend{
     display: flex;

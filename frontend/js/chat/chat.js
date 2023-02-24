@@ -577,6 +577,7 @@ let controller = {
         const emojiDiv = document.getElementById("emojiDiv");
         const audioRecord = document.getElementById("audioRecord");
         const recordDiv = document.getElementById("recordDiv");
+        const friendHeadPhoto = document.getElementById("friendHeadPhoto");
         roomId = model.makeRoomId(username, userData)["roomId"]; 
         await model.showMessage(roomId);
         chatRoom.scrollTop = chatRoom.scrollHeight;
@@ -718,12 +719,17 @@ let controller = {
             });
             cancelRecord.addEventListener("click", ()=>{
                 recordDiv.style.display = "none";
-                recordDiv.innerHTML = ""
+                recordDiv.innerHTML = "";
+                blob = "";
                 recording = false;
                 audioStream.getTracks().forEach(function(track) {
                     track.stop();
                 });
             });
+        });
+        friendHeadPhoto.addEventListener("click", ()=>{
+            PhotoDiv.style.display = "flex";
+            Photo.src = friendHeadPhoto.currentSrc;
         });
     },
     message: function(messageInput, roomId, friendId, fileInput, audioFile){
