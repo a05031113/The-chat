@@ -72,12 +72,12 @@ let view = {
         if (!roomList){
             return false;
         }
-        roomList = roomList.sort(function(a,b){
+        let sortRoomList = roomList.sort(function(a,b){
             return a.message[0].time > b.message[0].time ? 1:-1;
         });
-        for (let j=0; j<roomList.length; j++){
+        for (let j=0; j<sortRoomList.length; j++){
             let friendId;
-            const idList = roomList[j].roomid.split(",")
+            const idList = sortRoomList[j].roomid.split(",")
             if (idList[0] === userData.ID){
                 friendId = idList[1];
             }else{
@@ -88,22 +88,25 @@ let view = {
                 let src = view.headPhotoSrc(userData.Friend[found].headPhoto);
                 let username = userData.Friend[found].username;
                 let messageContent;
-                let time = new Date(roomList[j].message[0].time);
+                let time = new Date(sortRoomList[j].message[0].time);
                 let timeMinutes = ("0" + time.getMinutes()).slice(-2);
-                let dateTime = time.getMonth() + "/" + time.getDate() + " " + time.getHours() + ":" + timeMinutes; 
-                let unRead = roomList[j].unRead[userData.ID]
-                if (roomList[j].message[0].sendId === userData.ID){
+                let dateTime = (time.getMonth() + 1) + "/" + time.getDate() + " " + time.getHours() + ":" + timeMinutes; 
+                let unRead = sortRoomList[j].unRead[userData.ID]
+                if (sortRoomList[j].message[0].sendId === userData.ID){
                     messageContent = "You: ";
                 }else{
                     messageContent = "";
                 }
-                if (roomList[j].message[0].type === "string"){
-                    messageContent = messageContent + roomList[j].message[0].content
-                }else if (roomList[j].message[0].type === "image"){
+                if (sortRoomList[j].message[0].type === "string"){
+                    if (/<|>/.test(sortRoomList[j].message[0].content)){
+                    }else{
+                        messageContent = messageContent + sortRoomList[j].message[0].content;
+                    }    
+                }else if (sortRoomList[j].message[0].type === "image"){
                     messageContent = messageContent + "image";
-                }else if (roomList[j].message[0].type === "file"){
+                }else if (sortRoomList[j].message[0].type === "file"){
                     messageContent = messageContent + "file";
-                }else if (roomList[j].message[0].type === "audio"){
+                }else if (sortRoomList[j].message[0].type === "audio"){
                     messageContent = messageContent + "audio";
                 }
                 function unReadDiv(unRead){
@@ -129,6 +132,11 @@ let view = {
                     </div>
                 `  
                 listContent.insertAdjacentHTML("afterbegin", chatHtml)
+                if (sortRoomList[j].message[0].type === "string" && /<|>/.test(sortRoomList[j].message[0].content)){
+                    const allMessages = document.querySelector(".last-message");
+                    const message = messageContent + sortRoomList[j].message[0].content
+                    allMessages.textContent = message;
+                }
             }
         }
     },
@@ -405,7 +413,11 @@ let view = {
     myMessages: function myMessages(time, messages, type){
         function fileType(type){
             if (type === "string"){
-                return `<div class="messages-myMessage">${messages}</div>`
+                if (/<|>/.test(messages)){
+                    return `<div class="messages-myMessage"></div>`
+                }else{
+                    return `<div class="messages-myMessage">${messages}</div>`
+                }
             }else if (type === "image"){
                 return `<img class="messages-myPhoto" src="${messages}" alt=""/>`
             }else if (type === "file"){
@@ -425,12 +437,20 @@ let view = {
             </div>
         `
         chatRoom.insertAdjacentHTML("beforeend", messageHtml);
+        if (type === "string" && /<|>/.test(messages)){
+            const allMessages = document.querySelectorAll(".messages-myMessage");
+            allMessages[allMessages.length - 1].textContent = messages
+        }
         chatRoom.scrollTop = chatRoom.scrollHeight;
     },
     friendMessages: function friendMessages(time, messages, type){
         function fileType(type){
             if (type === "string"){
-                return `<div class="messages-friendMessage">${messages}</div>`
+                if (/<|>/.test(messages)){
+                    return `<div class="messages-friendMessage"></div>`
+                }else{
+                    return `<div class="messages-friendMessage">${messages}</div>`
+                }
             }else if (type === "image"){
                 return `<img class="messages-myPhoto" src="${messages}" alt=""/>`
             }else if (type === "file"){
@@ -459,6 +479,10 @@ let view = {
             </div>
         `
         chatRoom.insertAdjacentHTML("beforeend", messageHtml);
+        if (type === "string" && /<|>/.test(messages)){
+            const allMessages = document.querySelectorAll(".messages-friendMessage");
+            allMessages[allMessages.length - 1].textContent = messages
+        }
         chatRoom.scrollTop = chatRoom.scrollHeight;
     },
     chatRedTag: function chatRedTag(unRead){

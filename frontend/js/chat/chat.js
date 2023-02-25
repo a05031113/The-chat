@@ -738,7 +738,8 @@ let controller = {
         }
         let timeNow = new Date();
         if (messageInput.value.trim() !== ""){
-            controller.updateRoomList(roomId, messageInput.value, userData.ID, timeNow, "string", 0)
+            const message = messageInput.value.toString()
+            controller.updateRoomList(roomId, message, userData.ID, timeNow, "string", 0)
             model.messageFileSend(messageInput.value, "message", "string", friendId);
             chatRoom.scrollTop = chatRoom.scrollHeight;    
         }
@@ -789,10 +790,11 @@ let controller = {
         }
         const found = roomList.findIndex(item => item.roomid === roomId)
         const userId = userData.ID
+        const stringTime = time.toString()
         if (found !== -1){
             roomList[found].message[0].sendId = sendId
             roomList[found].message[0].content = content
-            roomList[found].message[0].time = time
+            roomList[found].message[0].time = stringTime
             roomList[found].message[0].type = type
             roomList[found].unRead[userId] = unRead
         }else{

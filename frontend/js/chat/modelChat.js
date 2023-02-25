@@ -335,27 +335,13 @@ let model = {
         if (roomId.split(",")[1] === "Demo"){
             if (roomResult.data){
                 const messages = roomResult.data.message
-    
                 for (let i=0; i<messages.length; i++){
                     let message = messages[i].content;
                     let messageType = messages[i].type;
                     let timeNow = new Date(messages[i].time);
                     let timeMinutes = ("0" + timeNow.getMinutes()).slice(-2);
                     let dateTime = timeNow.getHours() + ":" + timeMinutes; 
-                    if (messages[i].content === "How to start?"){
-                        view.myMessages(dateTime, message, messageType);
-                        view.friendMessages(dateTime, "/static/img/Demo-Add.gif", "image")
-                        const friendRecommend = await model.friendRecommend();
-                        view.friendMessages(dateTime, "Did you recognize them?", "string")
-                        for (let i=0; i<3; i++){
-                            view.friendMessages(dateTime, friendRecommend.data[i], "recommend")
-                        }        
-                    }else if (messages[i].content === "How to call?"){
-                        view.myMessages(dateTime, message, messageType);
-                        view.friendMessages(dateTime, "/static/img/video_chat.gif", "image")
-                    }else{
-                        view.myMessages(dateTime, message, messageType);
-                    }
+                    view.myMessages(dateTime, message, messageType);    
                 }    
             }   
             setTimeout(()=>{
