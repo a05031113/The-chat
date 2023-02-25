@@ -13,17 +13,26 @@ body{
     padding-bottom: 16px;
     width: 100%;
     align-items: center;
-    background-color: #000000;
+    background-color: #353535;
     z-index: 10;
+    justify-content: center;
+    align-items: center;
+}
+.logo{
+    margin-right: 10px;
+    width: 40px;
+    height: 40px;
 }
 .header-title-content{
-    width: 100%;
+    width: 250px;
     font-size: 32px;
     padding-left: 20px;
     padding-right: 20px;
 }
 .header-title-link{
+    display: flex;
     text-decoration: none;
+    align-items: center;
 }
 .header-space{
     height: 54px;
@@ -53,7 +62,7 @@ body{
     height: fit-content;
     top: 56px;
     margin-right: 10px;
-    background-color: #000000;
+    background-color: #353535;
     border-radius: 5px;
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
@@ -69,7 +78,7 @@ body{
     padding: 8px;
     margin-bottom: 4px;
     font-size: 20px;
-    background-color: #000000;
+    background-color: #353535;
     cursor: pointer;
 }
 .header-end-personal-button:hover{
@@ -86,7 +95,7 @@ body{
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #4f4f4f;
+    background-color: #36465d;
     width: 100%;
     height: 100%;
     top: 0px;
@@ -755,7 +764,6 @@ body{
     justify-content: center;
     margin-left: auto;
     margin-right: auto;
-    cursor: pointer;
     width: 120px;
     height: 120px;
 }
@@ -772,6 +780,9 @@ body{
     margin-left: auto;
     margin-right: auto;
     object-fit: cover;
+}
+#changePhoto{
+    cursor: pointer;
 }
 
 .my-message-div{

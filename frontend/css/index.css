@@ -15,22 +15,30 @@ body{
     padding-right: 14px;
     width: 100%;
     align-items: center;
-    background-color: #000000;
+    background-color: #353535;
     z-index: 10;
 }
 .header-title-content{
-    width: 100%;
+    width: 180px;
     font-size: 32px;
 }
 .header-title-link{
     text-decoration: none;
+    display: flex;
+    align-items: center;
 }
 .header-space{
     height: 54px;
     width: 100%;
 }
+.logo{
+    margin-right: 10px;
+    width: 40px;
+    height: 40px;
+}
+
 main{
-    background-color: #00000096;
+    background-color: #000000;
 }
 .main-inside{
     display: flex;
@@ -39,7 +47,7 @@ main{
     margin-left: auto;
     margin-right: auto;
     padding-top: 50px;
-    min-height: calc(100vh - 54px);
+    height: 600px;
     width: 1200px;
 }
 .index-gif{
@@ -48,26 +56,38 @@ main{
 }
 .main-left{
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    width: 840px;
+}
+.main-left-div{
+    margin-left: 60px;
+}
+.main-left-title{
+    display: flex;
     align-items: center;
-    width: 60%;
+    font-size: 60px;
+    margin-bottom: 20px;
+}
+.main-left-sub{
+    font-size: 30px;
 }
 
 .main-right{
     display: flex;
     justify-content: center;
-    width: 40%;
+    width: 360px;
+    margin-right: 60px;
 }
 .main-right-inside{
     position: relative;
     display: flex;
     flex-direction: column;
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    width: 360px;
+    width: 100%;
     height: fit-content;
     padding-top: 40px;
     padding-bottom: 40px;
-    background-color: #000000;
+    background-color: #313131;
     border-radius: 5px;
 }
 .main-right-title{
@@ -194,12 +214,50 @@ main{
     height: 30px;
     cursor: pointer;
 }
+
+.feature{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 50px;
+    height: 600px;
+    width: 1200px;
+}
+.feature-img-div{
+    margin-left: 60px;
+    margin-right: 60px;
+    height: 500px;
+    width: 500px;
+}
+.feature-img{
+    max-height: 500px;
+    max-width: 500px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+.feature-div{
+    width: 640px;
+}
+#featureLeft{
+    margin-left: 60px;
+}
+.feature-title{
+    font-size: 50px;
+    margin-bottom: 20px;
+}
+.feature-content{
+    font-size: 25px;
+}
+
+
 .loading-div{
     position: absolute;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: white;
+    background-color: #36465d;
     width: 100%;
     height: 100%;
     top: 0px;
@@ -209,6 +267,7 @@ main{
 .loading{
     height: 500px;
     width: 500px;
+    background-color: #36465d;
 }
 .login-loading{
     position: absolute;
