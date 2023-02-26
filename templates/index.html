@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/css/index.css">
+    <link rel="icon" type="image/x-icon" href="/static/img/logo.png">
+    <title>The Chat</title>
+</head>
+<body>
+    <!-- <header>
+        <div class="header-title">
+            <div class="header-title-content">
+                <a class="header-title-link" href="/"><img class="logo" src="/static/img/logo.png" alt=""/>The Chat</a>
+            </div>
+        </div>
+        <div class="header-space"></div>
+    </header> -->
+    <main>
+        <div class="main-inside">
+            <div class="main-left">
+                <div class="main-left-div">
+                    <div class="main-left-title">The Chat</div>
+                    <div class="main-left-sub">The Chat, keep in touch with your family and friends, and share every moment of your life at any time.</div>    
+                </div>
+            </div>
+            <div class="main-right">
+                <div class="main-right-inside">
+                    <div class="main-right-title">Login</div>
+                    <input id="loginEmail" class="main-input" placeholder="email" type="text"/>
+                    <input id="loginPassword" class="main-input" placeholder="password" type="password"/>
+                    <button id="loginBtn" class="main-right-button">login</button>
+                    <hr class="main-right-hr"/>
+                    <button id="createBtn" class="main-right-create-button">create new account</button>
+                    <div id="loginErrorMsg" class="main-right-error"></div>
+                    <div id="loginLoading" class="login-loading">
+                        <img class="api-loading-gif" src="/static/img/icon_loading.gif" alt=""/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="feature">
+            <div class="feature-img-div"><img class="feature-img" src="/static/img/message.gif" alt=""/></div>
+            <div class="feature-div">
+                <div class="feature-title">Message with multiple ways</div>
+                <div class="feature-content">You can send message, emoji, audio record, photo also file.</div>
+            </div>
+        </div>
+        <div class="feature">
+            <div id="featureLeft" class="feature-div">
+                <div class="feature-title"> Video call</div>
+                <div class="feature-content">Also contact with your friend by video call.</div>
+            </div>
+            <div class="feature-img-div"><img class="feature-img" src="/static/img/video.gif" alt=""/></div>
+        </div>
+    </main>
+    <div id="popup" class="main-popup">
+        <div id="popupContent" class="main-popup-inside">
+            <div class="main-popup-content">
+                <div class="main-right-title">Register</div>
+                <input id="registerName" class="main-input" placeholder="username" type="text"/>
+                <input id="registerEmail" class="main-input" placeholder="email" type="email"/>
+                <input id="registerPassword" class="main-input" placeholder="password" type="password"/>
+                <input id="registerConfirm" class="main-input" placeholder="confirmation" type="password"/>
+                <button id="registerBtn" class="main-right-button">register</button>        
+                <hr class="main-right-hr"/>
+                <div class="main-register-notice">Password needs at least 8 items with numbers, upper and lower case</div>
+                <div id="registerErrorMsg" class="main-right-error"></div>        
+                <div id="registerLoading" class="register-loading">
+                    <img class="api-loading-gif" src="/static/img/icon_loading.gif" alt=""/>
+                </div>
+            </div>
+            <img id="leaveBtn" class="main-register-leave" src="/static/img/icon_close.png" alt="">
+        </div>
+    </div>
+    <div id="loading" class="loading-div">
+        <img class="loadingImg" src="/static/img/loading.gif" alt=""/>
+    </div>
+    <script src="/static/js/index/varible.js"></script>
+    <script type="module" src="/static/js/index/index.js"></script>
+</body>
+</html>

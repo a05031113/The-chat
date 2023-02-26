@@ -5,10 +5,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: python3 app.py 
+    command: go run main.go
     ports:
       - 3000:3000
     restart: always
     volumes:
       - ./:/app
-

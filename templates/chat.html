@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/css/chat.css">
+    <link rel="icon" type="image/x-icon" href="/static/img/logo.png">
+    <title>The Chat</title>
+</head>
+<body>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <header>
+        <div class="header-title">
+            <index class="header-title-content">
+                <a class="header-title-link" href="/chat"><img class="logo" src="/static/img/logo.png" alt=""/>The Chat</a>
+            </index>
+            <div class="header-end">
+                <img id="photoIcon" class="header-end-photo" src="/static/img/default_photo.png" alt=""/>
+                <div id="profileBox" class="header-end-personal-box">
+                    <button id="profileSetup" class="header-end-personal-button">
+                        <img id="profileIcon" class="header-end-photo" src="/static/img/default_photo.png" alt=""/>
+                        profile
+                    </button>
+                    <!-- <button class="header-end-personal-button">
+                        <img class="header-end-photo" src="/static/img/icon_setting.png" alt=""/>
+                        setting
+                    </button> -->
+                    <hr class="header-end-personal-hr">
+                    <button id="logout" class="header-end-personal-button">
+                        <img class="header-end-photo" src="/static/img/icon_logout.png" alt=""/>    
+                        logout
+                    </button>    
+                </div>
+            </div>
+        </div>
+        <div class="header-space"></div>
+    </header>
+    <main>
+        <div class="chat-box">
+            <div class="chat-inside">
+                <div class="chat-left-top">
+                    <div class="chat-top-btn-zone">
+                        <div id="friendBtn" class="chat-left-top-btn"><img class="chat-left-top-img" src="/static/img/icon_friend.png" alt=""/></div>
+                        <hr class="btn-split">
+                        <div id="chatBtn" class="chat-left-top-btn"><img class="chat-left-top-img" src="/static/img/icon_chat.png" alt=""/><div id="chatTag" class="chat-tag-div"></div></div>
+                        <hr class="btn-split">
+                        <div id="addBtn" class="chat-left-top-btn"><img class="chat-left-top-img" src="/static/img/icon_add_BCBCBC.png" alt=""/><div id="addTag" class="chat-tag-div"></div></div>    
+                    </div>
+                </div>
+                <div class="chat-left">
+                    <div class="chat-left-inside">
+                        <div class="userSearch">
+                            <div id="searchBtn" class="searchBtn"><img class="searchImg" src="/static/img/search_icon.png" alt=""/></div>
+                            <input id="searchInput" class="searchInput" placeholder="search" type="search"/>
+                        </div>
+                        <div id="listContent" class="listContent"></div>
+                    </div>
+                </div>
+                <div id="chatBoxContent" class="chat-right"></div>
+            </div>
+        </div>
+    </main>
+    <div id="popup" class="popup">
+        <div class="popup-inside">
+            <div id="popupContent" class="popup-content"></div>
+            <img id="leaveBtn" class="popup-leave" src="/static/img/icon_close.png" alt="">
+        </div>
+    </div>
+    <div id="loading" class="loading-div">
+        <img class="loadingImg" src="/static/img/loading.gif" alt=""/>
+    </div>
+    <div id="PhotoDiv" class="PhotoDiv">
+        <img id="Photo" class="Photo" src="" alt=""/>
+    </div>
+    <div id="backBlock" class="block"></div>
+    <script src="/static/js/chat/variableChat.js"></script>
+    <script type="module" src="/static/js/chat/chat.js"></script>
+    <script src="/static/js/chat/push.js"></script>
+</body>
+</html>
+
