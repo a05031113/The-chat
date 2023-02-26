@@ -1,4 +1,4 @@
-# [the-chat](https://the-chat.live)
+# [The-Chat](https://the-chat.live)
 
 ## Core Feature
 
@@ -37,11 +37,11 @@ Web-Push Notification is based on Push API and Notification API. We can register
 
 ---
 
-## Technique
+## Skills and Techniques
 
 ### Backend
 
-#### language and Framework
+#### Language and Framework
 
 - Golang
 - Gin-Gonic
@@ -50,13 +50,13 @@ Web-Push Notification is based on Push API and Notification API. We can register
 
 - AWS EC2
 
-#### realtime message
+#### Real-Time Message
 
 - WebSocket
 
-#### video chat
+#### Video Chat
 
-- webRTC(peer.js)
+- WebRTC(peer.js)
 
 #### Database
 
@@ -78,9 +78,13 @@ Web-Push Notification is based on Push API and Notification API. We can register
 
 - Cloudflare Website
 
-#### https/Proxy
+#### HTTPS/Proxy
 
 - Nginx
+
+#### Docker
+
+- Compose
 
 ### Frontend
 
