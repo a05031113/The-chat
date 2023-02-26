@@ -1,6 +1,6 @@
 # [the-chat](https://the-chat.live)
 
-### Core Feature
+## Core Feature
 
 - Real-time communication, including message(text message, emoji, audio, image, file) and video call
 
@@ -13,7 +13,7 @@ WebSocket: A protocol based on TCP connection. Different with HTTP/HTTPS which i
 
 ![](/Demo/httpVSwebsocket.png)
 
-### Video call
+## Video call
 
 ![](/Demo/video-chat.gif)
 
@@ -22,7 +22,7 @@ WebRTC: A framework enables you to do real time communication with APIs such as 
 
 ![](/Demo/webSocket-vs-webRTC.png)
 
-### Web-push notification
+## Web-push notification
 
 ![](/Demo/notification.png)
 
