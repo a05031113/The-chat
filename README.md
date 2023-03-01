@@ -93,7 +93,7 @@ Web-Push Notification is based on Push API and Notification API. We can register
 
 #### RESTful API
 
-[API Documentation](https://app.swaggerhub.com/apis-docs/a05031113/The-Chat/1.0.0)
+- [API Documentation](https://app.swaggerhub.com/apis-docs/a05031113/The-Chat/1.0.0)
 
 ### Frontend
 
