@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
 	"the-chat/application/database"
 	"the-chat/application/helper"
@@ -34,12 +33,13 @@ func GetUserData(c *gin.Context) {
 	rdb := database.RedisClient()
 	val, err := rdb.Get(ctx, "allUserData").Bytes()
 	if err != nil {
-		panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 	var data []primitive.M
 	err = json.Unmarshal(val, &data)
 	if err != nil {
-		fmt.Println("error:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -57,30 +57,7 @@ func GetUserData(c *gin.Context) {
 	userData.HeadPhoto = user.HeadPhoto
 	userData.Friend = friendList
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
 	c.JSON(http.StatusOK, userData)
-}
-
-func GetAllUser(c *gin.Context) {
-	var ctx = context.Background()
-	rdb := database.RedisClient()
-	val, err := rdb.Get(ctx, "allUserData").Bytes()
-	if err != nil {
-		panic(err)
-	}
-
-	var data []primitive.M
-	err = json.Unmarshal(val, &data)
-	if err != nil {
-		fmt.Println("error:", err)
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
 func GetHeadPhoto(c *gin.Context) {
@@ -107,7 +84,7 @@ func PostSearch(c *gin.Context) {
 	var searchId models.Search
 
 	if err := c.BindJSON(&searchId); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -148,34 +125,6 @@ func PostSearch(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": result})
-}
-
-func GetRecommend(c *gin.Context) {
-	var ctx = context.Background()
-	rdb := database.RedisClient()
-	val, err := rdb.Get(ctx, "allUserData").Bytes()
-	if err != nil {
-		panic(err)
-	}
-	var data []primitive.M
-	err = json.Unmarshal(val, &data)
-	if err != nil {
-		fmt.Println("error:", err)
-		return
-	}
-	var nums [3]int
-	for i := 0; i < 3; i++ {
-		num := rand.Intn(len(data))
-		for contains(nums, num) {
-			num = rand.Intn(len(data))
-		}
-		nums[i] = num
-	}
-	var output [3]primitive.M
-	for i := 0; i < len(nums); i++ {
-		output[i] = data[nums[i]]
-	}
-	c.JSON(http.StatusOK, gin.H{"data": output})
 }
 
 func PostUpdateUsername(c *gin.Context) {
