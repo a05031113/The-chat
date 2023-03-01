@@ -24,24 +24,24 @@ func Register(c *gin.Context) {
 	var register models.Register
 
 	if err := c.BindJSON(&register); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	err := validate.Struct(register)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	emailValid := helper.EmailValid(register.Email)
 	if !emailValid {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Wrong email format"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Wrong email format"})
 		return
 	}
 
 	passwordValid := helper.PasswordValid(register.Password)
 	if !passwordValid {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Wrong password format"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Wrong password format"})
 		return
 	}
 
@@ -141,7 +141,7 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
-	c.JSON(http.StatusOK, gin.H{"headPhoto": foundUser.HeadPhoto})
+	c.JSON(http.StatusOK, gin.H{"login": "success"})
 }
 
 func Refresh(c *gin.Context) {
@@ -164,4 +164,5 @@ func Logout(c *gin.Context) {
 		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
 	})
+	c.JSON(http.StatusOK, gin.H{"logout": "success"})
 }

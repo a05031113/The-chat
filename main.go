@@ -11,6 +11,19 @@ import (
 )
 
 func main() {
+	router := setupServer()
+
+	var hub = ws.NewHub()
+	go hub.Run()
+
+	router.Run("0.0.0.0:3000")
+}
+
+func init() {
+	database.AllUserData()
+}
+
+func setupServer() *gin.Engine {
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/static", "./frontend")
@@ -28,9 +41,7 @@ func main() {
 
 	api.GET("/user/data", middleware.Require, controllers.GetUserData)
 	api.GET("/user/headPhoto", middleware.Require, controllers.GetHeadPhoto)
-	api.GET("/user/allUser", middleware.Require, controllers.GetAllUser)
 	api.POST("/user/search", middleware.Require, controllers.PostSearch)
-	api.GET("/user/recommend", middleware.Require, controllers.GetRecommend)
 	api.POST("/user/update/username", middleware.Require, controllers.PostUpdateUsername)
 	api.POST("/user/update/password", middleware.Require, controllers.PostUpdatePassword)
 
@@ -46,15 +57,8 @@ func main() {
 
 	api.POST("/notification/subscribe", middleware.Require, controllers.PostSubscribe)
 
-	var hub = ws.NewHub()
-	go hub.Run()
-
 	wsRoute := router.Group("/ws")
 	wsRoute.GET("/:roomId", ws.ServeWs)
 
-	router.Run("0.0.0.0:3000")
-}
-
-func init() {
-	database.AllUserData()
+	return router
 }

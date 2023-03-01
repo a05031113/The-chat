@@ -106,4 +106,5 @@ func SetAccessToken(c *gin.Context, id string, username string, email string) {
 		Expires:  AccessExpirationTime,
 		HttpOnly: true,
 	})
+	c.JSON(http.StatusOK, gin.H{"refresh": "success"})
 }

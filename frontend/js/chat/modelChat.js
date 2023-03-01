@@ -502,24 +502,6 @@ let model = {
         }
         return count
     },
-    friendRecommend: async function(){
-        try{
-            let auth = await model.refresh();
-            if (!auth){
-                return false;
-            }        
-            const response = await fetch("/api/user/recommend", {
-                method: "GET",
-                headers: {
-                    "Content-type": "application/json",
-                }
-            });
-            const result = await response.json();
-            return result;
-        }catch(error){
-            console.log({"error": error})
-        }
-    }
 }
 
 export default model;
