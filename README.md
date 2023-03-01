@@ -6,7 +6,8 @@
 
 ## Real-Time Message
 
-![Real-time-message demo](/Demo/Real-time-message.gif)(Real-Time-Message demo)
+![Real-time-message demo](/Demo/Real-time-message.gif)  
+(Real-Time-Message demo)
 
 Main Skill: WebSocket  
 WebSocket: A protocol based on TCP connection. Different with HTTP/HTTPS which is stateless, WebSocket only needs one HandShake to create connection and do not need to check the state of it so it achieve that send information through server to others in real-time.
@@ -15,7 +16,8 @@ WebSocket: A protocol based on TCP connection. Different with HTTP/HTTPS which i
 
 ## Video Call
 
-![Video-Call demo](/Demo/video-chat.gif)(Video-Call demo)
+![Video-Call demo](/Demo/video-chat.gif)  
+(Video-Call demo)
 
 Main Skill: WebRTC (Peer.js)  
 WebRTC: A framework enables you to do real time communication with APIs such as RTCPeerConnection and MediaStream. Compared to WebSocket which still need to pass information through server, WebRTC send information directly between clients with lower latency.
@@ -24,10 +26,13 @@ WebRTC: A framework enables you to do real time communication with APIs such as 
 
 ## Web-Push Notification
 
-![Web-notification demo](/Demo/notification.png)(Web-Push-Notification demo)
+![Web-notification demo](/Demo/notification.png)  
+(Web-Push-Notification demo)
 
 Main Skill: Web-Push  
 Web-Push Notification is based on Push API and Notification API. We can register a service worker in browser and send information from backend to service worker. After receive the information, service worker can show notification to client even without focusing on certain website.
+
+![](/Demo/webpush.png)
 
 ---
 
@@ -86,7 +91,9 @@ Web-Push Notification is based on Push API and Notification API. We can register
 
 - Compose
 
-#### [RESTful API](https://app.swaggerhub.com/apis-docs/A05031113_1/The-Chat/1.0.0)
+#### RESTful API
+
+- [API Documentation](https://app.swaggerhub.com/apis-docs/a05031113/The-Chat/1.0.0)
 
 ### Frontend
 
