@@ -2,7 +2,7 @@
 
 ## Core Feature
 
-- Real-time communication, including message(text message, emoji, audio, image, file) and video call
+- Real-time communication, including message (text, emoji, audio, image, file) and video call
 
 ## Table of Contents
 
@@ -73,7 +73,7 @@ Web-Push Notification is based on Push API and Notification API. We can register
 
 #### Real-Time Message
 
-- WebSocket
+- WebSocket (Gorilla)
 
 #### Video Call
 
@@ -82,6 +82,7 @@ Web-Push Notification is based on Push API and Notification API. We can register
 #### Database
 
 - Azure CosmosDB(NoSQL)
+- Prevent XSS Attack
 
 #### Redis
 
@@ -113,6 +114,6 @@ Web-Push Notification is based on Push API and Notification API. We can register
 
 ### Frontend
 
-- Html
-- Javascript
+- HTML
+- JavaScript
 - CSS
