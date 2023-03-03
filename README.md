@@ -4,8 +4,6 @@
 
 - Real-time communication, including message(text message, emoji, audio, image, file) and video call
 
--
-
 ## Table of Contents
 
 - [Main Features](#main-features)
@@ -14,8 +12,6 @@
   - [Web-Push Notification](#web-push-notification)
 - [Project Architecture](#project-architecture)
 - [Skills and Techniques](#skills-and-techniques)
-
--
 
 ## Main Features
 
