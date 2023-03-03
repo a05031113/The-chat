@@ -54,7 +54,7 @@ Web-Push Notification is based on Push API and Notification API. We can register
 
 ## Project Architecture
 
-![](/Demo/architecture-new.png)
+![](/Demo/architecture.png)
 
 ---
 
@@ -90,6 +90,8 @@ Web-Push Notification is based on Push API and Notification API. We can register
 #### Authorization
 
 - JWT
+
+#### Prevent XSS Attack
 
 #### Storage
 
