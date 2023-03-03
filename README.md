@@ -14,7 +14,8 @@ WebSocket: A protocol based on TCP connection. Different with HTTP/HTTPS which i
 ![](/Demo/HTTPvsSocket.png)  
 (HTTP vs WebSocket)
 
-![](/Demo/message_flow.png)
+![](/Demo/message_flow.png)  
+(Message Flow)
 
 ## Video Call
 
@@ -24,7 +25,8 @@ WebSocket: A protocol based on TCP connection. Different with HTTP/HTTPS which i
 Main Skill: WebRTC (Peer.js)  
 WebRTC: A framework enables you to do real time communication with APIs such as RTCPeerConnection and MediaStream. Compared to WebSocket which still need to pass information through server, WebRTC send information directly between clients with lower latency.
 
-![](/Demo/WebRTC_flow.png)
+![](/Demo/WebRTC_flow.png)  
+(WebRTC Flow)
 
 ## Web-Push Notification
 
@@ -34,7 +36,8 @@ WebRTC: A framework enables you to do real time communication with APIs such as 
 Main Skill: Web-Push  
 Web-Push Notification is based on Push API and Notification API. We can register a service worker in browser and send information from backend to service worker. After receive the information, service worker can show notification to client even without focusing on certain website.
 
-![](/Demo/Notification_flow.png)
+![](/Demo/Notification_flow.png)  
+(Notification Flow)
 
 ---
 
