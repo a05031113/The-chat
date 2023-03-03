@@ -4,7 +4,22 @@
 
 - Real-time communication, including message(text message, emoji, audio, image, file) and video call
 
-## Real-Time Message
+---
+
+## Table of Contents
+
+- [](#main-features)
+  - [](#real-time-message)
+  - [](#video-call)
+  - [](#web-push-notification)
+- [](#project-architecture)
+- [](#skills-and-techniques)
+
+---
+
+## Main Features
+
+### Real-Time Message
 
 ![Real-time-message demo](/Demo/Real-time-message.gif)  
 (Real-Time-Message demo)
@@ -17,18 +32,18 @@ WebSocket: A protocol based on TCP connection. Different with HTTP/HTTPS which i
 ![](/Demo/message_flow.png)  
 (Message Flow)
 
-## Video Call
+### Video Call
 
 ![Video-Call demo](/Demo/video-chat.gif)  
 (Video-Call demo)
 
-Main Skill: WebRTC (Peer.js)  
+Main Skill: WebRTC (PeerJS)  
 WebRTC: A framework enables you to do real time communication with APIs such as RTCPeerConnection and MediaStream. Compared to WebSocket which still need to pass information through server, WebRTC send information directly between clients with lower latency.
 
 ![](/Demo/WebRTC_flow.png)  
 (WebRTC Flow)
 
-## Web-Push Notification
+### Web-Push Notification
 
 ![Web-notification demo](/Demo/notification.png)  
 (Web-Push-Notification demo)
@@ -64,9 +79,9 @@ Web-Push Notification is based on Push API and Notification API. We can register
 
 - WebSocket
 
-#### Video Chat
+#### Video Call
 
-- WebRTC(peer.js)
+- WebRTC(PeerJS)
 
 #### Database
 
