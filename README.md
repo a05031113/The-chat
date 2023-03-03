@@ -82,6 +82,7 @@ Web-Push Notification is based on Push API and Notification API. We can register
 #### Database
 
 - Azure CosmosDB(NoSQL)
+- Prevent XSS Attack
 
 #### Redis
 
@@ -90,8 +91,6 @@ Web-Push Notification is based on Push API and Notification API. We can register
 #### Authorization
 
 - JWT
-
-#### Prevent XSS Attack
 
 #### Storage
 
