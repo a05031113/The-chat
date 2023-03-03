@@ -54,7 +54,7 @@ Web-Push Notification is based on Push API and Notification API. We can register
 
 ## Project Architecture
 
-![](/Demo/architecture.png)
+![](/Demo/architecture-new.png)
 
 ---
 
@@ -113,6 +113,6 @@ Web-Push Notification is based on Push API and Notification API. We can register
 
 ### Frontend
 
-- Html
+- HTML
 - Javascript
 - CSS
