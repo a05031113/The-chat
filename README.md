@@ -93,7 +93,7 @@ Web-Push Notification is based on Push API and Notification API. We can register
 
 #### Storage
 
-- Cloudflare R2
+- Cloudflare R2 - Presigned Url
 
 #### DNS
 
