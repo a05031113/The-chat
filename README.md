@@ -4,18 +4,18 @@
 
 - Real-time communication, including message(text message, emoji, audio, image, file) and video call
 
----
+-
 
 ## Table of Contents
 
-- [](#main-features)
-  - [](#real-time-message)
-  - [](#video-call)
-  - [](#web-push-notification)
-- [](#project-architecture)
-- [](#skills-and-techniques)
+- [Main Features](#main-features)
+  - [Real-Time Message](#real-time-message)
+  - [Video Call](#video-call)
+  - [Web-Push Notification](#web-push-notification)
+- [Project Architecture](#project-architecture)
+- [Skills and Techniques](#skills-and-techniques)
 
----
+-
 
 ## Main Features
 
