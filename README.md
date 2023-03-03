@@ -22,7 +22,7 @@
 
 Main Skill: WebSocket  
 WebSocket: A protocol based on TCP connection. Different with HTTP/HTTPS which is stateless, WebSocket only needs one HandShake to create connection and do not need to check the state of it so it achieve that send information through server to others in real-time.
-![](/Demo/HTTPvsWebSocket.png)  
+![](/Demo/httpvsWebSocket.png)  
 (HTTP vs WebSocket)
 
 ![](/Demo/message_flow.png)  
