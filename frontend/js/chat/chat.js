@@ -328,9 +328,6 @@ let controller = {
         }
         notifyConn.addEventListener("message", async(event)=>{
             const notification = JSON.parse(event.data);
-            if (notification.type === "status"){
-                console.log(notification)
-            }
             if (notification.to !== userData.ID){
                 return false;
             }
@@ -875,7 +872,7 @@ let controller = {
                         tag: "notification"
                     }
                 )
-                console.log("good!")
+                ("good!")
             }
         })
     },

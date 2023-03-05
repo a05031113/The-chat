@@ -38,13 +38,6 @@ let view = {
             `  
             friendHtml = friendHtml + addedHtml
         }
-        // let serviceHtml = `
-        //     <div id="service" class="service">
-        //         <img class="friend-img" src="/static/img/logo.png" alt=""/>
-        //         <div class="friend-username" >Demo</div>
-        //     </div>
-        // `
-        // friendHtml = friendHtml + serviceHtml
         listContent.insertAdjacentHTML("afterbegin", friendHtml)
     },
     searchFriend: function searchFriend(data){

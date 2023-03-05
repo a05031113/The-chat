@@ -1,5 +1,3 @@
-// importScripts("/js/chat/variableChat.js")
-
 self.addEventListener('push', event => {
     const title = "The Chat";
     const options = {

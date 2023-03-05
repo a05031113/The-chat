@@ -9,13 +9,9 @@ import (
 )
 
 const (
-	// Time allowed to write a message to the peer.
-	writeWait = 10 * time.Second
-	// Time allowed to read the next pong message from the peer.
-	pongWait = 60 * time.Second
-	// Send pings to peer with this period. Must be less than pongWait.
-	pingPeriod = (pongWait * 9) / 10
-	// Maximum message size allowed from peer.
+	writeWait      = 10 * time.Second
+	pongWait       = 60 * time.Second
+	pingPeriod     = (pongWait * 9) / 10
 	maxMessageSize = 102400
 )
 
@@ -48,7 +44,6 @@ func ServeWs(c *gin.Context) {
 	h.register <- subscript
 	go subscript.writePump()
 	go subscript.readPump()
-	// fmt.Println(h)
 }
 
 func (s subscription) readPump() {
