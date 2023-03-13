@@ -17,8 +17,8 @@ var ctx = context.Background()
 func RedisClient() *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     os.Getenv("Redis_Addr"),
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Password: "",
+		DB:       0,
 	})
 
 	return rdb

@@ -105,7 +105,7 @@ let model = {
             const result = await response.json();
             return result;
         }catch(error){
-            console.log({"error": error})
+            ({"error": error})
         }
     },
     changePassword: async function(data){
@@ -123,8 +123,6 @@ let model = {
             });
             const result = await response.json();
             return result;
-            // const result = await response.json();
-            // return result;
         }catch(error){
             console.log({"error": error})
         }

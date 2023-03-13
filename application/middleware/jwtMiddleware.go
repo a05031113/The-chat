@@ -48,7 +48,6 @@ func Require(c *gin.Context) {
 	}
 	accessToken, err := jwt.Parse(accessTokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			fmt.Println("test-2")
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
 		return []byte(os.Getenv("SECRET_KEY")), nil
@@ -56,7 +55,6 @@ func Require(c *gin.Context) {
 
 	if claims, ok := accessToken.Claims.(jwt.MapClaims); ok && accessToken.Valid {
 		if float64(time.Now().Unix()) > claims["exp"].(float64) {
-			fmt.Println("test-3")
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
@@ -65,7 +63,6 @@ func Require(c *gin.Context) {
 		c.Set("email", claims["email"])
 		c.Next()
 	} else {
-		fmt.Println("test-4")
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}

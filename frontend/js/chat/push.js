@@ -48,10 +48,6 @@ let controller = {
                 "subscription": JSON.stringify(subscription),
             }
             controller.postSubscription(data);
-            // console.log(
-            // JSON.stringify({
-            //     subscription: subscription,
-            // }));
         }).catch(err => console.error(err));    
     },
     urlBase64ToUint8Array: function(base64String){
@@ -78,10 +74,6 @@ if ('serviceWorker' in navigator) {
                         "subscription": JSON.stringify(subscription),
                     }
                     controller.postSubscription(data)
-                    // console.log(
-                    // JSON.stringify({
-                    //     subscription: subscription,
-                    // }));
                 }
             });
         }

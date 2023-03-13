@@ -1,5 +1,3 @@
-// importScripts("/js/chat/variableChat.js")
-
 self.addEventListener('push', event => {
     const title = "The Chat";
     const options = {
@@ -19,6 +17,6 @@ self.addEventListener("notificationclick", event => {
                 return client.focus();
         }
         if (clients.openWindow)
-            return clients.openWindow('/');
+            return clients.openWindow('/chat');
     }));
 })

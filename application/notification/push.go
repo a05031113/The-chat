@@ -13,14 +13,11 @@ const (
 )
 
 func Push(subscription string, message string) {
-	// fmt.Println(subscription)
-	// Decode subscription
 	s := &webpush.Subscription{}
 	json.Unmarshal([]byte(subscription), s)
 
-	// Send Notification
 	resp, err := webpush.SendNotification([]byte(message), s, &webpush.Options{
-		Subscriber:      "example@example", // Do not include "mailto:"
+		Subscriber:      "example@example",
 		VAPIDPublicKey:  vapidPublicKey,
 		VAPIDPrivateKey: os.Getenv("push"),
 		TTL:             30,
