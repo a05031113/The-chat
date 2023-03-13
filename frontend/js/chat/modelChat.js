@@ -123,8 +123,6 @@ let model = {
             });
             const result = await response.json();
             return result;
-            // const result = await response.json();
-            // return result;
         }catch(error){
             console.log({"error": error})
         }

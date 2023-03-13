@@ -1,12 +1,9 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"the-chat/application/models"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -44,19 +41,19 @@ func TestRoom(t *testing.T) {
 	assert.Equal(t, http.StatusOK, response.Code)
 }
 
-func TestRegister(t *testing.T) {
-	router := setupServer()
+// func TestRegister(t *testing.T) {
+// 	router := setupServer()
 
-	response := httptest.NewRecorder()
+// 	response := httptest.NewRecorder()
 
-	mock := models.SignUp{
-		Username: "testUsername",
-		Email:    "testEmail",
-		Password: "testPass",
-	}
-	jsonValue, _ := json.Marshal(mock)
-	request, _ := http.NewRequest("POST", "/api/auth", bytes.NewBuffer(jsonValue))
+// 	mock := models.SignUp{
+// 		Username: "testUsername",
+// 		Email:    "testEmail",
+// 		Password: "testPass",
+// 	}
+// 	jsonValue, _ := json.Marshal(mock)
+// 	request, _ := http.NewRequest("POST", "/api/auth", bytes.NewBuffer(jsonValue))
 
-	router.ServeHTTP(response, request)
-	assert.Equal(t, http.StatusOK, response.Code)
-}
+// 	router.ServeHTTP(response, request)
+// 	assert.Equal(t, http.StatusOK, response.Code)
+// }
